@@ -2,7 +2,6 @@ import 'package:homebazaar/core/network/api_client.dart';
 import 'package:homebazaar/model/api_response.dart';
 import 'package:homebazaar/model/misc.dart';
 import 'package:homebazaar/model/property.dart';
-import 'package:homebazaar/model/user.dart';
 
 abstract final class UsersService {
   /// GET /users/saved
@@ -10,7 +9,9 @@ abstract final class UsersService {
     final json = await ApiClient.fetch<Map<String, dynamic>>('/users/saved');
     return ApiResponse.fromJson(json, (d) {
       final list = (d as Map<String, dynamic>)['properties'] as List;
-      return list.map((e) => ApiProperty.fromJson(e as Map<String, dynamic>)).toList();
+      return list
+          .map((e) => ApiProperty.fromJson(e as Map<String, dynamic>))
+          .toList();
     });
   }
 
@@ -25,10 +26,14 @@ abstract final class UsersService {
       if (page != null) 'page': page,
       if (limit != null) 'limit': limit,
     });
-    final json = await ApiClient.fetch<Map<String, dynamic>>('/users/my-listings$qs');
+    final json = await ApiClient.fetch<Map<String, dynamic>>(
+      '/users/my-listings$qs',
+    );
     return ApiResponse.fromJson(json, (d) {
       final list = d as List;
-      return list.map((e) => ApiProperty.fromJson(e as Map<String, dynamic>)).toList();
+      return list
+          .map((e) => ApiProperty.fromJson(e as Map<String, dynamic>))
+          .toList();
     });
   }
 
@@ -63,8 +68,12 @@ abstract final class UsersService {
   }
 
   /// GET /uploads/:name — get presigned upload URL
-  static Future<ApiResponse<UploadLinkResponse>> getUploadUrl(UploadFolder folder) async {
-    final json = await ApiClient.fetch<Map<String, dynamic>>('/uploads/${folder.name}');
+  static Future<ApiResponse<UploadLinkResponse>> getUploadUrl(
+    UploadFolder folder,
+  ) async {
+    final json = await ApiClient.fetch<Map<String, dynamic>>(
+      '/uploads/${folder.name}',
+    );
     return ApiResponse.fromJson(
       json,
       (d) => UploadLinkResponse.fromJson(d as Map<String, dynamic>),
@@ -76,6 +85,5 @@ abstract final class UsersService {
     required Uri uploadUrl,
     required List<int> fileBytes,
     required String contentType,
-  }) =>
-      ApiClient.uploadToPresignedUrl(uploadUrl, fileBytes, contentType);
+  }) => ApiClient.uploadToPresignedUrl(uploadUrl, fileBytes, contentType);
 }

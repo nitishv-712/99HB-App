@@ -1,8 +1,5 @@
 enum UserRole { buyer, seller, agent }
 
-UserRole _userRoleFromString(String v) =>
-    UserRole.values.firstWhere((e) => e.name == v);
-
 class Card {
   final String? number;
   final String? image;
@@ -11,32 +8,32 @@ class Card {
   const Card({this.number, this.image, required this.isVerified});
 
   factory Card.fromJson(Map<String, dynamic> j) => Card(
-        number: j['number'] as String?,
-        image: j['image'] as String?,
-        isVerified: j['isVerified'] as bool,
-      );
+    number: j['number'] as String?,
+    image: j['image'] as String?,
+    isVerified: j['isVerified'] as bool,
+  );
 
   Map<String, dynamic> toJson() => {
-        'number': number,
-        'image': image,
-        'isVerified': isVerified,
-      };
+    'number': number,
+    'image': image,
+    'isVerified': isVerified,
+  };
 }
 
 class ApiUser {
   final String id;
   final String firstName;
   final String lastName;
-  final String fullName;
+  // final String fullName;
   final String email;
   final bool isGmailVerified;
   final String? phone;
   final bool isPhoneVerified;
-  final UserRole role;
+  final String role;
   final String? avatar;
   final bool isVerified;
-  final Card panCard;
-  final Card aadharCard;
+  final Card? panCard;
+  final Card? aadharCard;
   final String createdAt;
   final String updatedAt;
 
@@ -44,7 +41,7 @@ class ApiUser {
     required this.id,
     required this.firstName,
     required this.lastName,
-    required this.fullName,
+    // required this.fullName,
     required this.email,
     required this.isGmailVerified,
     this.phone,
@@ -59,38 +56,42 @@ class ApiUser {
   });
 
   factory ApiUser.fromJson(Map<String, dynamic> j) => ApiUser(
-        id: j['_id'] as String,
-        firstName: j['firstName'] as String,
-        lastName: j['lastName'] as String,
-        fullName: j['fullName'] as String,
-        email: j['email'] as String,
-        isGmailVerified: j['isGmailVerified'] as bool,
-        phone: j['phone'] as String?,
-        isPhoneVerified: j['isPhoneVerified'] as bool,
-        role: _userRoleFromString(j['role'] as String),
-        avatar: j['avatar'] as String?,
-        isVerified: j['isVerified'] as bool,
-        panCard: Card.fromJson(j['panCard'] as Map<String, dynamic>),
-        aadharCard: Card.fromJson(j['aadharCard'] as Map<String, dynamic>),
-        createdAt: j['createdAt'] as String,
-        updatedAt: j['updatedAt'] as String,
-      );
+    id: j['_id'] as String,
+    firstName: j['firstName'] as String,
+    lastName: j['lastName'] as String,
+    // fullName: j['fullName'] as String,
+    email: j['email'] as String,
+    isGmailVerified: j['isGmailVerified'] as bool,
+    phone: j['phone'] as String?,
+    isPhoneVerified: j['isPhoneVerified'] as bool,
+    role: j['role'] as String,
+    avatar: j['avatar'] as String?,
+    isVerified: j['isVerified'] as bool,
+    panCard: j['panCard'] != null
+        ? Card.fromJson(j['panCard'] as Map<String, dynamic>)
+        : null,
+    aadharCard: j['aadharCard'] != null
+        ? Card.fromJson(j['aadharCard'] as Map<String, dynamic>)
+        : null,
+    createdAt: j['createdAt'] as String,
+    updatedAt: j['updatedAt'] as String,
+  );
 
   Map<String, dynamic> toJson() => {
-        '_id': id,
-        'firstName': firstName,
-        'lastName': lastName,
-        'fullName': fullName,
-        'email': email,
-        'isGmailVerified': isGmailVerified,
-        'phone': phone,
-        'isPhoneVerified': isPhoneVerified,
-        'role': role.name,
-        'avatar': avatar,
-        'isVerified': isVerified,
-        'panCard': panCard.toJson(),
-        'aadharCard': aadharCard.toJson(),
-        'createdAt': createdAt,
-        'updatedAt': updatedAt,
-      };
+    '_id': id,
+    'firstName': firstName,
+    'lastName': lastName,
+    // 'fullName': fullName,
+    'email': email,
+    'isGmailVerified': isGmailVerified,
+    'phone': phone,
+    'isPhoneVerified': isPhoneVerified,
+    'role': role,
+    'avatar': avatar,
+    'isVerified': isVerified,
+    'panCard': panCard?.toJson(),
+    'aadharCard': aadharCard?.toJson(),
+    'createdAt': createdAt,
+    'updatedAt': updatedAt,
+  };
 }

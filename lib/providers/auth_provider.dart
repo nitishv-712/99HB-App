@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:homebazaar/core/network/api_client.dart';
+import 'package:homebazaar/core/storage/token_storage.dart';
 import 'package:homebazaar/model/user.dart';
 import 'package:homebazaar/services/auth_service.dart';
 
@@ -26,6 +28,20 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  String _extractMessage(Object e) =>
+      e is ApiException ? e.message : e.toString();
+
+  /// Call once at app startup to restore session from stored token.
+  Future<void> init() async {
+    final token = await TokenStorage.token();
+    if (token == null) {
+      _status = AuthStatus.unauthenticated;
+      notifyListeners();
+      return;
+    }
+    await fetchMe();
+  }
+
   Future<void> fetchMe() async {
     _setLoading();
     try {
@@ -33,6 +49,7 @@ class AuthProvider extends ChangeNotifier {
       _user = ApiUser.fromJson(res.data['user'] as Map<String, dynamic>);
       _status = AuthStatus.authenticated;
     } catch (e) {
+      await TokenStorage.clear();
       _status = AuthStatus.unauthenticated;
     }
     notifyListeners();
@@ -42,12 +59,15 @@ class AuthProvider extends ChangeNotifier {
     _setLoading();
     try {
       final res = await AuthService.login(email: email, password: password);
+      print(res.data);
+      final token = res.data['token'] as String?;
+      if (token != null) await TokenStorage.save(token);
       _user = ApiUser.fromJson(res.data['user'] as Map<String, dynamic>);
       _status = AuthStatus.authenticated;
       notifyListeners();
       return true;
     } catch (e) {
-      _setError(e.toString());
+      _setError(_extractMessage(e));
       return false;
     }
   }
@@ -63,16 +83,21 @@ class AuthProvider extends ChangeNotifier {
     _setLoading();
     try {
       final res = await AuthService.register(
-        firstName: firstName, lastName: lastName,
-        email: email, password: password,
-        phone: phone, role: role,
+        firstName: firstName,
+        lastName: lastName,
+        email: email,
+        password: password,
+        phone: phone,
+        role: role,
       );
+      final token = res.data['token'] as String?;
+      if (token != null) await TokenStorage.save(token);
       _user = ApiUser.fromJson(res.data['user'] as Map<String, dynamic>);
       _status = AuthStatus.authenticated;
       notifyListeners();
       return true;
     } catch (e) {
-      _setError(e.toString());
+      _setError(_extractMessage(e));
       return false;
     }
   }
@@ -81,6 +106,8 @@ class AuthProvider extends ChangeNotifier {
     _setLoading();
     try {
       final res = await AuthService.googleLogin(idToken: idToken, role: role);
+      final token = res.data['token'] as String?;
+      if (token != null) await TokenStorage.save(token);
       _user = ApiUser.fromJson(res.data['user'] as Map<String, dynamic>);
       _status = AuthStatus.authenticated;
       notifyListeners();
@@ -92,7 +119,10 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<void> logout() async {
-    try { await AuthService.logout(); } catch (_) {}
+    try {
+      await AuthService.logout();
+    } catch (_) {}
+    await TokenStorage.clear();
     _user = null;
     _status = AuthStatus.unauthenticated;
     notifyListeners();
@@ -109,7 +139,11 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> verifyOtp({required String otp, String? email, String? phone}) async {
+  Future<bool> verifyOtp({
+    required String otp,
+    String? email,
+    String? phone,
+  }) async {
     try {
       await AuthService.verifyOtp(otp: otp, email: email, phone: phone);
       return true;
@@ -127,7 +161,12 @@ class AuthProvider extends ChangeNotifier {
     String? phone,
   }) async {
     try {
-      await AuthService.changePassword(otp: otp, newPassword: newPassword, email: email, phone: phone);
+      await AuthService.changePassword(
+        otp: otp,
+        newPassword: newPassword,
+        email: email,
+        phone: phone,
+      );
       return true;
     } catch (e) {
       _error = e.toString();

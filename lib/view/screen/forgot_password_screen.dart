@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:homebazaar/core/theme/app_theme.dart';
+import 'package:homebazaar/providers/auth_provider.dart';
+import 'package:homebazaar/view/components/app_loader.dart';
+import 'package:homebazaar/view/components/error_dialog.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -13,12 +17,13 @@ class ForgotPasswordScreen extends StatefulWidget {
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final _identityCtrl = TextEditingController();
   final _newPassCtrl = TextEditingController();
-  final List<TextEditingController> _otpCtrls =
-      List.generate(6, (_) => TextEditingController());
+  final List<TextEditingController> _otpCtrls = List.generate(6, (_) => TextEditingController());
   final List<FocusNode> _otpFocus = List.generate(6, (_) => FocusNode());
 
   bool _obscure = true;
   bool _showToast = false;
+  bool _loadingOtp = false;
+  bool _loadingChange = false;
 
   int get _strength {
     final p = _newPassCtrl.text;
@@ -32,40 +37,46 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   }
 
   String get _strengthLabel => switch (_strength) {
-        0 => 'Too short',
-        1 => 'Weak',
-        2 => 'Medium',
-        3 => 'Strong',
-        _ => 'Very Strong',
-      };
+    0 => 'Too short', 1 => 'Weak', 2 => 'Medium', 3 => 'Strong', _ => 'Very Strong',
+  };
 
   Color get _strengthColor => switch (_strength) {
-        0 => AppColors.outlineVariant,
-        1 => AppColors.error,
-        2 => const Color(0xFFF59E0B),
-        3 => AppColors.primary,
-        _ => const Color(0xFF16A34A),
-      };
+    0 => AppColors.outlineVariant, 1 => AppColors.error,
+    2 => const Color(0xFFF59E0B), 3 => const Color(0xFF22C55E),
+    _ => const Color(0xFF16A34A),
+  };
 
   void _onOtpChanged(String value, int index) {
-    if (value.length == 1 && index < 5) {
-      _otpFocus[index + 1].requestFocus();
-    } else if (value.isEmpty && index > 0) {
-      _otpFocus[index - 1].requestFocus();
-    }
+    if (value.length == 1 && index < 5) _otpFocus[index + 1].requestFocus();
+    else if (value.isEmpty && index > 0) _otpFocus[index - 1].requestFocus();
   }
 
-  void _submitChange() {
-    setState(() => _showToast = true);
-    Future.delayed(const Duration(seconds: 3), () {
-      if (mounted) setState(() => _showToast = false);
-    });
+  void _submitChange() async {
+    final identity = _identityCtrl.text.trim();
+    final otp = _otpCtrls.map((c) => c.text).join();
+    final isEmail = identity.contains('@');
+    setState(() => _loadingChange = true);
+    final ok = await context.read<AuthProvider>().changePassword(
+      otp: otp, newPassword: _newPassCtrl.text,
+      email: isEmail ? identity : null,
+      phone: isEmail ? null : identity,
+    );
+    setState(() => _loadingChange = false);
+    if (!mounted) return;
+    if (ok) {
+      setState(() => _showToast = true);
+      Future.delayed(const Duration(seconds: 3), () {
+        if (mounted) setState(() => _showToast = false);
+      });
+    } else {
+      final error = context.read<AuthProvider>().error;
+      showErrorDialog(context, error ?? 'Failed to change password. Please try again.');
+    }
   }
 
   @override
   void dispose() {
-    _identityCtrl.dispose();
-    _newPassCtrl.dispose();
+    _identityCtrl.dispose(); _newPassCtrl.dispose();
     for (final c in _otpCtrls) c.dispose();
     for (final f in _otpFocus) f.dispose();
     super.dispose();
@@ -73,197 +84,25 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-
     return Scaffold(
-      backgroundColor: cs.surface,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: Stack(
         children: [
-          // Background decoration
-          _BackgroundDecor(),
-
-          // Content
-          SafeArea(
-            child: Column(
-              children: [
-                _TopBar(),
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.fromLTRB(24, 24, 24, 40),
-                    child: Center(
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 440),
-                        child: Column(
-                          children: [
-                            // Header
-                            Column(children: [
-                              Text('Security',
-                                style: GoogleFonts.inter(
-                                  fontSize: 10, fontWeight: FontWeight.w600,
-                                  letterSpacing: 3, color: cs.primary,
-                                )),
-                              const SizedBox(height: 8),
-                              Text('RESET PASSWORD',
-                                style: GoogleFonts.notoSerif(
-                                  fontSize: 30, fontWeight: FontWeight.bold,
-                                  color: cs.onSurface, letterSpacing: 1,
-                                )),
-                              const SizedBox(height: 10),
-                              Text(
-                                'Enter your credentials to regain access\nto your curated portfolio.',
-                                textAlign: TextAlign.center,
-                                style: GoogleFonts.inter(
-                                  fontSize: 13, color: cs.onSurfaceVariant, height: 1.6),
-                              ),
-                            ]),
-                            const SizedBox(height: 40),
-
-                            // Form card
-                            Container(
-                              padding: const EdgeInsets.all(28),
-                              decoration: BoxDecoration(
-                                color: AppColors.surfaceContainerLow,
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  // Step 1 — Identity
-                                  _FieldLabel('Email or Phone'),
-                                  const SizedBox(height: 8),
-                                  TextField(
-                                    controller: _identityCtrl,
-                                    keyboardType: TextInputType.emailAddress,
-                                    style: GoogleFonts.inter(color: cs.onSurface, fontSize: 14),
-                                    decoration: InputDecoration(
-                                      hintText: 'e.g. curator@estate.com',
-                                      hintStyle: GoogleFonts.inter(
-                                        color: cs.onSurfaceVariant.withOpacity(0.4), fontSize: 14),
-                                      filled: true,
-                                      fillColor: AppColors.surfaceContainerLowest,
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                        borderSide: BorderSide.none,
-                                      ),
-                                      focusedBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                        borderSide: BorderSide(color: cs.primary, width: 1.5),
-                                      ),
-                                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                                      suffixIcon: Icon(Icons.verified_user_outlined,
-                                        color: cs.primary.withOpacity(0.4), size: 20),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 20),
-                                  _GradientButton(label: 'GET OTP', onPressed: () {}),
-
-                                  // Divider
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(vertical: 28),
-                                    child: Divider(color: cs.outlineVariant.withOpacity(0.15)),
-                                  ),
-
-                                  // Step 2 — OTP
-                                  Center(
-                                    child: Text('Enter 6-Digit Code',
-                                      style: GoogleFonts.inter(
-                                        fontSize: 10, fontWeight: FontWeight.bold,
-                                        letterSpacing: 2, color: cs.onSurfaceVariant,
-                                      )),
-                                  ),
-                                  const SizedBox(height: 16),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: List.generate(6, (i) => _OtpBox(
-                                      controller: _otpCtrls[i],
-                                      focusNode: _otpFocus[i],
-                                      onChanged: (v) => _onOtpChanged(v, i),
-                                    )),
-                                  ),
-                                  const SizedBox(height: 24),
-
-                                  // New Password
-                                  _FieldLabel('New Password'),
-                                  const SizedBox(height: 8),
-                                  TextField(
-                                    controller: _newPassCtrl,
-                                    obscureText: _obscure,
-                                    onChanged: (_) => setState(() {}),
-                                    style: GoogleFonts.inter(color: cs.onSurface, fontSize: 14),
-                                    decoration: InputDecoration(
-                                      hintText: '••••••••',
-                                      hintStyle: GoogleFonts.inter(
-                                        color: cs.onSurfaceVariant.withOpacity(0.4), fontSize: 14),
-                                      filled: true,
-                                      fillColor: AppColors.surfaceContainerLowest,
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                        borderSide: BorderSide.none,
-                                      ),
-                                      focusedBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                        borderSide: BorderSide(color: cs.primary, width: 1.5),
-                                      ),
-                                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                                      suffixIcon: IconButton(
-                                        icon: Icon(
-                                          _obscure ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                                          color: cs.onSurfaceVariant.withOpacity(0.4), size: 20),
-                                        onPressed: () => setState(() => _obscure = !_obscure),
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 10),
-
-                                  // Strength bars
-                                  Row(
-                                    children: List.generate(4, (i) => Expanded(
-                                      child: Container(
-                                        margin: EdgeInsets.only(right: i < 3 ? 4 : 0),
-                                        height: 4,
-                                        decoration: BoxDecoration(
-                                          color: i < _strength ? _strengthColor : cs.outlineVariant.withOpacity(0.3),
-                                          borderRadius: BorderRadius.circular(999),
-                                        ),
-                                      ),
-                                    )),
-                                  ),
-                                  const SizedBox(height: 6),
-                                  Text('Strength: $_strengthLabel',
-                                    style: GoogleFonts.inter(
-                                      fontSize: 9, fontWeight: FontWeight.w500,
-                                      color: _strength > 0 ? _strengthColor : cs.onSurfaceVariant.withOpacity(0.5),
-                                    )),
-                                  const SizedBox(height: 24),
-
-                                  _GradientButton(label: 'CHANGE PASSWORD', onPressed: _submitChange),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 32),
-
-                            // Back to sign in
-                            GestureDetector(
-                              onTap: () => Navigator.maybePop(context),
-                              child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                                Icon(Icons.arrow_back, size: 16, color: cs.onSurfaceVariant),
-                                const SizedBox(width: 6),
-                                Text('Return to sign in',
-                                  style: GoogleFonts.inter(
-                                    fontSize: 12, fontWeight: FontWeight.w600,
-                                    color: cs.onSurfaceVariant,
-                                  )),
-                              ]),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              return SingleChildScrollView(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                  child: IntrinsicHeight(
+                    child: Column(children: [
+                      Expanded(child: Center(child: _FormCard(state: this))),
+                    ]),
                   ),
                 ),
-              ],
-            ),
+              );
+            },
           ),
+          if (_loadingOtp || _loadingChange) const AppLoader(),
 
           // Success toast
           if (_showToast)
@@ -273,7 +112,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
                   decoration: BoxDecoration(
-                    color: AppColors.inverseSurface,
+                    color: AppColors.onSurface,
                     borderRadius: BorderRadius.circular(999),
                     boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 20)],
                   ),
@@ -282,9 +121,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                     const SizedBox(width: 10),
                     Text('Password updated successfully',
                       style: GoogleFonts.inter(
-                        fontSize: 13, fontWeight: FontWeight.w500,
-                        color: AppColors.inverseOnSurface,
-                      )),
+                        fontSize: 13, fontWeight: FontWeight.w500, color: AppColors.surface)),
                   ]),
                 ),
               ),
@@ -295,33 +132,138 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   }
 }
 
-// ── Top Bar ───────────────────────────────────────────────────────────────────
+// ── Form Card ─────────────────────────────────────────────────────────────────
 
-class _TopBar extends StatelessWidget {
+class _FormCard extends StatelessWidget {
+  final _ForgotPasswordScreenState state;
+  const _FormCard({required this.state});
+
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
     return Container(
-      height: 64,
-      color: AppColors.surface.withOpacity(0.85),
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Stack(alignment: Alignment.center, children: [
-        Align(
-          alignment: Alignment.centerLeft,
-          child: IconButton(
-            onPressed: () => Navigator.maybePop(context),
-            icon: const Icon(Icons.arrow_back, color: Color(0xFF7C3200)),
-            style: IconButton.styleFrom(
-              backgroundColor: Colors.orange.shade50.withOpacity(0.5),
-              shape: const CircleBorder(),
-            ),
+      padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 40),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 400),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Back button
+              GestureDetector(
+                onTap: () => Navigator.maybePop(context),
+                child: Row(children: [
+                  Icon(Icons.arrow_back, size: 18, color: cs.onSurfaceVariant),
+                  const SizedBox(width: 6),
+                  Text('Back to Sign In',
+                    style: TextStyle(color: cs.onSurfaceVariant, fontSize: 14)),
+                ]),
+              ),
+              const SizedBox(height: 28),
+
+              Text('Reset Password',
+                style: GoogleFonts.notoSerif(
+                  fontSize: 32, fontWeight: FontWeight.bold, color: cs.onSurface)),
+              const SizedBox(height: 12),
+              Text('Enter your email or phone to receive a one-time code.',
+                style: TextStyle(color: cs.onSurfaceVariant, fontSize: 16)),
+              const SizedBox(height: 40),
+
+              // Step 1 — Identity
+              _InputField(
+                label: 'EMAIL OR PHONE',
+                controller: state._identityCtrl,
+                hint: 'curator@estate.com',
+                icon: Icons.alternate_email_rounded,
+                keyboardType: TextInputType.emailAddress,
+              ),
+              const SizedBox(height: 20),
+
+              _PrimaryButton(
+                text: 'GET OTP',
+                onPressed: () async {
+                  final identity = state._identityCtrl.text.trim();
+                  if (identity.isEmpty) return;
+                  final isEmail = identity.contains('@');
+                  state.setState(() => state._loadingOtp = true);
+                  final ok = await context.read<AuthProvider>().generateOtp(
+                    email: isEmail ? identity : null,
+                    phone: isEmail ? null : identity,
+                  );
+                  state.setState(() => state._loadingOtp = false);
+                  if (!ok && context.mounted) {
+                    final error = context.read<AuthProvider>().error;
+                    showErrorDialog(context, error ?? 'Failed to send OTP. Please try again.');
+                  }
+                },
+              ),
+
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 28),
+                child: Row(children: [
+                  Expanded(child: Divider(color: cs.outlineVariant)),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Text('ENTER CODE',
+                      style: TextStyle(
+                        color: cs.onSurfaceVariant, fontSize: 11, fontWeight: FontWeight.bold,
+                        letterSpacing: 1.2)),
+                  ),
+                  Expanded(child: Divider(color: cs.outlineVariant)),
+                ]),
+              ),
+
+              // Step 2 — OTP boxes
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: List.generate(6, (i) => _OtpBox(
+                  controller: state._otpCtrls[i],
+                  focusNode: state._otpFocus[i],
+                  onChanged: (v) => state._onOtpChanged(v, i),
+                )),
+              ),
+              const SizedBox(height: 28),
+
+              // New password
+              _InputField(
+                label: 'NEW PASSWORD',
+                controller: state._newPassCtrl,
+                hint: 'Password',
+                icon: Icons.lock_outline_rounded,
+                obscure: state._obscure,
+                onChanged: (_) => state.setState(() {}),
+                suffix: IconButton(
+                  onPressed: () => state.setState(() => state._obscure = !state._obscure),
+                  icon: Icon(
+                    state._obscure ? Icons.visibility_off : Icons.visibility,
+                    color: cs.onSurfaceVariant),
+                ),
+              ),
+              const SizedBox(height: 8),
+
+              // Strength bars
+              Row(children: List.generate(4, (i) => Expanded(
+                child: Container(
+                  margin: EdgeInsets.only(right: i < 3 ? 4 : 0),
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: i < state._strength ? state._strengthColor : cs.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                ),
+              ))),
+              const SizedBox(height: 4),
+              Text('Strength: ${state._strengthLabel}',
+                style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant)),
+              const SizedBox(height: 28),
+
+              _PrimaryButton(text: 'CHANGE PASSWORD', onPressed: state._submitChange),
+            ],
           ),
         ),
-        Text('The Curated Estate',
-          style: GoogleFonts.notoSerif(
-            fontSize: 17, fontWeight: FontWeight.bold,
-            color: const Color(0xFF7C2D00), letterSpacing: 2,
-          )),
-      ]),
+      ),
     );
   }
 }
@@ -338,26 +280,21 @@ class _OtpBox extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return SizedBox(
-      width: 44,
-      height: 56,
+      width: 44, height: 56,
       child: TextField(
-        controller: controller,
-        focusNode: focusNode,
-        onChanged: onChanged,
-        textAlign: TextAlign.center,
-        keyboardType: TextInputType.number,
+        controller: controller, focusNode: focusNode, onChanged: onChanged,
+        textAlign: TextAlign.center, keyboardType: TextInputType.number,
         inputFormatters: [LengthLimitingTextInputFormatter(1), FilteringTextInputFormatter.digitsOnly],
         style: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.bold, color: cs.onSurface),
         decoration: InputDecoration(
           hintText: '·',
           hintStyle: GoogleFonts.inter(fontSize: 20, color: cs.onSurfaceVariant.withOpacity(0.4)),
           filled: true,
-          fillColor: AppColors.surfaceContainerLowest,
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
+          fillColor: cs.surfaceContainerHighest.withOpacity(0.3),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(color: cs.primary, width: 2),
-          ),
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: cs.onSurface, width: 1.5)),
           contentPadding: EdgeInsets.zero,
         ),
       ),
@@ -365,86 +302,84 @@ class _OtpBox extends StatelessWidget {
   }
 }
 
-// ── Gradient Button ───────────────────────────────────────────────────────────
+// ── Input Field ───────────────────────────────────────────────────────────────
 
-class _GradientButton extends StatelessWidget {
+class _InputField extends StatelessWidget {
   final String label;
-  final VoidCallback onPressed;
-  const _GradientButton({required this.label, required this.onPressed});
+  final String hint;
+  final IconData icon;
+  final TextEditingController controller;
+  final bool obscure;
+  final Widget? suffix;
+  final TextInputType keyboardType;
+  final ValueChanged<String>? onChanged;
+
+  const _InputField({
+    required this.label, required this.hint, required this.icon,
+    required this.controller, this.obscure = false, this.suffix,
+    this.keyboardType = TextInputType.text, this.onChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          gradient: AppColors.gradientCta,
-          borderRadius: BorderRadius.circular(999),
-          boxShadow: [BoxShadow(color: AppColors.primary.withOpacity(0.15), blurRadius: 16, offset: const Offset(0, 6))],
-        ),
-        child: ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.transparent, shadowColor: Colors.transparent,
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            shape: const StadiumBorder(),
-          ),
-          onPressed: onPressed,
-          child: Text(label,
-            style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: Colors.white, letterSpacing: 2, fontSize: 13)),
+    final cs = Theme.of(context).colorScheme;
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Text(label,
+        style: GoogleFonts.inter(
+          fontSize: 11, fontWeight: FontWeight.bold,
+          letterSpacing: 1.2, color: cs.onSurfaceVariant)),
+      const SizedBox(height: 8),
+      TextField(
+        controller: controller,
+        obscureText: obscure,
+        keyboardType: keyboardType,
+        onChanged: onChanged,
+        style: TextStyle(color: cs.onSurface),
+        decoration: InputDecoration(
+          hintText: hint,
+          prefixIcon: Icon(icon, size: 20, color: cs.onSurfaceVariant),
+          suffixIcon: suffix,
+          filled: true,
+          fillColor: cs.surfaceContainerHighest.withOpacity(0.3),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: cs.primary, width: 1)),
         ),
       ),
-    );
+    ]);
   }
 }
 
-// ── Field Label ───────────────────────────────────────────────────────────────
+// ── Primary Button ────────────────────────────────────────────────────────────
 
-class _FieldLabel extends StatelessWidget {
+class _PrimaryButton extends StatelessWidget {
   final String text;
-  const _FieldLabel(this.text);
+  final VoidCallback onPressed;
+  const _PrimaryButton({required this.text, required this.onPressed});
 
   @override
   Widget build(BuildContext context) {
-    return Text(text,
-      style: GoogleFonts.inter(
-        fontSize: 10, fontWeight: FontWeight.bold,
-        letterSpacing: 2, color: Theme.of(context).colorScheme.onSurfaceVariant,
-      ));
-  }
-}
-
-// ── Background Decoration ─────────────────────────────────────────────────────
-
-class _BackgroundDecor extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Positioned.fill(
-      child: IgnorePointer(
-        child: Opacity(
-          opacity: 0.15,
-          child: Stack(children: [
-            Positioned(
-              top: -80, right: -80,
-              child: Container(
-                width: 320, height: 320,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: AppColors.primaryContainer.withOpacity(0.3),
-                ),
-              ),
-            ),
-            Positioned(
-              bottom: -80, left: -80,
-              child: Container(
-                width: 320, height: 320,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: AppColors.tertiaryContainer.withOpacity(0.15),
-                ),
-              ),
-            ),
-          ]),
+    return Container(
+      width: double.infinity, height: 56,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        gradient: AppColors.gradientCta,
+        boxShadow: [BoxShadow(
+          color: Colors.black.withOpacity(0.2), blurRadius: 10, offset: const Offset(0, 4))],
+      ),
+      child: ElevatedButton(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.transparent, shadowColor: Colors.transparent,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         ),
+        child: Text(text,
+          style: const TextStyle(
+            color: Colors.white, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
       ),
     );
   }

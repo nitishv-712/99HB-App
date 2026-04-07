@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:homebazaar/core/config/env.dart';
+import 'package:homebazaar/core/storage/token_storage.dart';
 
 // ─── Exception ────────────────────────────────────────────────────────────────
 
@@ -27,8 +28,10 @@ abstract final class ApiClient {
   }) async {
     final uri = Uri.parse('$_base$path');
 
+    final token = await TokenStorage.read();
     final headers = <String, String>{
       if (!isMultipart) 'Content-Type': 'application/json',
+      if (token != null) 'Authorization': 'Bearer $token',
       ...?extraHeaders,
     };
 
@@ -36,23 +39,33 @@ abstract final class ApiClient {
 
     switch (method.toUpperCase()) {
       case 'POST':
-        res = await http.post(uri, headers: headers,
-            body: body != null ? jsonEncode(body) : null);
+        res = await http.post(
+          uri,
+          headers: headers,
+          body: body != null ? jsonEncode(body) : null,
+        );
       case 'PATCH':
-        res = await http.patch(uri, headers: headers,
-            body: body != null ? jsonEncode(body) : null);
+        res = await http.patch(
+          uri,
+          headers: headers,
+          body: body != null ? jsonEncode(body) : null,
+        );
       case 'PUT':
-        res = await http.put(uri, headers: headers,
-            body: body != null ? jsonEncode(body) : null);
+        res = await http.put(
+          uri,
+          headers: headers,
+          body: body != null ? jsonEncode(body) : null,
+        );
       case 'DELETE':
         res = await http.delete(uri, headers: headers);
       default:
         res = await http.get(uri, headers: headers);
     }
-
     if (res.statusCode < 200 || res.statusCode >= 300) {
       Map<String, dynamic> err = {};
-      try { err = jsonDecode(res.body) as Map<String, dynamic>; } catch (_) {}
+      try {
+        err = jsonDecode(res.body) as Map<String, dynamic>;
+      } catch (_) {}
       throw ApiException(
         err['message'] as String? ?? 'Request failed (${res.statusCode})',
         res.statusCode,
@@ -82,7 +95,10 @@ abstract final class ApiClient {
   static String buildQuery(Map<String, dynamic> params) {
     final filtered = params.entries
         .where((e) => e.value != null && e.value.toString().isNotEmpty)
-        .map((e) => '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value.toString())}')
+        .map(
+          (e) =>
+              '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value.toString())}',
+        )
         .join('&');
     return filtered.isEmpty ? '' : '?$filtered';
   }
