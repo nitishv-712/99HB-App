@@ -3,16 +3,14 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:homebazaar/core/theme/app_theme.dart';
 
 class AppTopBar extends StatelessWidget {
-  final bool useAssetAvatar;
-  final String? networkAvatarUrl;
   final VoidCallback? onSearch;
+  final VoidCallback? onNotification;
   final Widget? trailing;
 
   const AppTopBar({
     super.key,
-    this.useAssetAvatar = true,
-    this.networkAvatarUrl,
     this.onSearch,
+    this.onNotification,
     this.trailing,
   });
 
@@ -21,42 +19,53 @@ class AppTopBar extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
 
     return Positioned(
-      top: 0,
-      left: 0,
-      right: 0,
-      child: Container(
-        decoration: BoxDecoration(
-          color: cs.surface.withOpacity(0.92),
-          border: Border(
-            bottom: BorderSide(color: cs.outlineVariant.withOpacity(0.25)),
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: cs.onSurface.withOpacity(0.04),
-              blurRadius: 12,
-              offset: const Offset(0, 2),
+      top: 0, left: 0, right: 0,
+      child: ClipRect(
+        child: Container(
+          decoration: BoxDecoration(
+            color: cs.surface,
+            border: Border(
+              bottom: BorderSide(
+                color: cs.outlineVariant.withOpacity(0.2), width: 1),
             ),
-          ],
-        ),
-        child: SafeArea(
-          bottom: false,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            child: Row(
-              children: [
-                // Brand mark
-                _BrandMark(
-                  useAsset: useAssetAvatar,
-                  networkUrl: networkAvatarUrl,
-                ),
-                const Spacer(),
-                // Trailing widget (search by default)
-                trailing ??
+          ),
+          child: SafeArea(
+            bottom: false,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              child: Row(
+                children: [
+                  // Brand
+                  RichText(
+                    text: TextSpan(children: [
+                      TextSpan(
+                        text: '99',
+                        style: GoogleFonts.notoSerif(
+                          fontSize: 22, fontWeight: FontWeight.w900,
+                          color: cs.onSurface, letterSpacing: -0.5)),
+                      TextSpan(
+                        text: 'HB',
+                        style: GoogleFonts.notoSerif(
+                          fontSize: 22, fontWeight: FontWeight.w900,
+                          color: cs.onSurfaceVariant, letterSpacing: -0.5)),
+                    ]),
+                  ),
+                  const Spacer(),
+                  trailing ?? Row(children: [
                     _IconBtn(
                       icon: Icons.search_rounded,
                       onTap: onSearch ?? () {},
+                      cs: cs,
                     ),
-              ],
+                    const SizedBox(width: 8),
+                    _IconBtn(
+                      icon: Icons.notifications_none_rounded,
+                      onTap: onNotification ?? () {},
+                      cs: cs,
+                    ),
+                  ]),
+                ],
+              ),
             ),
           ),
         ),
@@ -64,116 +73,24 @@ class AppTopBar extends StatelessWidget {
     );
   }
 }
-
-// ── Brand Mark ────────────────────────────────────────────────────────────────
-
-class _BrandMark extends StatelessWidget {
-  final bool useAsset;
-  final String? networkUrl;
-  const _BrandMark({required this.useAsset, this.networkUrl});
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        // Logo avatar
-        Container(
-          width: 38,
-          height: 38,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: AppColors.gradientCtaVertical,
-          ),
-          child: useAsset
-              ? ClipOval(
-                  child: Image.asset(
-                    'assets/logo.png',
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => const _FallbackLogo(),
-                  ),
-                )
-              : networkUrl != null
-              ? ClipOval(
-                  child: Image.network(
-                    networkUrl!,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => const _FallbackLogo(),
-                  ),
-                )
-              : const _FallbackLogo(),
-        ),
-        const SizedBox(width: 10),
-        // Brand text
-        RichText(
-          text: TextSpan(
-            children: [
-              TextSpan(
-                text: '99',
-                style: GoogleFonts.notoSerif(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w900,
-                  color: AppColors.primary,
-                  letterSpacing: -0.5,
-                ),
-              ),
-              TextSpan(
-                text: 'HomeBazaar',
-                style: GoogleFonts.notoSerif(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w900,
-                  color: cs.onSurface,
-                  letterSpacing: -0.5,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-// ── Fallback logo icon ────────────────────────────────────────────────────────
-
-class _FallbackLogo extends StatelessWidget {
-  const _FallbackLogo();
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text(
-        '99',
-        style: GoogleFonts.notoSerif(
-          fontSize: 13,
-          fontWeight: FontWeight.w900,
-          color: Colors.white,
-        ),
-      ),
-    );
-  }
-}
-
-// ── Icon button ───────────────────────────────────────────────────────────────
 
 class _IconBtn extends StatelessWidget {
   final IconData icon;
   final VoidCallback onTap;
-  const _IconBtn({required this.icon, required this.onTap});
+  final ColorScheme cs;
+  const _IconBtn({required this.icon, required this.onTap, required this.cs});
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: Container(
-        width: 38,
-        height: 38,
+        width: 38, height: 38,
         decoration: BoxDecoration(
-          color: cs.surfaceContainer,
-          shape: BoxShape.circle,
+          color: cs.surfaceContainerHighest.withOpacity(0.4),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: cs.outlineVariant.withOpacity(0.3)),
         ),
         child: Icon(icon, color: cs.onSurface, size: 20),
       ),

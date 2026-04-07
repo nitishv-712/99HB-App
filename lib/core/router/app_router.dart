@@ -69,14 +69,7 @@ abstract final class AppRouter {
   // ── Bottom nav index → route ──────────────────────────────────────────────
 
   static void navigateFromBottomNav(BuildContext context, int index) {
-    const routes = [
-      AppRoutes.home,
-      AppRoutes.buy,
-      AppRoutes.signIn,
-      AppRoutes.dashboard, // Inquiries — placeholder until screen is built
-      AppRoutes.dashboard, // Support — placeholder until screen is built
-    ];
-    replace(context, routes[index]);
+    // Navigation is now handled directly in AppBottomNav per-item
   }
 
   // ── Slide transition ──────────────────────────────────────────────────────

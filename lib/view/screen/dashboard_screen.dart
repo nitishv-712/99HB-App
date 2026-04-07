@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:homebazaar/core/router/app_router.dart';
 import 'package:homebazaar/core/theme/app_theme.dart';
+import 'package:homebazaar/providers/auth_provider.dart';
+import 'package:homebazaar/providers/user_provider.dart';
 import 'package:homebazaar/view/components/app_bottom_nav.dart';
-import 'package:homebazaar/view/components/gradient_button.dart';
-import 'package:homebazaar/view/components/property_card.dart';
+import 'package:homebazaar/view/components/app_top_bar.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -13,624 +15,665 @@ class DashboardScreen extends StatefulWidget {
   State<DashboardScreen> createState() => _DashboardScreenState();
 }
 
-class _DashboardScreenState extends State<DashboardScreen> {
-  final int _navIndex = 2;
-  int _tabIndex = 0;
+class _DashboardScreenState extends State<DashboardScreen>
+    with SingleTickerProviderStateMixin {
+  late final TabController _tabCtrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabCtrl = TabController(length: 2, vsync: this);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<UserProvider>().fetchSaved();
+      context.read<UserProvider>().fetchMyListings();
+    });
+  }
+
+  @override
+  void dispose() {
+    _tabCtrl.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final isWide = MediaQuery.sizeOf(context).width >= 768;
+    final user = context.watch<AuthProvider>().user;
 
     return Scaffold(
       backgroundColor: cs.surface,
-      body: SafeArea(
-        child: Stack(
-          children: [
-            CustomScrollView(
-              slivers: [
-                const SliverToBoxAdapter(child: SizedBox(height: 72)),
-                SliverToBoxAdapter(child: _ProfileHeader(onNewListing: () {})),
-                const SliverToBoxAdapter(child: SizedBox(height: 32)),
-                const SliverToBoxAdapter(child: _CommandCenter()),
-                const SliverToBoxAdapter(child: SizedBox(height: 32)),
-                SliverToBoxAdapter(
-                  child: _TabSection(
-                    tabIndex: _tabIndex,
-                    onTabChanged: (i) => setState(() => _tabIndex = i),
+      body: Stack(
+        children: [
+          SafeArea(
+            child: Column(
+              children: [
+                const SizedBox(height: 72),
+                Expanded(
+                  child: DefaultTabController(
+                    length: 2,
+                    child: Column(
+                      children: [
+                        // Scrollable header + sticky tab bar
+                        _HeaderSection(user: user),
+                        // Tab bar
+                        _StickyTabBar(controller: _tabCtrl, cs: cs),
+                        // Tab content
+                        Expanded(
+                          child: TabBarView(
+                            controller: _tabCtrl,
+                            children: [
+                              _SavedTab(),
+                              _MyListingsTab(),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-                const SliverToBoxAdapter(child: SizedBox(height: 120)),
               ],
             ),
-            const _DashboardTopBar(),
-            // FAB
-            Positioned(
-              bottom: 100,
-              right: isWide ? 32 : 20,
-              child: _GradientFab(onTap: () {}),
-            ),
-          ],
-        ),
+          ),
+          const AppTopBar(),
+        ],
       ),
-      bottomNavigationBar: AppBottomNav(currentIndex: _navIndex),
+      bottomNavigationBar: const AppBottomNav(currentIndex: 2),
     );
   }
 }
 
-// ── Top Bar ───────────────────────────────────────────────────────────────────
+// ── Tab Bar Delegate ──────────────────────────────────────────────────────────
 
-class _DashboardTopBar extends StatelessWidget {
-  const _DashboardTopBar();
+class _StickyTabBar extends StatelessWidget {
+  final TabController controller;
+  final ColorScheme cs;
+  const _StickyTabBar({required this.controller, required this.cs});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: cs.surface,
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: TabBar(
+        controller: controller,
+        labelStyle: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1),
+        unselectedLabelStyle: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w500),
+        labelColor: cs.onSurface,
+        unselectedLabelColor: cs.onSurfaceVariant,
+        indicatorColor: cs.onSurface,
+        indicatorWeight: 2,
+        indicatorSize: TabBarIndicatorSize.label,
+        dividerColor: cs.outlineVariant.withOpacity(0.3),
+        tabs: const [Tab(text: 'SAVED'), Tab(text: 'MY LISTINGS')],
+      ),
+    );
+  }
+}
+
+// ── Header Section ────────────────────────────────────────────────────────────
+
+class _HeaderSection extends StatelessWidget {
+  final dynamic user;
+  const _HeaderSection({required this.user});
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          _ProfileCard(user: user),
+          const SizedBox(height: 24),
+          _StatsRow(user: user),
+          const SizedBox(height: 28),
+          const _QuickActions(),
+          const SizedBox(height: 8),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Profile Card ──────────────────────────────────────────────────────────────
+
+class _ProfileCard extends StatelessWidget {
+  final dynamic user;
+  const _ProfileCard({required this.user});
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return Positioned(
-      top: 0,
-      left: 0,
-      right: 0,
-      child: Container(
-        decoration: BoxDecoration(
-          color: cs.surface.withOpacity(0.92),
-          border: Border(
-            bottom: BorderSide(color: cs.outlineVariant.withOpacity(0.25)),
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: cs.onSurface.withOpacity(0.04),
-              blurRadius: 12,
-              offset: const Offset(0, 2),
+    final name = user != null ? '${user.firstName} ${user.lastName}' : 'Guest';
+    final email = user?.email ?? '';
+    final role = user?.role ?? 'buyer';
+    final avatar = user?.avatar as String?;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+      child: Row(
+        children: [
+          // Avatar
+          Container(
+            width: 64, height: 64,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: cs.surfaceContainerHighest,
+              border: Border.all(color: cs.outlineVariant.withOpacity(0.3), width: 2),
             ),
-          ],
-        ),
-        child: SafeArea(
-          bottom: false,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            child: ClipOval(
+              child: avatar != null
+                  ? Image.network(avatar, fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => _AvatarFallback(name: name, cs: cs))
+                  : _AvatarFallback(name: name, cs: cs),
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Brand
-                Row(
-                  children: [
-                    Container(
-                      width: 38,
-                      height: 38,
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: AppColors.gradientCtaVertical,
-                      ),
-                      child: ClipOval(
-                        child: Image.network(
-                          'https://lh3.googleusercontent.com/aida-public/AB6AXuAdTO6IXNviWVQw6E7pCbMpoMZykfFZze-RVzmclr197pbk9RaljPdaaXUK0NqmT8l_MjtzIRr2bMsfaEGXiu84wbqVw9T-0Rp6h7FWexU0hDarLPnzRU0GFEHk5YLKpY63bHQZUh7xVIl4i4p7cnaCVG2qOqL69wE6VTukLsllMONOPPS8iTVOfokhZCi2HOgNI0jSVvqkikoHXZXLMXBR3KxKxSsOhYZUbspXbozoYSbWRv02bFWPY3NdltE6Hbx_FpqVfoRZ',
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => Center(
-                            child: Text(
-                              '99',
-                              style: GoogleFonts.notoSerif(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w900,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    RichText(
-                      text: TextSpan(
-                        children: [
-                          TextSpan(
-                            text: '99',
-                            style: GoogleFonts.notoSerif(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w900,
-                              color: AppColors.primary,
-                              letterSpacing: -0.5,
-                            ),
-                          ),
-                          TextSpan(
-                            text: 'HomeBazaar',
-                            style: GoogleFonts.notoSerif(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w900,
-                              color: cs.onSurface,
-                              letterSpacing: -0.5,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                // Actions
-                Row(
-                  children: [
-                    _IconBtn(
-                      icon: Icons.search_rounded,
-                      color: AppColors.primary,
-                      onTap: () {},
-                    ),
-                    const SizedBox(width: 12),
-                    _IconBtn(
-                      icon: Icons.notifications_outlined,
-                      color: cs.onSurface.withOpacity(0.6),
-                      onTap: () {},
-                    ),
-                  ],
+                Row(children: [
+                  Text(name,
+                    style: GoogleFonts.notoSerif(
+                      fontSize: 20, fontWeight: FontWeight.w900, color: cs.onSurface)),
+                  const SizedBox(width: 8),
+                  if (user?.isVerified == true)
+                    Icon(Icons.verified_rounded, size: 16, color: cs.primary),
+                ]),
+                const SizedBox(height: 2),
+                Text(email,
+                  style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
+                const SizedBox(height: 6),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: cs.surfaceContainerHighest.withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(999),
+                    border: Border.all(color: cs.outlineVariant.withOpacity(0.3)),
+                  ),
+                  child: Text(role.toUpperCase(),
+                    style: GoogleFonts.inter(
+                      fontSize: 9, fontWeight: FontWeight.bold,
+                      letterSpacing: 1.5, color: cs.onSurfaceVariant)),
                 ),
               ],
             ),
           ),
-        ),
+          // Edit button
+          GestureDetector(
+            onTap: () {},
+            child: Container(
+              width: 38, height: 38,
+              decoration: BoxDecoration(
+                color: cs.surfaceContainerHighest.withOpacity(0.4),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: cs.outlineVariant.withOpacity(0.3)),
+              ),
+              child: Icon(Icons.edit_outlined, size: 18, color: cs.onSurface),
+            ),
+          ),
+        ],
       ),
     );
   }
 }
 
-class _IconBtn extends StatelessWidget {
+class _AvatarFallback extends StatelessWidget {
+  final String name;
+  final ColorScheme cs;
+  const _AvatarFallback({required this.name, required this.cs});
+
+  @override
+  Widget build(BuildContext context) {
+    final initials = name.trim().isEmpty ? '?'
+        : name.trim().split(' ').map((e) => e.isNotEmpty ? e[0] : '').take(2).join().toUpperCase();
+    return Container(
+      color: cs.surfaceContainerHighest,
+      child: Center(
+        child: Text(initials,
+          style: GoogleFonts.notoSerif(
+            fontSize: 20, fontWeight: FontWeight.bold, color: cs.onSurface)),
+      ),
+    );
+  }
+}
+
+// ── Stats Row ─────────────────────────────────────────────────────────────────
+
+class _StatsRow extends StatelessWidget {
+  final dynamic user;
+  const _StatsRow({required this.user});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final saved = context.watch<UserProvider>().saved.length;
+    final listings = context.watch<UserProvider>().myListings.length;
+
+    final stats = [
+      (label: 'Saved', value: '$saved', icon: Icons.favorite_border_rounded),
+      (label: 'Listings', value: '$listings', icon: Icons.home_work_outlined),
+      (label: 'Inquiries', value: '0', icon: Icons.chat_bubble_outline_rounded),
+    ];
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Row(
+        children: stats.map((s) => Expanded(
+          child: Padding(
+            padding: EdgeInsets.only(
+              right: s == stats.last ? 0 : 10),
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              decoration: BoxDecoration(
+                color: cs.surfaceContainerHighest.withOpacity(0.35),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: cs.outlineVariant.withOpacity(0.25)),
+              ),
+              child: Column(children: [
+                Icon(s.icon, size: 20, color: cs.onSurface),
+                const SizedBox(height: 8),
+                Text(s.value,
+                  style: GoogleFonts.notoSerif(
+                    fontSize: 20, fontWeight: FontWeight.w900, color: cs.onSurface)),
+                const SizedBox(height: 2),
+                Text(s.label,
+                  style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant)),
+              ]),
+            ),
+          ),
+        )).toList(),
+      ),
+    );
+  }
+}
+
+// ── Quick Actions ─────────────────────────────────────────────────────────────
+
+class _QuickActions extends StatelessWidget {
+  const _QuickActions();
+
+  static const _actions = [
+    (icon: Icons.add_home_outlined, label: 'New\nListing'),
+    (icon: Icons.analytics_outlined, label: 'Analytics'),
+    (icon: Icons.compare_arrows_outlined, label: 'Compare'),
+    (icon: Icons.support_agent_outlined, label: 'Support'),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('QUICK ACTIONS',
+            style: GoogleFonts.inter(
+              fontSize: 10, fontWeight: FontWeight.bold,
+              letterSpacing: 2, color: cs.onSurfaceVariant)),
+          const SizedBox(height: 12),
+          Row(
+            children: _actions.map((a) => Expanded(
+              child: Padding(
+                padding: EdgeInsets.only(
+                  right: a == _actions.last ? 0 : 10),
+                child: GestureDetector(
+                  onTap: () {},
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    decoration: BoxDecoration(
+                      color: a == _actions.first
+                          ? cs.onSurface
+                          : cs.surfaceContainerHighest.withOpacity(0.35),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: a == _actions.first
+                            ? cs.onSurface
+                            : cs.outlineVariant.withOpacity(0.25)),
+                    ),
+                    child: Column(children: [
+                      Icon(a.icon, size: 22,
+                        color: a == _actions.first ? cs.surface : cs.onSurface),
+                      const SizedBox(height: 8),
+                      Text(a.label,
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.inter(
+                          fontSize: 10, fontWeight: FontWeight.w600,
+                          color: a == _actions.first ? cs.surface : cs.onSurface,
+                          height: 1.3)),
+                    ]),
+                  ),
+                ),
+              ),
+            )).toList(),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Saved Tab ─────────────────────────────────────────────────────────────────
+
+class _SavedTab extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final provider = context.watch<UserProvider>();
+
+    if (provider.savedLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (provider.savedError != null) {
+      return _ErrorState(message: provider.savedError!, onRetry: () => context.read<UserProvider>().fetchSaved());
+    }
+
+    if (provider.saved.isEmpty) {
+      return _EmptyState(
+        icon: Icons.favorite_border_rounded,
+        title: 'No saved properties',
+        subtitle: 'Properties you save will appear here.',
+      );
+    }
+
+    return GridView.builder(
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 100),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        mainAxisSpacing: 28,
+        crossAxisSpacing: 12,
+        childAspectRatio: 0.62,
+      ),
+      itemCount: provider.saved.length,
+      itemBuilder: (_, i) => _PropertyCard(
+        property: provider.saved[i],
+        staggered: i.isOdd,
+      ),
+    );
+  }
+}
+
+// ── My Listings Tab ───────────────────────────────────────────────────────────
+
+class _MyListingsTab extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final provider = context.watch<UserProvider>();
+
+    if (provider.listingsLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (provider.listingsError != null) {
+      return _ErrorState(message: provider.listingsError!, onRetry: () => context.read<UserProvider>().fetchMyListings());
+    }
+
+    if (provider.myListings.isEmpty) {
+      return _EmptyState(
+        icon: Icons.home_work_outlined,
+        title: 'No listings yet',
+        subtitle: 'Your published properties will appear here.',
+        action: 'Add Listing',
+        onAction: () {},
+      );
+    }
+
+    return ListView.separated(
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 100),
+      itemCount: provider.myListings.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 14),
+      itemBuilder: (_, i) => _ListingRow(property: provider.myListings[i]),
+    );
+  }
+}
+
+// ── Property Card (Saved grid) ────────────────────────────────────────────────
+
+class _PropertyCard extends StatelessWidget {
+  final dynamic property;
+  final bool staggered;
+  const _PropertyCard({required this.property, required this.staggered});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final imageUrl = property.primaryImageUrl as String?;
+
+    return Padding(
+      padding: EdgeInsets.only(top: staggered ? 36 : 0),
+      child: GestureDetector(
+        onTap: () => AppRouter.push(context, AppRoutes.propertyDetail, args: property.id),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Expanded(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: Stack(fit: StackFit.expand, children: [
+                imageUrl != null
+                    ? Image.network(imageUrl, fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => _ImgPlaceholder(cs: cs))
+                    : _ImgPlaceholder(cs: cs),
+                Positioned.fill(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter, end: Alignment.bottomCenter,
+                        colors: [Colors.transparent, Colors.black.withOpacity(0.4)],
+                        stops: const [0.55, 1.0],
+                      ),
+                    ),
+                  ),
+                ),
+                Positioned(bottom: 10, left: 10,
+                  child: Text(property.priceLabel as String,
+                    style: GoogleFonts.notoSerif(
+                      fontSize: 13, fontWeight: FontWeight.w900, color: Colors.white))),
+                Positioned(top: 8, right: 8,
+                  child: Container(
+                    width: 30, height: 30,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.9), shape: BoxShape.circle),
+                    child: Icon(Icons.favorite_rounded, size: 14, color: cs.onSurface),
+                  )),
+              ]),
+            ),
+          ),
+          const SizedBox(height: 10),
+          Text(property.title as String,
+            style: GoogleFonts.notoSerif(
+              fontSize: 13, fontWeight: FontWeight.bold, color: cs.onSurface),
+            maxLines: 1, overflow: TextOverflow.ellipsis),
+          const SizedBox(height: 3),
+          Row(children: [
+            Icon(Icons.location_on_outlined, size: 11, color: cs.onSurfaceVariant),
+            const SizedBox(width: 2),
+            Expanded(child: Text(property.locationString as String,
+              style: TextStyle(fontSize: 10, color: cs.onSurfaceVariant),
+              maxLines: 1, overflow: TextOverflow.ellipsis)),
+          ]),
+        ]),
+      ),
+    );
+  }
+}
+
+// ── Listing Row (My Listings list) ────────────────────────────────────────────
+
+class _ListingRow extends StatelessWidget {
+  final dynamic property;
+  const _ListingRow({required this.property});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final imageUrl = property.primaryImageUrl as String?;
+    final status = (property.status.name as String).toUpperCase();
+    final isActive = property.status.name == 'active';
+
+    return GestureDetector(
+      onTap: () => AppRouter.push(context, AppRoutes.propertyDetail, args: property.id),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: cs.surfaceContainerHighest.withOpacity(0.3),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: cs.outlineVariant.withOpacity(0.25)),
+        ),
+        child: Row(children: [
+          // Thumbnail
+          ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: SizedBox(
+              width: 80, height: 80,
+              child: imageUrl != null
+                  ? Image.network(imageUrl, fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => _ImgPlaceholder(cs: cs))
+                  : _ImgPlaceholder(cs: cs),
+            ),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(property.title as String,
+                style: GoogleFonts.notoSerif(
+                  fontSize: 14, fontWeight: FontWeight.bold, color: cs.onSurface),
+                maxLines: 1, overflow: TextOverflow.ellipsis),
+              const SizedBox(height: 4),
+              Row(children: [
+                Icon(Icons.location_on_outlined, size: 11, color: cs.onSurfaceVariant),
+                const SizedBox(width: 2),
+                Expanded(child: Text(property.locationString as String,
+                  style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant),
+                  maxLines: 1, overflow: TextOverflow.ellipsis)),
+              ]),
+              const SizedBox(height: 8),
+              Row(children: [
+                Text(property.priceLabel as String,
+                  style: GoogleFonts.notoSerif(
+                    fontSize: 14, fontWeight: FontWeight.w900, color: cs.onSurface)),
+                const Spacer(),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: isActive
+                        ? Colors.green.withOpacity(0.12)
+                        : cs.surfaceContainerHighest.withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: Text(status,
+                    style: GoogleFonts.inter(
+                      fontSize: 9, fontWeight: FontWeight.bold,
+                      color: isActive ? Colors.green.shade700 : cs.onSurfaceVariant,
+                      letterSpacing: 0.8)),
+                ),
+              ]),
+            ]),
+          ),
+          const SizedBox(width: 8),
+          Icon(Icons.chevron_right_rounded, color: cs.onSurfaceVariant, size: 20),
+        ]),
+      ),
+    );
+  }
+}
+
+// ── Shared helpers ────────────────────────────────────────────────────────────
+
+class _EmptyState extends StatelessWidget {
   final IconData icon;
-  final Color color;
-  final VoidCallback onTap;
-  const _IconBtn({
-    required this.icon,
-    required this.color,
-    required this.onTap,
+  final String title;
+  final String subtitle;
+  final String? action;
+  final VoidCallback? onAction;
+  const _EmptyState({
+    required this.icon, required this.title, required this.subtitle,
+    this.action, this.onAction,
   });
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: Container(
-        width: 36,
-        height: 36,
-        decoration: BoxDecoration(
-          color: cs.surfaceContainer,
-          shape: BoxShape.circle,
-        ),
-        child: Icon(icon, color: color, size: 20),
-      ),
-    );
-  }
-}
-
-// ── Profile Header ────────────────────────────────────────────────────────────
-
-class _ProfileHeader extends StatelessWidget {
-  final VoidCallback onNewListing;
-  const _ProfileHeader({required this.onNewListing});
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Role badge
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 5,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppColors.tertiaryContainer.withOpacity(0.5),
-                    borderRadius: BorderRadius.circular(999),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        width: 6,
-                        height: 6,
-                        decoration: const BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: AppColors.tertiary,
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        'Agent / Seller',
-                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: AppColors.tertiary,
-                          letterSpacing: 1.5,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  'Vikram Malhotra',
-                  style: Theme.of(context).textTheme.headlineMedium,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'vikram.m@curatedestate.in',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: cs.onSurfaceVariant,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 12),
-          SizedBox(
-            width: 130,
-            child: GradientButton(
-              label: 'NEW LISTING',
-              onPressed: onNewListing,
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              fontSize: 11,
-              letterSpacing: 1.5,
-              borderRadius: 12,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ── Command Center ────────────────────────────────────────────────────────────
-
-class _CommandCenter extends StatelessWidget {
-  const _CommandCenter();
-
-  static const _items = [
-    (Icons.analytics_outlined, 'Analytics'),
-    (Icons.compare_arrows_outlined, 'Comparisons'),
-    (Icons.star_outline_rounded, 'My Reviews'),
-    (Icons.chat_bubble_outline_rounded, 'Inquiries'),
-    (Icons.history_rounded, 'Search History'),
-    (Icons.support_agent_outlined, 'Support'),
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Text(
-                'Command Center',
-                style: Theme.of(context).textTheme.headlineSmall,
-              ),
-              const SizedBox(width: 12),
-              Expanded(child: Divider()),
-            ],
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(40),
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          Container(
+            width: 72, height: 72,
+            decoration: BoxDecoration(
+              color: cs.surfaceContainerHighest.withOpacity(0.4),
+              shape: BoxShape.circle),
+            child: Icon(icon, size: 32, color: cs.onSurfaceVariant),
           ),
           const SizedBox(height: 16),
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 3,
-              mainAxisSpacing: 12,
-              crossAxisSpacing: 12,
-              childAspectRatio: 1.05,
-            ),
-            itemCount: _items.length,
-            itemBuilder: (_, i) =>
-                _CommandTile(icon: _items[i].$1, label: _items[i].$2),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _CommandTile extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  const _CommandTile({required this.icon, required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: cs.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: cs.outlineVariant.withOpacity(0.3)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Icon(icon, color: AppColors.primary, size: 26),
-          Text(
-            label,
-            style: Theme.of(
-              context,
-            ).textTheme.labelMedium?.copyWith(color: cs.onSurface),
-            maxLines: 2,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ── Tab Section ───────────────────────────────────────────────────────────────
-
-class _TabSection extends StatelessWidget {
-  final int tabIndex;
-  final ValueChanged<int> onTabChanged;
-  const _TabSection({required this.tabIndex, required this.onTabChanged});
-
-  static const _tabs = [
-    (Icons.favorite_rounded, Icons.favorite_border_rounded, 'SAVED'),
-    (Icons.list_alt_rounded, Icons.list_alt_outlined, 'MY LISTINGS'),
-  ];
-
-  static const _saved = [
-    PropertyItem(
-      title: 'The Azure Pavilion',
-      location: 'South Goa',
-      price: '₹8.4 Cr',
-      bhk: '4 Beds',
-      sqft: '4,200 sq.ft',
-      badge: 'No Brokerage',
-      imageUrl:
-          'https://lh3.googleusercontent.com/aida-public/AB6AXuAj2wmNcocohv6fX6QAJ1ecVbtk1uGMtKtsUTFi6K3RFxN6U1eitjn8UxlpnXlFYGI-6zI_wslrAa6mQhqxOp9ldSwpHHwbn5YCyXHjcUlFwl-8XFerkYD6nCl0XVMrbpq1jYU1QSDwd7QQxgEsdfrSOFmq_DkhOpS6Npa5YZuced1wSZ9vww2aaW0L-buLCcn_I-oKgOAJzCZQl-f1KcwLmD-EQhLZchJlR-QC7av-6-WhWLo5zNe7h1CWzz_YrZciKGX-6Te0',
-    ),
-    PropertyItem(
-      title: 'Skyline Residence 402',
-      location: 'Worli, Mumbai',
-      price: '₹12.2 Cr',
-      bhk: '3 Suites',
-      sqft: 'Level 42',
-      imageUrl:
-          'https://lh3.googleusercontent.com/aida-public/AB6AXuAIUDk2SSApGHo-_V_mIX0j1VHWJaS8sdKhixDQhbk3Qp15YZJG-ICCExrL0jMAArP61NOFnTpIY7Lc6etxmYah8la7MTGialB9IqCK1DOzgZwBH1K2YGvA4XQRA3Jgt3_uuELe13hyaoJgnopdPVX6VT7Aq5F9baYK-uZ90VgzO6K2UaX5EUv0XmA6ZgEDE-VgOGKtj7FtyPl1Tm8wuTouG4U8en50LMn8XodRKdWUB_EzjWNuU5NyFMU8Hv5cC1hy1WVRpEsf',
-    ),
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Tab bar
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: List.generate(_tabs.length, (i) {
-                final active = i == tabIndex;
-                return GestureDetector(
-                  onTap: () => onTabChanged(i),
-                  child: Container(
-                    margin: const EdgeInsets.only(right: 24),
-                    padding: const EdgeInsets.only(bottom: 10),
-                    decoration: BoxDecoration(
-                      border: Border(
-                        bottom: BorderSide(
-                          color: active ? cs.primary : Colors.transparent,
-                          width: 2,
-                        ),
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          active ? _tabs[i].$1 : _tabs[i].$2,
-                          size: 15,
-                          color: active
-                              ? cs.primary
-                              : cs.onSurface.withOpacity(0.4),
-                        ),
-                        const SizedBox(width: 6),
-                        Text(
-                          _tabs[i].$3,
-                          style: Theme.of(context).textTheme.labelLarge
-                              ?.copyWith(
-                                color: active
-                                    ? cs.primary
-                                    : cs.onSurface.withOpacity(0.4),
-                                letterSpacing: 0.8,
-                              ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              }),
-            ),
-          ),
-          const SizedBox(height: 24),
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              mainAxisSpacing: 32,
-              crossAxisSpacing: 14,
-              childAspectRatio: 0.58,
-            ),
-            itemCount: _saved.length,
-            itemBuilder: (_, i) =>
-                _SavedCard(item: _saved[i], staggered: i.isOdd),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ── Saved Card ────────────────────────────────────────────────────────────────
-
-class _SavedCard extends StatefulWidget {
-  final PropertyItem item;
-  final bool staggered;
-  const _SavedCard({required this.item, required this.staggered});
-
-  @override
-  State<_SavedCard> createState() => _SavedCardState();
-}
-
-class _SavedCardState extends State<_SavedCard> {
-  bool _saved = true;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Padding(
-      padding: EdgeInsets.only(top: widget.staggered ? 40 : 0),
-      child: GestureDetector(
-        onTap: () => AppRouter.push(
-          context,
-          AppRoutes.propertyDetail,
-          args: widget.item.title,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(16),
-              child: AspectRatio(
-                aspectRatio: 4 / 5,
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    Image.network(widget.item.imageUrl, fit: BoxFit.cover),
-                    Positioned(
-                      top: 12,
-                      right: 12,
-                      child: GestureDetector(
-                        onTap: () => setState(() => _saved = !_saved),
-                        child: Container(
-                          width: 36,
-                          height: 36,
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.9),
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.1),
-                                blurRadius: 8,
-                              ),
-                            ],
-                          ),
-                          child: Icon(
-                            _saved
-                                ? Icons.favorite_rounded
-                                : Icons.favorite_border_rounded,
-                            color: AppColors.primary,
-                            size: 18,
-                          ),
-                        ),
-                      ),
-                    ),
-                    if (widget.item.badge.isNotEmpty)
-                      Positioned(
-                        top: 12,
-                        left: 12,
-                        child: AppBadge(label: widget.item.badge),
-                      ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              widget.item.location,
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: cs.primary,
-                letterSpacing: 2,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              widget.item.title,
-              style: Theme.of(
-                context,
-              ).textTheme.headlineSmall?.copyWith(fontSize: 17),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-            const SizedBox(height: 6),
-            Row(
-              children: [
-                Icon(Icons.bed_outlined, size: 13, color: cs.onSurfaceVariant),
-                const SizedBox(width: 4),
-                Text(
-                  widget.item.bhk,
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-                const SizedBox(width: 12),
-                Icon(
-                  Icons.square_foot_outlined,
-                  size: 13,
-                  color: cs.onSurfaceVariant,
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  widget.item.sqft,
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              widget.item.price,
-              style: GoogleFonts.notoSerif(
-                fontSize: 17,
-                fontWeight: FontWeight.bold,
-                color: AppColors.primary,
+          Text(title,
+            style: GoogleFonts.notoSerif(
+              fontSize: 18, fontWeight: FontWeight.bold, color: cs.onSurface)),
+          const SizedBox(height: 6),
+          Text(subtitle,
+            textAlign: TextAlign.center,
+            style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13, height: 1.5)),
+          if (action != null) ...[
+            const SizedBox(height: 20),
+            GestureDetector(
+              onTap: onAction,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                decoration: BoxDecoration(
+                  color: cs.onSurface, borderRadius: BorderRadius.circular(12)),
+                child: Text(action!,
+                  style: GoogleFonts.inter(
+                    color: cs.surface, fontWeight: FontWeight.bold, fontSize: 13)),
               ),
             ),
           ],
-        ),
+        ]),
       ),
     );
   }
 }
 
-// ── Gradient FAB ──────────────────────────────────────────────────────────────
-
-class _GradientFab extends StatelessWidget {
-  final VoidCallback onTap;
-  const _GradientFab({required this.onTap});
+class _ErrorState extends StatelessWidget {
+  final String message;
+  final VoidCallback onRetry;
+  const _ErrorState({required this.message, required this.onRetry});
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 56,
-        height: 56,
-        decoration: BoxDecoration(
-          gradient: AppColors.gradientCtaVertical,
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.primary.withOpacity(0.35),
-              blurRadius: 20,
-              offset: const Offset(0, 6),
+    final cs = Theme.of(context).colorScheme;
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          Icon(Icons.error_outline_rounded, color: cs.error, size: 36),
+          const SizedBox(height: 12),
+          Text(message,
+            textAlign: TextAlign.center,
+            style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13)),
+          const SizedBox(height: 16),
+          GestureDetector(
+            onTap: onRetry,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+              decoration: BoxDecoration(
+                color: cs.onSurface, borderRadius: BorderRadius.circular(10)),
+              child: Text('Retry',
+                style: TextStyle(color: cs.surface, fontWeight: FontWeight.bold)),
             ),
-          ],
-        ),
-        child: const Icon(Icons.add_rounded, color: Colors.white, size: 28),
+          ),
+        ]),
       ),
     );
   }
+}
+
+class _ImgPlaceholder extends StatelessWidget {
+  final ColorScheme cs;
+  const _ImgPlaceholder({required this.cs});
+
+  @override
+  Widget build(BuildContext context) => Container(
+    color: cs.surfaceContainerHigh,
+    child: Icon(Icons.image_outlined, color: cs.outline, size: 28),
+  );
 }

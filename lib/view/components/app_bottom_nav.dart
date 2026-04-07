@@ -1,38 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:homebazaar/core/router/app_router.dart';
 import 'package:homebazaar/core/theme/app_theme.dart';
+import 'package:homebazaar/providers/auth_provider.dart';
 
 class AppBottomNav extends StatelessWidget {
   final int currentIndex;
-
   const AppBottomNav({super.key, required this.currentIndex});
-
-  static const _items = [
-    (Icons.home_rounded, Icons.home_outlined, 'Home'),
-    (Icons.search_rounded, Icons.search_outlined, 'Browse'),
-    (Icons.login_rounded, Icons.login_outlined, 'Sign In'),
-    (Icons.message_rounded, Icons.message_outlined, 'Inquiries'),
-    (Icons.support_agent_rounded, Icons.support_agent_outlined, 'Support'),
-  ];
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final isAuthenticated = context.watch<AuthProvider>().isAuthenticated;
+
+    final items = [
+      (icon: Icons.home_rounded, outlinedIcon: Icons.home_outlined, label: 'Home', route: AppRoutes.home),
+      (icon: Icons.search_rounded, outlinedIcon: Icons.search_outlined, label: 'Browse', route: AppRoutes.buy),
+      if (!isAuthenticated)
+        (icon: Icons.login_rounded, outlinedIcon: Icons.login_outlined, label: 'Sign In', route: AppRoutes.signIn),
+      (icon: Icons.message_rounded, outlinedIcon: Icons.message_outlined, label: 'Inquiries', route: AppRoutes.dashboard),
+      if (isAuthenticated)
+        (icon: Icons.person_rounded, outlinedIcon: Icons.person_outline_rounded, label: 'Dashboard', route: AppRoutes.dashboard),
+    ];
 
     return Container(
       decoration: BoxDecoration(
-        color: cs.surfaceContainerLowest,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-        border: Border(
-          top: BorderSide(color: cs.outlineVariant.withOpacity(0.25)),
-        ),
+        color: cs.surface,
+        border: Border(top: BorderSide(color: cs.outlineVariant.withOpacity(0.2))),
         boxShadow: [
-          BoxShadow(
-            color: cs.onSurface.withOpacity(0.05),
-            blurRadius: 20,
-            offset: const Offset(0, -4),
-          ),
+          BoxShadow(color: cs.onSurface.withOpacity(0.04), blurRadius: 16, offset: const Offset(0, -2)),
         ],
       ),
       child: SafeArea(
@@ -41,47 +38,35 @@ class AppBottomNav extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 8),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: List.generate(_items.length, (i) {
+            children: List.generate(items.length, (i) {
               final selected = i == currentIndex;
+              final item = items[i];
               return GestureDetector(
-                onTap: () => AppRouter.navigateFromBottomNav(context, i),
+                onTap: () => AppRouter.replace(context, item.route),
                 behavior: HitTestBehavior.opaque,
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 8,
-                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                   decoration: BoxDecoration(
-                    color: selected
-                        ? AppColors.primary.withOpacity(0.1)
-                        : Colors.transparent,
+                    color: selected ? cs.onSurface.withOpacity(0.08) : Colors.transparent,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
-                        selected ? _items[i].$1 : _items[i].$2,
-                        color: selected
-                            ? AppColors.primary
-                            : cs.onSurface.withOpacity(0.4),
+                        selected ? item.icon : item.outlinedIcon,
                         size: 22,
+                        color: selected ? cs.onSurface : cs.onSurface.withOpacity(0.35),
                       ),
                       const SizedBox(height: 4),
-                      Text(
-                        _items[i].$3,
+                      Text(item.label,
                         style: GoogleFonts.inter(
                           fontSize: 9,
-                          fontWeight: selected
-                              ? FontWeight.w700
-                              : FontWeight.w500,
-                          letterSpacing: 0.6,
-                          color: selected
-                              ? AppColors.primary
-                              : cs.onSurface.withOpacity(0.4),
-                        ),
-                      ),
+                          fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                          letterSpacing: 0.5,
+                          color: selected ? cs.onSurface : cs.onSurface.withOpacity(0.35),
+                        )),
                     ],
                   ),
                 ),

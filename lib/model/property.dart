@@ -1,8 +1,19 @@
 import 'package:homebazaar/model/user.dart';
 
 enum ListingType { sale, rent }
-enum PropertyType { house, apartment, villa, penthouse, townhouse, land, office }
+
+enum PropertyType {
+  house,
+  apartment,
+  villa,
+  penthouse,
+  townhouse,
+  land,
+  office,
+}
+
 enum PropertyStatus { pending, active, sold, rented, archived }
+
 enum PropertyBadge { premium, newBadge, featured }
 
 ListingType _listingTypeFromString(String v) =>
@@ -73,20 +84,20 @@ class PropertyAddress {
   });
 
   factory PropertyAddress.fromJson(Map<String, dynamic> j) => PropertyAddress(
-        street: j['street'] as String?,
-        city: j['city'] as String,
-        state: j['state'] as String?,
-        zip: j['zip'] as String?,
-        country: (j['country'] as String?) ?? 'IN',
-      );
+    street: j['street'] as String?,
+    city: j['city'] as String,
+    state: j['state'] as String?,
+    zip: j['zip'] as String?,
+    country: (j['country'] as String?) ?? 'IN',
+  );
 
   Map<String, dynamic> toJson() => {
-        'street': street,
-        'city': city,
-        'state': state,
-        'zip': zip,
-        'country': country,
-      };
+    'street': street,
+    'city': city,
+    'state': state,
+    'zip': zip,
+    'country': country,
+  };
 }
 
 class PropertyLocation {
@@ -99,14 +110,13 @@ class PropertyLocation {
   const PropertyLocation({required this.type, required this.coordinates});
 
   factory PropertyLocation.fromJson(Map<String, dynamic> j) => PropertyLocation(
-        type: j['type'] as String,
-        coordinates: (j['coordinates'] as List).map((e) => (e as num).toDouble()).toList(),
-      );
+    type: j['type'] as String,
+    coordinates: (j['coordinates'] as List)
+        .map((e) => (e as num).toDouble())
+        .toList(),
+  );
 
-  Map<String, dynamic> toJson() => {
-        'type': type,
-        'coordinates': coordinates,
-      };
+  Map<String, dynamic> toJson() => {'type': type, 'coordinates': coordinates};
 }
 
 class PropertyImage {
@@ -123,18 +133,18 @@ class PropertyImage {
   });
 
   factory PropertyImage.fromJson(Map<String, dynamic> j) => PropertyImage(
-        id: j['_id'] as String,
-        url: j['url'] as String,
-        filename: j['filename'] as String?,
-        isPrimary: j['isPrimary'] as bool,
-      );
+    id: j['_id'] as String,
+    url: j['url'] as String,
+    filename: j['filename'] as String?,
+    isPrimary: j['isPrimary'] as bool,
+  );
 
   Map<String, dynamic> toJson() => {
-        '_id': id,
-        'url': url,
-        'filename': filename,
-        'isPrimary': isPrimary,
-      };
+    '_id': id,
+    'url': url,
+    'filename': filename,
+    'isPrimary': isPrimary,
+  };
 }
 
 class ApiProperty {
@@ -147,9 +157,9 @@ class ApiProperty {
   final PropertyBadge? badge;
   final double price;
   final PropertyAddress address;
-  final PropertyLocation location;
+  final PropertyLocation? location;
   final int bedrooms;
-  final int bathrooms;
+  final int? bathrooms;
   final double sqft;
   final int? yearBuilt;
   final List<PropertyImage> images;
@@ -171,8 +181,8 @@ class ApiProperty {
   /// Virtual — "City, State"
   final String locationString;
 
-  final String createdAt;
-  final String updatedAt;
+  final String? createdAt;
+  final String? updatedAt;
 
   const ApiProperty({
     required this.id,
@@ -186,11 +196,11 @@ class ApiProperty {
     required this.address,
     required this.location,
     required this.bedrooms,
-    required this.bathrooms,
+    this.bathrooms,
     required this.sqft,
     this.yearBuilt,
     required this.images,
-    required this.owner,
+    this.owner,
     required this.views,
     required this.saves,
     required this.inquiries,
@@ -198,69 +208,73 @@ class ApiProperty {
     required this.priceLabel,
     required this.tag,
     required this.locationString,
-    required this.createdAt,
-    required this.updatedAt,
+    this.createdAt,
+    this.updatedAt,
   });
 
   factory ApiProperty.fromJson(Map<String, dynamic> j) => ApiProperty(
-        id: j['_id'] as String,
-        title: j['title'] as String,
-        description: j['description'] as String?,
-        listingType: _listingTypeFromString(j['listingType'] as String),
-        propertyType: _propertyTypeFromString(j['propertyType'] as String),
-        status: _propertyStatusFromString(j['status'] as String),
-        badge: _badgeFromString(j['badge'] as String?),
-        price: (j['price'] as num).toDouble(),
-        address: PropertyAddress.fromJson(j['address'] as Map<String, dynamic>),
-        location: PropertyLocation.fromJson(j['location'] as Map<String, dynamic>),
-        bedrooms: j['bedrooms'] as int,
-        bathrooms: j['bathrooms'] as int,
-        sqft: (j['sqft'] as num).toDouble(),
-        yearBuilt: j['yearBuilt'] as int?,
-        images: (j['images'] as List)
-            .map((e) => PropertyImage.fromJson(e as Map<String, dynamic>))
-            .toList(),
-        owner: j['owner'] is Map
-            ? ApiUser.fromJson(j['owner'] as Map<String, dynamic>)
-            : j['owner'] as String,
-        views: j['views'] as int,
-        saves: j['saves'] as int,
-        inquiries: j['inquiries'] as int,
-        isFeatured: j['isFeatured'] as bool,
-        priceLabel: j['priceLabel'] as String,
-        tag: j['tag'] as String,
-        locationString: j['locationString'] as String,
-        createdAt: j['createdAt'] as String,
-        updatedAt: j['updatedAt'] as String,
-      );
+    id: (j['_id'] ?? j['id']) as String,
+    title: j['title'] as String,
+    description: j['description'] as String?,
+    listingType: _listingTypeFromString(j['listingType'] as String),
+    propertyType: _propertyTypeFromString(j['propertyType'] as String),
+    status: _propertyStatusFromString(j['status'] as String),
+    badge: _badgeFromString(j['badge'] as String?),
+    price: (j['price'] as num).toDouble(),
+    address: PropertyAddress.fromJson(j['address'] as Map<String, dynamic>),
+    location: j['location'] == null
+        ? null
+        : PropertyLocation.fromJson(j['location'] as Map<String, dynamic>),
+    bedrooms: (j['bedrooms'] as int?) ?? 0,
+    bathrooms: j['bathrooms'] as int?,
+    sqft: (j['sqft'] as num?)?.toDouble() ?? 0,
+    yearBuilt: j['yearBuilt'] as int?,
+    images: (j['images'] as List? ?? [])
+        .map((e) => PropertyImage.fromJson(e as Map<String, dynamic>))
+        .toList(),
+    owner: j['owner'] == null
+        ? null
+        : j['owner'] is Map<String, dynamic>
+        ? ApiUser.fromJson(j['owner'] as Map<String, dynamic>)
+        : j['owner'] as String,
+    views: (j['views'] as int?) ?? 0,
+    saves: (j['saves'] as int?) ?? 0,
+    inquiries: (j['inquiries'] as int?) ?? 0,
+    isFeatured: (j['isFeatured'] as bool?) ?? false,
+    priceLabel: (j['priceLabel'] as String?) ?? '',
+    tag: (j['tag'] as String?) ?? '',
+    locationString: (j['locationString'] as String?) ?? '',
+    createdAt: j['createdAt'] as String?,
+    updatedAt: j['updatedAt'] as String?,
+  );
 
   Map<String, dynamic> toJson() => {
-        '_id': id,
-        'title': title,
-        'description': description,
-        'listingType': listingType.name,
-        'propertyType': _propertyTypeToString(propertyType),
-        'status': status.name,
-        'badge': _badgeToString(badge),
-        'price': price,
-        'address': address.toJson(),
-        'location': location.toJson(),
-        'bedrooms': bedrooms,
-        'bathrooms': bathrooms,
-        'sqft': sqft,
-        'yearBuilt': yearBuilt,
-        'images': images.map((e) => e.toJson()).toList(),
-        'owner': owner is ApiUser ? (owner as ApiUser).toJson() : owner,
-        'views': views,
-        'saves': saves,
-        'inquiries': inquiries,
-        'isFeatured': isFeatured,
-        'priceLabel': priceLabel,
-        'tag': tag,
-        'locationString': locationString,
-        'createdAt': createdAt,
-        'updatedAt': updatedAt,
-      };
+    '_id': id,
+    'title': title,
+    'description': description,
+    'listingType': listingType.name,
+    'propertyType': _propertyTypeToString(propertyType),
+    'status': status.name,
+    'badge': _badgeToString(badge),
+    'price': price,
+    'address': address.toJson(),
+    'location': location?.toJson(),
+    'bedrooms': bedrooms,
+    'bathrooms': bathrooms,
+    'sqft': sqft,
+    'yearBuilt': yearBuilt,
+    'images': images.map((e) => e.toJson()).toList(),
+    'owner': owner is ApiUser ? (owner as ApiUser).toJson() : owner,
+    'views': views,
+    'saves': saves,
+    'inquiries': inquiries,
+    'isFeatured': isFeatured,
+    'priceLabel': priceLabel,
+    'tag': tag,
+    'locationString': locationString,
+    'createdAt': createdAt,
+    'updatedAt': updatedAt,
+  };
 
   /// Convenience: primary image URL or null
   String? get primaryImageUrl {

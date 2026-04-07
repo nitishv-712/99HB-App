@@ -7,9 +7,7 @@ import 'package:homebazaar/providers/properties_provider.dart';
 import 'package:homebazaar/services/misc_services.dart';
 import 'package:homebazaar/view/components/app_bottom_nav.dart';
 import 'package:homebazaar/view/components/app_top_bar.dart';
-import 'package:homebazaar/view/components/gradient_button.dart';
 import 'package:homebazaar/view/components/property_card.dart';
-import 'package:homebazaar/view/components/section_label.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -19,9 +17,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final int _navIndex = 0;
-  final _locationCtrl = TextEditingController();
-  final _projectCtrl = TextEditingController();
+  final _searchCtrl = TextEditingController();
   final _emailCtrl = TextEditingController();
 
   @override
@@ -34,8 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void dispose() {
-    _locationCtrl.dispose();
-    _projectCtrl.dispose();
+    _searchCtrl.dispose();
     _emailCtrl.dispose();
     super.dispose();
   }
@@ -43,30 +38,34 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: Stack(
         children: [
           SafeArea(
             child: CustomScrollView(
               slivers: [
-                const SliverToBoxAdapter(child: SizedBox(height: 76)),
+                const SliverToBoxAdapter(child: SizedBox(height: 72)),
                 SliverToBoxAdapter(
-                  child: _HeroSection(
-                    locationCtrl: _locationCtrl,
-                    projectCtrl: _projectCtrl,
-                  ),
+                  child: _HeroSection(searchCtrl: _searchCtrl),
                 ),
+                const SliverToBoxAdapter(child: SizedBox(height: 28)),
                 const SliverToBoxAdapter(child: _QuickLinks()),
+                const SliverToBoxAdapter(child: SizedBox(height: 32)),
                 const SliverToBoxAdapter(child: _FeaturedListings()),
-                const SliverToBoxAdapter(child: _ElevatedServices()),
-                SliverToBoxAdapter(child: _Newsletter(emailCtrl: _emailCtrl)),
-                const SliverToBoxAdapter(child: SizedBox(height: 24)),
+                const SliverToBoxAdapter(child: SizedBox(height: 32)),
+                const SliverToBoxAdapter(child: _ServicesSection()),
+                const SliverToBoxAdapter(child: SizedBox(height: 32)),
+                SliverToBoxAdapter(
+                  child: _NewsletterSection(emailCtrl: _emailCtrl),
+                ),
+                const SliverToBoxAdapter(child: SizedBox(height: 32)),
               ],
             ),
           ),
           const AppTopBar(),
         ],
       ),
-      bottomNavigationBar: AppBottomNav(currentIndex: _navIndex),
+      bottomNavigationBar: const AppBottomNav(currentIndex: 0),
     );
   }
 }
@@ -74,37 +73,34 @@ class _HomeScreenState extends State<HomeScreen> {
 // ── Hero Section ──────────────────────────────────────────────────────────────
 
 class _HeroSection extends StatelessWidget {
-  final TextEditingController locationCtrl;
-  final TextEditingController projectCtrl;
-  const _HeroSection({required this.locationCtrl, required this.projectCtrl});
+  final TextEditingController searchCtrl;
+  const _HeroSection({required this.searchCtrl});
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final isWide = MediaQuery.sizeOf(context).width >= 768;
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 28),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(24),
         child: SizedBox(
-          height: isWide ? 520 : 480,
+          height: 420,
           child: Stack(
             fit: StackFit.expand,
             children: [
               Image.network(
-                'https://lh3.googleusercontent.com/aida-public/AB6AXuAOpeLDpgw304A9SYxpR17fTz_Sj1_STQwV7ul52h7Q434lUi5psrYOxARTb4uSL2qALoiqLE5QR5Y1D5T5HEEbsc3P0onGfH52A1yjcvTqIQOx-UheSgPqZ3MAl9f_AZ26S5l0QlMajnyVt1T1czmbrroUEM9FF_x9yPSyFc9UFQZppc_u1dOqDcMq87OCSw8LOGMioilbda6vaMTt0U2tk49YEOaovWvRwOibzifdd0peRqr_F6azuOr3N31o8VnDeRbnMMB5',
+                'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=800&q=80',
                 fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) =>
+                    Container(color: cs.surfaceContainerHigh),
               ),
               Container(
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
-                    colors: [
-                      Colors.transparent,
-                      cs.onSurface.withOpacity(0.78),
-                    ],
+                    colors: [Color(0x33000000), Color(0xDD000000)],
                   ),
                 ),
               ),
@@ -116,9 +112,9 @@ class _HeroSection extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Find your place\nin the sun.',
+                      'Find your\nperfect home.',
                       style: GoogleFonts.notoSerif(
-                        fontSize: isWide ? 42 : 36,
+                        fontSize: 34,
                         fontWeight: FontWeight.w900,
                         color: Colors.white,
                         height: 1.15,
@@ -126,37 +122,62 @@ class _HeroSection extends StatelessWidget {
                     ),
                     const SizedBox(height: 20),
                     Container(
-                      padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: cs.surfaceContainerLowest,
-                        borderRadius: BorderRadius.circular(18),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.15),
-                            blurRadius: 24,
-                          ),
-                        ],
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
                       ),
-                      child: Column(
+                      child: Row(
                         children: [
-                          _SearchField(
-                            controller: locationCtrl,
-                            icon: Icons.location_on_outlined,
-                            hint: 'Location, city or neighbourhood',
+                          const SizedBox(width: 16),
+                          Icon(
+                            Icons.search_rounded,
+                            color: cs.onSurfaceVariant,
+                            size: 20,
                           ),
-                          const SizedBox(height: 8),
-                          _SearchField(
-                            controller: projectCtrl,
-                            icon: Icons.apartment_outlined,
-                            hint: 'Project name or builder',
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: TextField(
+                              controller: searchCtrl,
+                              style: TextStyle(
+                                color: cs.onSurface,
+                                fontSize: 14,
+                              ),
+                              decoration: InputDecoration(
+                                hintText: 'City, neighbourhood or project...',
+                                hintStyle: TextStyle(
+                                  color: cs.onSurfaceVariant,
+                                  fontSize: 14,
+                                ),
+                                border: InputBorder.none,
+                                filled: false,
+                                isDense: true,
+                                contentPadding: const EdgeInsets.symmetric(
+                                  vertical: 16,
+                                ),
+                              ),
+                            ),
                           ),
-                          const SizedBox(height: 10),
-                          GradientButton(
-                            label: 'Search Properties',
-                            onPressed: () {},
-                            borderRadius: 14,
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            letterSpacing: 0.5,
+                          GestureDetector(
+                            onTap: () => AppRouter.push(context, AppRoutes.buy),
+                            child: Container(
+                              margin: const EdgeInsets.all(6),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 18,
+                                vertical: 10,
+                              ),
+                              decoration: BoxDecoration(
+                                color: cs.onSurface,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Text(
+                                'Search',
+                                style: GoogleFonts.inter(
+                                  color: cs.surface,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ),
                           ),
                         ],
                       ),
@@ -172,49 +193,6 @@ class _HeroSection extends StatelessWidget {
   }
 }
 
-class _SearchField extends StatelessWidget {
-  final TextEditingController controller;
-  final IconData icon;
-  final String hint;
-  const _SearchField({
-    required this.controller,
-    required this.icon,
-    required this.hint,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        color: cs.surfaceContainer,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, color: cs.outline, size: 20),
-          const SizedBox(width: 10),
-          Expanded(
-            child: TextField(
-              controller: controller,
-              decoration: InputDecoration(
-                hintText: hint,
-                border: InputBorder.none,
-                isDense: true,
-                contentPadding: EdgeInsets.zero,
-                fillColor: Colors.transparent,
-                filled: false,
-              ),
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 // ── Quick Links ───────────────────────────────────────────────────────────────
 
 class _QuickLinks extends StatelessWidget {
@@ -225,30 +203,17 @@ class _QuickLinks extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final items = [
       (
-        bg: AppColors.primaryFixed,
-        iconColor: cs.primary,
         icon: Icons.real_estate_agent_outlined,
         label: 'Buy',
-        route: AppRoutes.buy,
+        color: cs.onSurface,
       ),
-      (
-        bg: cs.secondaryContainer,
-        iconColor: cs.secondary,
-        icon: Icons.key_outlined,
-        label: 'Rent',
-        route: AppRoutes.buy,
-      ),
-      (
-        bg: AppColors.tertiaryFixed,
-        iconColor: AppColors.tertiary,
-        icon: Icons.sell_outlined,
-        label: 'Sell',
-        route: AppRoutes.buy,
-      ),
+      (icon: Icons.key_outlined, label: 'Rent', color: cs.onSurface),
+      (icon: Icons.sell_outlined, label: 'Sell', color: cs.onSurface),
+      (icon: Icons.calculate_outlined, label: 'EMI', color: cs.onSurface),
     ];
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 36),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         children: items
             .map(
@@ -256,35 +221,31 @@ class _QuickLinks extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 5),
                   child: GestureDetector(
-                    onTap: () => AppRouter.push(context, e.route),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 22),
-                      decoration: BoxDecoration(
-                        color: cs.surfaceContainerLow,
-                        borderRadius: BorderRadius.circular(18),
-                        border: Border.all(
-                          color: cs.outlineVariant.withOpacity(0.3),
-                        ),
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            width: 48,
-                            height: 48,
-                            decoration: BoxDecoration(
-                              color: e.bg,
-                              shape: BoxShape.circle,
+                    onTap: () => AppRouter.push(context, AppRoutes.buy),
+                    child: Column(
+                      children: [
+                        Container(
+                          width: 56,
+                          height: 56,
+                          decoration: BoxDecoration(
+                            color: cs.surfaceContainerHighest.withOpacity(0.4),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: cs.outlineVariant.withOpacity(0.3),
                             ),
-                            child: Icon(e.icon, color: e.iconColor, size: 22),
                           ),
-                          const SizedBox(height: 10),
-                          Text(
-                            e.label,
-                            style: Theme.of(context).textTheme.titleSmall,
+                          child: Icon(e.icon, color: e.color, size: 24),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          e.label,
+                          style: GoogleFonts.inter(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: cs.onSurface,
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -310,54 +271,106 @@ class _FeaturedListings extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 0, 8, 16),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const SectionLabel(
-                eyebrow: 'Curated Selection',
-                headline: 'Featured Listings',
-                headlineFontSize: 22,
-              ),
-              TextButton.icon(
-                onPressed: () => AppRouter.push(context, AppRoutes.buy),
-                icon: Text(
-                  'View All',
-                  style: GoogleFonts.inter(
-                    color: cs.primary,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 13,
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'FEATURED',
+                    style: GoogleFonts.inter(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 2,
+                      color: cs.onSurfaceVariant,
+                    ),
                   ),
-                ),
-                label: Icon(
-                  Icons.arrow_forward_ios_rounded,
-                  color: cs.primary,
-                  size: 14,
+                  const SizedBox(height: 4),
+                  Text(
+                    'Top Listings',
+                    style: GoogleFonts.notoSerif(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w900,
+                      color: cs.onSurface,
+                    ),
+                  ),
+                ],
+              ),
+              GestureDetector(
+                onTap: () => AppRouter.push(context, AppRoutes.buy),
+                child: Row(
+                  children: [
+                    Text(
+                      'View all',
+                      style: GoogleFonts.inter(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: cs.onSurface,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Icon(Icons.arrow_forward, size: 14, color: cs.onSurface),
+                  ],
                 ),
               ),
             ],
           ),
         ),
+        const SizedBox(height: 16),
+
         if (provider.featuredLoading)
           const SizedBox(
-            height: 320,
+            height: 260,
             child: Center(child: CircularProgressIndicator()),
           )
         else if (provider.featuredError != null)
-          SizedBox(
-            height: 120,
-            child: Center(
-              child: Text(
-                provider.featuredError!,
-                style: Theme.of(
-                  context,
-                ).textTheme.bodyMedium?.copyWith(color: cs.error),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: cs.errorContainer,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.error_outline_rounded, color: cs.error, size: 20),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      provider.featuredError!,
+                      style: TextStyle(
+                        color: cs.onErrorContainer,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          )
+        else if (provider.featured.isEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Container(
+              height: 120,
+              decoration: BoxDecoration(
+                color: cs.surfaceContainerHighest.withOpacity(0.3),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Center(
+                child: Text(
+                  'No listings available',
+                  style: TextStyle(color: cs.onSurfaceVariant),
+                ),
               ),
             ),
           )
         else
           SizedBox(
-            height: 330,
+            height: 300,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -384,55 +397,64 @@ class _FeaturedListings extends StatelessWidget {
               },
             ),
           ),
-        const SizedBox(height: 36),
       ],
     );
   }
 }
 
-// ── Elevated Services ─────────────────────────────────────────────────────────
+// ── Services Section ──────────────────────────────────────────────────────────
 
-class _ElevatedServices extends StatelessWidget {
-  const _ElevatedServices();
+class _ServicesSection extends StatelessWidget {
+  const _ServicesSection();
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 36),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SectionLabel(
-            eyebrow: 'What we offer',
-            headline: 'Elevated Services',
-            headlineFontSize: 22,
+          Text(
+            'SERVICES',
+            style: GoogleFonts.inter(
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 2,
+              color: cs.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'What We Offer',
+            style: GoogleFonts.notoSerif(
+              fontSize: 22,
+              fontWeight: FontWeight.w900,
+              color: cs.onSurface,
+            ),
           ),
           const SizedBox(height: 20),
           Row(
             children: [
               Expanded(
-                child: _ServiceCard(
-                  bg: cs.surfaceContainer,
-                  icon: Icons.groups_outlined,
-                  iconColor: cs.primary,
-                  title: 'Bulk Buying Power',
-                  desc:
-                      'Join exclusive investor groups for institutional-grade pricing.',
-                  height: 180,
+                child: _ServiceTile(
+                  icon: Icons.verified_user_outlined,
+                  title: 'Certified Agents',
+                  desc: 'Vetted advisors with 10+ years of expertise.',
+                  bg: cs.surfaceContainerHighest.withOpacity(0.4),
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: _ServiceCard(
-                  bg: cs.primaryContainer,
+                child: _ServiceTile(
                   icon: Icons.view_in_ar_outlined,
-                  iconColor: cs.onPrimaryContainer,
-                  title: '99ehome 3D',
-                  titleColor: cs.onPrimaryContainer,
-                  desc: 'Immersive virtual walkthroughs of every listing.',
-                  descColor: cs.onPrimaryContainer.withOpacity(0.7),
-                  height: 180,
+                  title: '3D Walkthroughs',
+                  desc: 'Immersive virtual tours of every listing.',
+                  bg: cs.onSurface,
+                  iconColor: cs.surface,
+                  titleColor: cs.surface,
+                  descColor: cs.surface.withOpacity(0.6),
                 ),
               ),
             ],
@@ -441,24 +463,20 @@ class _ElevatedServices extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: _ServiceCard(
-                  bg: cs.surfaceContainerLow,
-                  icon: Icons.verified_user_outlined,
-                  iconColor: AppColors.tertiary,
-                  title: 'Certified Agents',
-                  desc: 'Vetted advisors with 10+ years of local expertise.',
-                  height: 160,
+                child: _ServiceTile(
+                  icon: Icons.gavel_outlined,
+                  title: 'Legal Help',
+                  desc: 'End-to-end documentation support.',
+                  bg: cs.surfaceContainerHighest.withOpacity(0.4),
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: _ServiceCard(
-                  bg: cs.surfaceContainerLowest,
-                  icon: Icons.gavel_outlined,
-                  iconColor: cs.outline,
-                  title: 'Legal Help',
-                  desc: 'End-to-end documentation and compliance support.',
-                  height: 160,
+                child: _ServiceTile(
+                  icon: Icons.groups_outlined,
+                  title: 'Bulk Buying',
+                  desc: 'Institutional-grade pricing for investors.',
+                  bg: cs.surfaceContainerHighest.withOpacity(0.4),
                 ),
               ),
             ],
@@ -469,32 +487,29 @@ class _ElevatedServices extends StatelessWidget {
   }
 }
 
-class _ServiceCard extends StatelessWidget {
-  final Color bg;
+class _ServiceTile extends StatelessWidget {
   final IconData icon;
-  final Color iconColor;
   final String title;
-  final Color? titleColor;
   final String desc;
+  final Color bg;
+  final Color? iconColor;
+  final Color? titleColor;
   final Color? descColor;
-  final double height;
 
-  const _ServiceCard({
-    required this.bg,
+  const _ServiceTile({
     required this.icon,
-    required this.iconColor,
     required this.title,
-    this.titleColor,
     required this.desc,
+    required this.bg,
+    this.iconColor,
+    this.titleColor,
     this.descColor,
-    required this.height,
   });
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return Container(
-      height: height,
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: bg,
@@ -502,28 +517,27 @@ class _ServiceCard extends StatelessWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Icon(icon, color: iconColor, size: 30),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  color: titleColor ?? cs.onSurface,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                desc,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: descColor ?? cs.onSurfaceVariant,
-                ),
-                maxLines: 3,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
+          Icon(icon, color: iconColor ?? cs.onSurface, size: 28),
+          const SizedBox(height: 16),
+          Text(
+            title,
+            style: GoogleFonts.inter(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+              color: titleColor ?? cs.onSurface,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            desc,
+            style: TextStyle(
+              fontSize: 12,
+              color: descColor ?? cs.onSurfaceVariant,
+              height: 1.5,
+            ),
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
@@ -531,79 +545,97 @@ class _ServiceCard extends StatelessWidget {
   }
 }
 
-// ── Newsletter ────────────────────────────────────────────────────────────────
+// ── Newsletter Section ────────────────────────────────────────────────────────
 
-class _Newsletter extends StatelessWidget {
+class _NewsletterSection extends StatelessWidget {
   final TextEditingController emailCtrl;
-  const _Newsletter({required this.emailCtrl});
+  const _NewsletterSection({required this.emailCtrl});
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Container(
-        padding: const EdgeInsets.all(32),
+        padding: const EdgeInsets.all(28),
         decoration: BoxDecoration(
           color: cs.onSurface,
-          borderRadius: BorderRadius.circular(28),
+          borderRadius: BorderRadius.circular(24),
         ),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'The Estate Brief',
-              style: Theme.of(
-                context,
-              ).textTheme.headlineSmall?.copyWith(color: cs.surface),
+              'Stay in the loop',
+              style: GoogleFonts.notoSerif(
+                fontSize: 22,
+                fontWeight: FontWeight.w900,
+                color: cs.surface,
+              ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
             Text(
-              'Curated insights on market trends and exclusive off-market opportunities — delivered weekly.',
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              'Get curated market insights and exclusive listings delivered weekly.',
+              style: TextStyle(
                 color: cs.surface.withOpacity(0.6),
-                fontWeight: FontWeight.w300,
+                fontSize: 13,
                 height: 1.6,
               ),
             ),
-            const SizedBox(height: 24),
-            TextField(
-              controller: emailCtrl,
-              keyboardType: TextInputType.emailAddress,
-              style: Theme.of(
-                context,
-              ).textTheme.bodyMedium?.copyWith(color: cs.surface),
-              decoration: InputDecoration(
-                hintText: 'Your email address',
-                hintStyle: GoogleFonts.inter(
-                  color: cs.surface.withOpacity(0.3),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: emailCtrl,
+                    keyboardType: TextInputType.emailAddress,
+                    style: TextStyle(color: cs.surface, fontSize: 14),
+                    decoration: InputDecoration(
+                      hintText: 'Your email address',
+                      hintStyle: TextStyle(color: cs.surface.withOpacity(0.35)),
+                      filled: true,
+                      fillColor: cs.surface.withOpacity(0.1),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 14,
+                      ),
+                    ),
+                  ),
                 ),
-                filled: true,
-                fillColor: cs.surface.withOpacity(0.1),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(14),
-                  borderSide: BorderSide.none,
+                const SizedBox(width: 10),
+                GestureDetector(
+                  onTap: () {
+                    final email = emailCtrl.text.trim();
+                    if (email.isNotEmpty) {
+                      NewsletterService.subscribe(email);
+                      emailCtrl.clear();
+                    }
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 14,
+                    ),
+                    decoration: BoxDecoration(
+                      color: cs.surface,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      'Join',
+                      style: GoogleFonts.inter(
+                        color: cs.onSurface,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ),
                 ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(14),
-                  borderSide: BorderSide(color: cs.surface.withOpacity(0.3)),
-                ),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 16,
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-            GradientButton(
-              label: 'Subscribe',
-              onPressed: () {
-                final email = emailCtrl.text.trim();
-                if (email.isNotEmpty) {
-                  NewsletterService.subscribe(email);
-                  emailCtrl.clear();
-                }
-              },
+              ],
             ),
           ],
         ),

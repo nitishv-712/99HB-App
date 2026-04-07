@@ -5,21 +5,29 @@ import 'package:homebazaar/model/property.dart';
 
 abstract final class PropertiesService {
   /// GET /properties
-  static Future<ApiResponse<List<ApiProperty>>> list([PropertyFilters filters = const PropertyFilters()]) async {
+  static Future<ApiResponse<List<ApiProperty>>> list([
+    PropertyFilters filters = const PropertyFilters(),
+  ]) async {
     final qs = ApiClient.buildQuery(filters.toQueryParams());
     final json = await ApiClient.fetch<Map<String, dynamic>>('/properties$qs');
     return ApiResponse.fromJson(json, (d) {
       final list = d as List;
-      return list.map((e) => ApiProperty.fromJson(e as Map<String, dynamic>)).toList();
+      return list
+          .map((e) => ApiProperty.fromJson(e as Map<String, dynamic>))
+          .toList();
     });
   }
 
   /// GET /properties/featured
   static Future<ApiResponse<List<ApiProperty>>> featured() async {
-    final json = await ApiClient.fetch<Map<String, dynamic>>('/properties/featured');
+    final json = await ApiClient.fetch<Map<String, dynamic>>(
+      '/properties/featured',
+    );
     return ApiResponse.fromJson(json, (d) {
       final list = (d as Map<String, dynamic>)['properties'] as List;
-      return list.map((e) => ApiProperty.fromJson(e as Map<String, dynamic>)).toList();
+      return list
+          .map((e) => ApiProperty.fromJson(e as Map<String, dynamic>))
+          .toList();
     });
   }
 
@@ -28,7 +36,9 @@ abstract final class PropertiesService {
     final json = await ApiClient.fetch<Map<String, dynamic>>('/properties/$id');
     return ApiResponse.fromJson(
       json,
-      (d) => ApiProperty.fromJson((d as Map<String, dynamic>)['property'] as Map<String, dynamic>),
+      (d) => ApiProperty.fromJson(
+        (d as Map<String, dynamic>)['property'] as Map<String, dynamic>,
+      ),
     );
   }
 
@@ -69,7 +79,9 @@ abstract final class PropertiesService {
     );
     return ApiResponse.fromJson(
       json,
-      (d) => ApiProperty.fromJson((d as Map<String, dynamic>)['property'] as Map<String, dynamic>),
+      (d) => ApiProperty.fromJson(
+        (d as Map<String, dynamic>)['property'] as Map<String, dynamic>,
+      ),
     );
   }
 
@@ -85,13 +97,18 @@ abstract final class PropertiesService {
     );
     return ApiResponse.fromJson(
       json,
-      (d) => ApiProperty.fromJson((d as Map<String, dynamic>)['property'] as Map<String, dynamic>),
+      (d) => ApiProperty.fromJson(
+        (d as Map<String, dynamic>)['property'] as Map<String, dynamic>,
+      ),
     );
   }
 
   /// DELETE /properties/:id
   static Future<void> delete(String id) async {
-    await ApiClient.fetch<Map<String, dynamic>>('/properties/$id', method: 'DELETE');
+    await ApiClient.fetch<Map<String, dynamic>>(
+      '/properties/$id',
+      method: 'DELETE',
+    );
   }
 }
 

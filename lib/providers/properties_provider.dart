@@ -101,10 +101,18 @@ class PropertiesProvider extends ChangeNotifier {
   }) async {
     try {
       final res = await PropertiesService.create(
-        title: title, listingType: listingType, propertyType: propertyType,
-        price: price, address: address, description: description,
-        bedrooms: bedrooms, bathrooms: bathrooms, sqft: sqft,
-        yearBuilt: yearBuilt, badge: badge, isFeatured: isFeatured,
+        title: title,
+        listingType: listingType,
+        propertyType: propertyType,
+        price: price,
+        address: address,
+        description: description,
+        bedrooms: bedrooms,
+        bathrooms: bathrooms,
+        sqft: sqft,
+        yearBuilt: yearBuilt,
+        badge: badge,
+        isFeatured: isFeatured,
         images: images,
       );
       _properties.insert(0, res.data);
