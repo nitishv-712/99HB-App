@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:homebazaar/view/screen/settings_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:homebazaar/providers/auth_provider.dart';
 import 'package:homebazaar/view/screen/buy_screen.dart';
@@ -18,6 +19,7 @@ abstract final class AppRoutes {
   static const buy = '/buy';
   static const dashboard = '/dashboard';
   static const propertyDetail = '/property/:id';
+  static const settings = '/settings';
 }
 
 abstract final class AppRouter {
@@ -40,6 +42,8 @@ abstract final class AppRouter {
       case AppRoutes.propertyDetail:
         final id = settings.arguments as String?;
         return _slide(PropertyDetailScreen(propertyId: id));
+      case AppRoutes.settings:
+        return _slide(const SettingsScreen());
       default:
         return _slide(const HomeScreen());
     }

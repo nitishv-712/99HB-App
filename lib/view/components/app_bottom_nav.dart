@@ -33,12 +33,6 @@ class AppBottomNav extends StatelessWidget {
           label: 'Sign In',
           route: AppRoutes.signIn,
         ),
-      (
-        icon: Icons.message_rounded,
-        outlinedIcon: Icons.message_outlined,
-        label: 'Inquiries',
-        route: AppRoutes.dashboard,
-      ),
       if (isAuthenticated)
         (
           icon: Icons.person_rounded,
@@ -46,6 +40,12 @@ class AppBottomNav extends StatelessWidget {
           label: 'Dashboard',
           route: AppRoutes.dashboard,
         ),
+      (
+        icon: Icons.settings_rounded,
+        outlinedIcon: Icons.settings_outlined,
+        label: 'Settings',
+        route: AppRoutes.settings,
+      ),
     ];
 
     return Container(

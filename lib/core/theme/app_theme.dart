@@ -133,35 +133,38 @@ final _lightColorScheme = ColorScheme(
 );
 
 // ── Dark ColorScheme ──────────────────────────────────────────────────────────
-
 final _darkColorScheme = ColorScheme(
   brightness: Brightness.dark,
-  primary: const Color(0xFF60A5FA),
-  onPrimary: const Color(0xFF1E3A5F),
-  primaryContainer: const Color(0xFF1E3A5F),
-  onPrimaryContainer: const Color(0xFFDBEAFE),
-  secondary: const Color(0xFF818CF8),
-  onSecondary: const Color(0xFF1E1B4B),
-  secondaryContainer: const Color(0xFF2E2A5E),
-  onSecondaryContainer: const Color(0xFFE0E7FF),
-  tertiary: const Color(0xFFFBBF24),
-  onTertiary: const Color(0xFF451A03),
-  tertiaryContainer: const Color(0xFF4A2400),
-  onTertiaryContainer: const Color(0xFFFEF3C7),
-  error: const Color(0xFFF87171),
-  onError: const Color(0xFF7F1D1D),
-  errorContainer: const Color(0xFF7F1D1D),
-  onErrorContainer: const Color(0xFFFEE2E2),
-  surface: const Color(0xFF0F172A),
-  onSurface: const Color(0xFFF1F5F9),
-  surfaceContainerHighest: const Color(0xFF334155),
-  surfaceContainerHigh: const Color(0xFF1E293B),
-  surfaceContainer: const Color(0xFF1E293B),
-  surfaceContainerLow: const Color(0xFF162032),
-  surfaceContainerLowest: const Color(0xFF0B1222),
-  onSurfaceVariant: const Color(0xFF94A3B8),
-  outline: const Color(0xFF475569),
-  outlineVariant: const Color(0xFF334155),
+  primary: const Color(0xFF60A5FA), // Bright blue for visibility
+  onPrimary: const Color(0xFF0C2340), // Very dark blue for contrast
+  primaryContainer: const Color(0xFF1E3A5F), // Medium dark blue
+  onPrimaryContainer: const Color(0xFFDBEAFE), // Light blue tint
+  secondary: const Color(0xFF818CF8), // Bright indigo
+  onSecondary: const Color(0xFF0F0D2E), // Very dark indigo
+  secondaryContainer: const Color(0xFF2E2A5E), // Medium dark indigo
+  onSecondaryContainer: const Color(0xFFE0E7FF), // Light indigo tint
+  tertiary: const Color(0xFFFBBF24), // Bright amber
+  onTertiary: const Color(0xFF1A0F00), // Very dark amber
+  tertiaryContainer: const Color(0xFF4A2400), // Medium dark amber
+  onTertiaryContainer: const Color(0xFFFEF3C7), // Light amber tint
+  error: const Color(0xFFF87171), // Bright red
+  onError: const Color(0xFF2D0A0A), // Very dark red
+  errorContainer: const Color(
+    0xFF5C1515,
+  ), // Medium dark red (fixed from too dark)
+  onErrorContainer: const Color(0xFFFEE2E2), // Light red tint
+  surface: const Color(0xFF0F172A), // Dark slate background
+  onSurface: const Color(0xFFF1F5F9), // Light text on dark
+  surfaceContainerHighest: const Color(0xFF334155), // Lightest surface variant
+  surfaceContainerHigh: const Color(0xFF1E293B), // Lighter surface variant
+  surfaceContainer: const Color(0xFF1E293B), // Default surface variant
+  surfaceContainerLow: const Color(
+    0xFF0C1425,
+  ), // Darker surface variant (fixed)
+  surfaceContainerLowest: const Color(0xFF0B1222), // Darkest surface variant
+  onSurfaceVariant: const Color(0xFF94A3B8), // Muted text
+  outline: const Color(0xFF475569), // Medium outline
+  outlineVariant: const Color(0xFF334155), // Subtle outline
 );
 
 // ── TextTheme helper ──────────────────────────────────────────────────────────

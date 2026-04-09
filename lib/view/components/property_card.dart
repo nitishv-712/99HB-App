@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:homebazaar/core/theme/app_theme.dart';
 
 // ── Data model ────────────────────────────────────────────────────────────────
 
@@ -207,7 +206,7 @@ class PropertyCardVertical extends StatelessWidget {
                         item.price,
                         style: GoogleFonts.notoSerif(
                           fontSize: 17,
-                          color: AppColors.primary,
+                          color: cs.primary,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
