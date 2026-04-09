@@ -147,7 +147,10 @@ class _FormCard extends StatelessWidget {
                       AppRouter.pushAndClearStack(context, AppRoutes.home);
                     } else if (!ok && context.mounted) {
                       final error = context.read<AuthProvider>().error;
-                      showErrorDialog(context, error ?? 'Login failed. Please try again.');
+                      showErrorDialog(
+                        context,
+                        error ?? 'Login failed. Please try again.',
+                      );
                     }
                   },
                 ),

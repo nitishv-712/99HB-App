@@ -16,6 +16,16 @@ class AuthProvider extends ChangeNotifier {
   String? get error => _error;
   bool get isAuthenticated => _status == AuthStatus.authenticated;
 
+  Future<void> tokenClear() async {
+    await AccessToken().clear();
+    await RefreshToken().clear();
+  }
+
+  Future<void> setTokens(String accessToken, String refreshToken) async {
+    await AccessToken().save(accessToken);
+    await RefreshToken().save(refreshToken);
+  }
+
   void _setLoading() {
     _status = AuthStatus.loading;
     _error = null;
@@ -31,9 +41,9 @@ class AuthProvider extends ChangeNotifier {
   String _extractMessage(Object e) =>
       e is ApiException ? e.message : e.toString();
 
-  /// Call once at app startup to restore session from stored token.
+  // Call once at app startup to restore session from stored token.
   Future<void> init() async {
-    final token = await TokenStorage.token();
+    final token = await AccessToken().token;
     if (token == null) {
       _status = AuthStatus.unauthenticated;
       notifyListeners();
@@ -49,7 +59,9 @@ class AuthProvider extends ChangeNotifier {
       _user = ApiUser.fromJson(res.data['user'] as Map<String, dynamic>);
       _status = AuthStatus.authenticated;
     } catch (e) {
-      await TokenStorage.clear();
+      await AccessToken().clear();
+      await RefreshToken().clear();
+      _user = null;
       _status = AuthStatus.unauthenticated;
     }
     notifyListeners();
@@ -59,9 +71,11 @@ class AuthProvider extends ChangeNotifier {
     _setLoading();
     try {
       final res = await AuthService.login(email: email, password: password);
-      print(res.data);
-      final token = res.data['token'] as String?;
-      if (token != null) await TokenStorage.save(token);
+      final accessToken = res.data['accessToken'] as String?;
+      final refreshToken = res.data['refreshToken'] as String?;
+      if (accessToken != null && refreshToken != null) {
+        await setTokens(accessToken, refreshToken);
+      }
       _user = ApiUser.fromJson(res.data['user'] as Map<String, dynamic>);
       _status = AuthStatus.authenticated;
       notifyListeners();
@@ -90,8 +104,11 @@ class AuthProvider extends ChangeNotifier {
         phone: phone,
         role: role,
       );
-      final token = res.data['token'] as String?;
-      if (token != null) await TokenStorage.save(token);
+      final accessToken = res.data['accessToken'] as String?;
+      final refreshToken = res.data['refreshToken'] as String?;
+      if (accessToken != null && refreshToken != null) {
+        await setTokens(accessToken, refreshToken);
+      }
       _user = ApiUser.fromJson(res.data['user'] as Map<String, dynamic>);
       _status = AuthStatus.authenticated;
       notifyListeners();
@@ -106,8 +123,11 @@ class AuthProvider extends ChangeNotifier {
     _setLoading();
     try {
       final res = await AuthService.googleLogin(idToken: idToken, role: role);
-      final token = res.data['token'] as String?;
-      if (token != null) await TokenStorage.save(token);
+      final accessToken = res.data['token'] as String?;
+      final refreshToken = res.data['refreshToken'] as String?;
+      if (accessToken != null && refreshToken != null) {
+        await setTokens(accessToken, refreshToken);
+      }
       _user = ApiUser.fromJson(res.data['user'] as Map<String, dynamic>);
       _status = AuthStatus.authenticated;
       notifyListeners();
@@ -122,7 +142,7 @@ class AuthProvider extends ChangeNotifier {
     try {
       await AuthService.logout();
     } catch (_) {}
-    await TokenStorage.clear();
+    await tokenClear();
     _user = null;
     _status = AuthStatus.unauthenticated;
     notifyListeners();

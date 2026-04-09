@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:homebazaar/core/theme/app_theme.dart';
 
 /// Full-screen overlay loader. Wrap your scaffold body with a Stack and
 /// conditionally show this on top:

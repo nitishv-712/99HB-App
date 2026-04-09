@@ -1,26 +1,48 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
-abstract final class TokenStorage {
-  static const _key = 'auth_token';
-  static String? _token;
+abstract class BaseTokenStorage {
+  String get key;
+  String? _cachedToken;
 
-  static Future<void> save(String token) async {
+  Future<void> save(String token) async {
+    _cachedToken = token;
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_key, token);
+    await prefs.setString(key, token);
   }
 
-  static Future<String?> read() async {
+  Future<String?> read() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_key);
+    _cachedToken = prefs.getString(key);
+    return _cachedToken;
   }
 
-  static Future<void> clear() async {
+  Future<void> clear() async {
+    _cachedToken = null;
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_key);
+    await prefs.remove(key);
   }
 
-  static Future<String?> token() async {
-    _token ??= await read();
-    return _token;
+  Future<String?> get token async {
+    _cachedToken ??= await read();
+    return _cachedToken;
   }
+}
+
+final class AccessToken extends BaseTokenStorage {
+  @override
+  final String key = 'access_token';
+
+  // Singleton pattern for easy access
+  static final AccessToken _instance = AccessToken._internal();
+  AccessToken._internal();
+  factory AccessToken() => _instance;
+}
+
+final class RefreshToken extends BaseTokenStorage {
+  @override
+  final String key = 'refresh_token';
+
+  static final RefreshToken _instance = RefreshToken._internal();
+  RefreshToken._internal();
+  factory RefreshToken() => _instance;
 }

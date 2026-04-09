@@ -61,20 +61,20 @@ class ApiUser {
     lastName: j['lastName'] as String,
     // fullName: j['fullName'] as String,
     email: j['email'] as String,
-    isGmailVerified: j['isGmailVerified'] as bool,
+    isGmailVerified: j['isGmailVerified'] as bool? ?? false,
     phone: j['phone'] as String?,
-    isPhoneVerified: j['isPhoneVerified'] as bool,
+    isPhoneVerified: j['isPhoneVerified'] as bool? ?? false,
     role: j['role'] as String,
     avatar: j['avatar'] as String?,
-    isVerified: j['isVerified'] as bool,
+    isVerified: j['isVerified'] as bool? ?? false,
     panCard: j['panCard'] != null
         ? Card.fromJson(j['panCard'] as Map<String, dynamic>)
         : null,
     aadharCard: j['aadharCard'] != null
         ? Card.fromJson(j['aadharCard'] as Map<String, dynamic>)
         : null,
-    createdAt: j['createdAt'] as String,
-    updatedAt: j['updatedAt'] as String,
+    createdAt: j['createdAt'] as String? ?? '',
+    updatedAt: j['updatedAt'] as String? ?? '',
   );
 
   Map<String, dynamic> toJson() => {

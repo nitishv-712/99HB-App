@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:homebazaar/core/router/app_router.dart';
-import 'package:homebazaar/core/theme/app_theme.dart';
 import 'package:homebazaar/providers/auth_provider.dart';
 import 'package:homebazaar/providers/user_provider.dart';
 import 'package:homebazaar/view/components/app_bottom_nav.dart';
@@ -61,10 +60,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                         Expanded(
                           child: TabBarView(
                             controller: _tabCtrl,
-                            children: [
-                              _SavedTab(),
-                              _MyListingsTab(),
-                            ],
+                            children: [_SavedTab(), _MyListingsTab()],
                           ),
                         ),
                       ],
@@ -96,15 +92,25 @@ class _StickyTabBar extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: TabBar(
         controller: controller,
-        labelStyle: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1),
-        unselectedLabelStyle: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w500),
+        labelStyle: GoogleFonts.inter(
+          fontSize: 12,
+          fontWeight: FontWeight.bold,
+          letterSpacing: 1,
+        ),
+        unselectedLabelStyle: GoogleFonts.inter(
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+        ),
         labelColor: cs.onSurface,
         unselectedLabelColor: cs.onSurfaceVariant,
         indicatorColor: cs.onSurface,
         indicatorWeight: 2,
         indicatorSize: TabBarIndicatorSize.label,
         dividerColor: cs.outlineVariant.withOpacity(0.3),
-        tabs: const [Tab(text: 'SAVED'), Tab(text: 'MY LISTINGS')],
+        tabs: const [
+          Tab(text: 'SAVED'),
+          Tab(text: 'MY LISTINGS'),
+        ],
       ),
     );
   }
@@ -153,16 +159,24 @@ class _ProfileCard extends StatelessWidget {
         children: [
           // Avatar
           Container(
-            width: 64, height: 64,
+            width: 64,
+            height: 64,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: cs.surfaceContainerHighest,
-              border: Border.all(color: cs.outlineVariant.withOpacity(0.3), width: 2),
+              border: Border.all(
+                color: cs.outlineVariant.withOpacity(0.3),
+                width: 2,
+              ),
             ),
             child: ClipOval(
               child: avatar != null
-                  ? Image.network(avatar, fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => _AvatarFallback(name: name, cs: cs))
+                  ? Image.network(
+                      avatar,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) =>
+                          _AvatarFallback(name: name, cs: cs),
+                    )
                   : _AvatarFallback(name: name, cs: cs),
             ),
           ),
@@ -171,29 +185,48 @@ class _ProfileCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(children: [
-                  Text(name,
-                    style: GoogleFonts.notoSerif(
-                      fontSize: 20, fontWeight: FontWeight.w900, color: cs.onSurface)),
-                  const SizedBox(width: 8),
-                  if (user?.isVerified == true)
-                    Icon(Icons.verified_rounded, size: 16, color: cs.primary),
-                ]),
+                Row(
+                  children: [
+                    Text(
+                      name,
+                      style: GoogleFonts.notoSerif(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w900,
+                        color: cs.onSurface,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    if (user?.isVerified == true)
+                      Icon(Icons.verified_rounded, size: 16, color: cs.primary),
+                  ],
+                ),
                 const SizedBox(height: 2),
-                Text(email,
-                  style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
+                Text(
+                  email,
+                  style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12),
+                ),
                 const SizedBox(height: 6),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 3,
+                  ),
                   decoration: BoxDecoration(
                     color: cs.surfaceContainerHighest.withOpacity(0.5),
                     borderRadius: BorderRadius.circular(999),
-                    border: Border.all(color: cs.outlineVariant.withOpacity(0.3)),
+                    border: Border.all(
+                      color: cs.outlineVariant.withOpacity(0.3),
+                    ),
                   ),
-                  child: Text(role.toUpperCase(),
+                  child: Text(
+                    role.toUpperCase(),
                     style: GoogleFonts.inter(
-                      fontSize: 9, fontWeight: FontWeight.bold,
-                      letterSpacing: 1.5, color: cs.onSurfaceVariant)),
+                      fontSize: 9,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.5,
+                      color: cs.onSurfaceVariant,
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -202,7 +235,8 @@ class _ProfileCard extends StatelessWidget {
           GestureDetector(
             onTap: () {},
             child: Container(
-              width: 38, height: 38,
+              width: 38,
+              height: 38,
               decoration: BoxDecoration(
                 color: cs.surfaceContainerHighest.withOpacity(0.4),
                 borderRadius: BorderRadius.circular(12),
@@ -224,14 +258,26 @@ class _AvatarFallback extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final initials = name.trim().isEmpty ? '?'
-        : name.trim().split(' ').map((e) => e.isNotEmpty ? e[0] : '').take(2).join().toUpperCase();
+    final initials = name.trim().isEmpty
+        ? '?'
+        : name
+              .trim()
+              .split(' ')
+              .map((e) => e.isNotEmpty ? e[0] : '')
+              .take(2)
+              .join()
+              .toUpperCase();
     return Container(
       color: cs.surfaceContainerHighest,
       child: Center(
-        child: Text(initials,
+        child: Text(
+          initials,
           style: GoogleFonts.notoSerif(
-            fontSize: 20, fontWeight: FontWeight.bold, color: cs.onSurface)),
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: cs.onSurface,
+          ),
+        ),
       ),
     );
   }
@@ -258,30 +304,47 @@ class _StatsRow extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Row(
-        children: stats.map((s) => Expanded(
-          child: Padding(
-            padding: EdgeInsets.only(
-              right: s == stats.last ? 0 : 10),
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              decoration: BoxDecoration(
-                color: cs.surfaceContainerHighest.withOpacity(0.35),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: cs.outlineVariant.withOpacity(0.25)),
+        children: stats
+            .map(
+              (s) => Expanded(
+                child: Padding(
+                  padding: EdgeInsets.only(right: s == stats.last ? 0 : 10),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    decoration: BoxDecoration(
+                      color: cs.surfaceContainerHighest.withOpacity(0.35),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: cs.outlineVariant.withOpacity(0.25),
+                      ),
+                    ),
+                    child: Column(
+                      children: [
+                        Icon(s.icon, size: 20, color: cs.onSurface),
+                        const SizedBox(height: 8),
+                        Text(
+                          s.value,
+                          style: GoogleFonts.notoSerif(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w900,
+                            color: cs.onSurface,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          s.label,
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: cs.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
-              child: Column(children: [
-                Icon(s.icon, size: 20, color: cs.onSurface),
-                const SizedBox(height: 8),
-                Text(s.value,
-                  style: GoogleFonts.notoSerif(
-                    fontSize: 20, fontWeight: FontWeight.w900, color: cs.onSurface)),
-                const SizedBox(height: 2),
-                Text(s.label,
-                  style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant)),
-              ]),
-            ),
-          ),
-        )).toList(),
+            )
+            .toList(),
       ),
     );
   }
@@ -307,45 +370,69 @@ class _QuickActions extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('QUICK ACTIONS',
+          Text(
+            'QUICK ACTIONS',
             style: GoogleFonts.inter(
-              fontSize: 10, fontWeight: FontWeight.bold,
-              letterSpacing: 2, color: cs.onSurfaceVariant)),
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 2,
+              color: cs.onSurfaceVariant,
+            ),
+          ),
           const SizedBox(height: 12),
           Row(
-            children: _actions.map((a) => Expanded(
-              child: Padding(
-                padding: EdgeInsets.only(
-                  right: a == _actions.last ? 0 : 10),
-                child: GestureDetector(
-                  onTap: () {},
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    decoration: BoxDecoration(
-                      color: a == _actions.first
-                          ? cs.onSurface
-                          : cs.surfaceContainerHighest.withOpacity(0.35),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: a == _actions.first
-                            ? cs.onSurface
-                            : cs.outlineVariant.withOpacity(0.25)),
+            children: _actions
+                .map(
+                  (a) => Expanded(
+                    child: Padding(
+                      padding: EdgeInsets.only(
+                        right: a == _actions.last ? 0 : 10,
+                      ),
+                      child: GestureDetector(
+                        onTap: () {},
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          decoration: BoxDecoration(
+                            color: a == _actions.first
+                                ? cs.onSurface
+                                : cs.surfaceContainerHighest.withOpacity(0.35),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: a == _actions.first
+                                  ? cs.onSurface
+                                  : cs.outlineVariant.withOpacity(0.25),
+                            ),
+                          ),
+                          child: Column(
+                            children: [
+                              Icon(
+                                a.icon,
+                                size: 22,
+                                color: a == _actions.first
+                                    ? cs.surface
+                                    : cs.onSurface,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                a.label,
+                                textAlign: TextAlign.center,
+                                style: GoogleFonts.inter(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w600,
+                                  color: a == _actions.first
+                                      ? cs.surface
+                                      : cs.onSurface,
+                                  height: 1.3,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     ),
-                    child: Column(children: [
-                      Icon(a.icon, size: 22,
-                        color: a == _actions.first ? cs.surface : cs.onSurface),
-                      const SizedBox(height: 8),
-                      Text(a.label,
-                        textAlign: TextAlign.center,
-                        style: GoogleFonts.inter(
-                          fontSize: 10, fontWeight: FontWeight.w600,
-                          color: a == _actions.first ? cs.surface : cs.onSurface,
-                          height: 1.3)),
-                    ]),
                   ),
-                ),
-              ),
-            )).toList(),
+                )
+                .toList(),
           ),
         ],
       ),
@@ -358,7 +445,6 @@ class _QuickActions extends StatelessWidget {
 class _SavedTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
     final provider = context.watch<UserProvider>();
 
     if (provider.savedLoading) {
@@ -366,7 +452,10 @@ class _SavedTab extends StatelessWidget {
     }
 
     if (provider.savedError != null) {
-      return _ErrorState(message: provider.savedError!, onRetry: () => context.read<UserProvider>().fetchSaved());
+      return _ErrorState(
+        message: provider.savedError!,
+        onRetry: () => context.read<UserProvider>().fetchSaved(),
+      );
     }
 
     if (provider.saved.isEmpty) {
@@ -386,10 +475,8 @@ class _SavedTab extends StatelessWidget {
         childAspectRatio: 0.62,
       ),
       itemCount: provider.saved.length,
-      itemBuilder: (_, i) => _PropertyCard(
-        property: provider.saved[i],
-        staggered: i.isOdd,
-      ),
+      itemBuilder: (_, i) =>
+          _PropertyCard(property: provider.saved[i], staggered: i.isOdd),
     );
   }
 }
@@ -399,7 +486,6 @@ class _SavedTab extends StatelessWidget {
 class _MyListingsTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
     final provider = context.watch<UserProvider>();
 
     if (provider.listingsLoading) {
@@ -407,7 +493,10 @@ class _MyListingsTab extends StatelessWidget {
     }
 
     if (provider.listingsError != null) {
-      return _ErrorState(message: provider.listingsError!, onRetry: () => context.read<UserProvider>().fetchMyListings());
+      return _ErrorState(
+        message: provider.listingsError!,
+        onRetry: () => context.read<UserProvider>().fetchMyListings(),
+      );
     }
 
     if (provider.myListings.isEmpty) {
@@ -444,55 +533,108 @@ class _PropertyCard extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.only(top: staggered ? 36 : 0),
       child: GestureDetector(
-        onTap: () => AppRouter.push(context, AppRoutes.propertyDetail, args: property.id),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Expanded(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(16),
-              child: Stack(fit: StackFit.expand, children: [
-                imageUrl != null
-                    ? Image.network(imageUrl, fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => _ImgPlaceholder(cs: cs))
-                    : _ImgPlaceholder(cs: cs),
-                Positioned.fill(
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter, end: Alignment.bottomCenter,
-                        colors: [Colors.transparent, Colors.black.withOpacity(0.4)],
-                        stops: const [0.55, 1.0],
+        onTap: () => AppRouter.push(
+          context,
+          AppRoutes.propertyDetail,
+          args: property.id,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    imageUrl != null
+                        ? Image.network(
+                            imageUrl,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) =>
+                                _ImgPlaceholder(cs: cs),
+                          )
+                        : _ImgPlaceholder(cs: cs),
+                    Positioned.fill(
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              Colors.transparent,
+                              Colors.black.withOpacity(0.4),
+                            ],
+                            stops: const [0.55, 1.0],
+                          ),
+                        ),
                       ),
                     ),
+                    Positioned(
+                      bottom: 10,
+                      left: 10,
+                      child: Text(
+                        property.priceLabel as String,
+                        style: GoogleFonts.notoSerif(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: Container(
+                        width: 30,
+                        height: 30,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.9),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.favorite_rounded,
+                          size: 14,
+                          color: cs.onSurface,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              property.title as String,
+              style: GoogleFonts.notoSerif(
+                fontSize: 13,
+                fontWeight: FontWeight.bold,
+                color: cs.onSurface,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 3),
+            Row(
+              children: [
+                Icon(
+                  Icons.location_on_outlined,
+                  size: 11,
+                  color: cs.onSurfaceVariant,
+                ),
+                const SizedBox(width: 2),
+                Expanded(
+                  child: Text(
+                    property.locationString as String,
+                    style: TextStyle(fontSize: 10, color: cs.onSurfaceVariant),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                Positioned(bottom: 10, left: 10,
-                  child: Text(property.priceLabel as String,
-                    style: GoogleFonts.notoSerif(
-                      fontSize: 13, fontWeight: FontWeight.w900, color: Colors.white))),
-                Positioned(top: 8, right: 8,
-                  child: Container(
-                    width: 30, height: 30,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.9), shape: BoxShape.circle),
-                    child: Icon(Icons.favorite_rounded, size: 14, color: cs.onSurface),
-                  )),
-              ]),
+              ],
             ),
-          ),
-          const SizedBox(height: 10),
-          Text(property.title as String,
-            style: GoogleFonts.notoSerif(
-              fontSize: 13, fontWeight: FontWeight.bold, color: cs.onSurface),
-            maxLines: 1, overflow: TextOverflow.ellipsis),
-          const SizedBox(height: 3),
-          Row(children: [
-            Icon(Icons.location_on_outlined, size: 11, color: cs.onSurfaceVariant),
-            const SizedBox(width: 2),
-            Expanded(child: Text(property.locationString as String,
-              style: TextStyle(fontSize: 10, color: cs.onSurfaceVariant),
-              maxLines: 1, overflow: TextOverflow.ellipsis)),
-          ]),
-        ]),
+          ],
+        ),
       ),
     );
   }
@@ -512,7 +654,8 @@ class _ListingRow extends StatelessWidget {
     final isActive = property.status.name == 'active';
 
     return GestureDetector(
-      onTap: () => AppRouter.push(context, AppRoutes.propertyDetail, args: property.id),
+      onTap: () =>
+          AppRouter.push(context, AppRoutes.propertyDetail, args: property.id),
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
@@ -520,59 +663,108 @@ class _ListingRow extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: cs.outlineVariant.withOpacity(0.25)),
         ),
-        child: Row(children: [
-          // Thumbnail
-          ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: SizedBox(
-              width: 80, height: 80,
-              child: imageUrl != null
-                  ? Image.network(imageUrl, fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => _ImgPlaceholder(cs: cs))
-                  : _ImgPlaceholder(cs: cs),
+        child: Row(
+          children: [
+            // Thumbnail
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: SizedBox(
+                width: 80,
+                height: 80,
+                child: imageUrl != null
+                    ? Image.network(
+                        imageUrl,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => _ImgPlaceholder(cs: cs),
+                      )
+                    : _ImgPlaceholder(cs: cs),
+              ),
             ),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(property.title as String,
-                style: GoogleFonts.notoSerif(
-                  fontSize: 14, fontWeight: FontWeight.bold, color: cs.onSurface),
-                maxLines: 1, overflow: TextOverflow.ellipsis),
-              const SizedBox(height: 4),
-              Row(children: [
-                Icon(Icons.location_on_outlined, size: 11, color: cs.onSurfaceVariant),
-                const SizedBox(width: 2),
-                Expanded(child: Text(property.locationString as String,
-                  style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant),
-                  maxLines: 1, overflow: TextOverflow.ellipsis)),
-              ]),
-              const SizedBox(height: 8),
-              Row(children: [
-                Text(property.priceLabel as String,
-                  style: GoogleFonts.notoSerif(
-                    fontSize: 14, fontWeight: FontWeight.w900, color: cs.onSurface)),
-                const Spacer(),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: isActive
-                        ? Colors.green.withOpacity(0.12)
-                        : cs.surfaceContainerHighest.withOpacity(0.5),
-                    borderRadius: BorderRadius.circular(999),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    property.title as String,
+                    style: GoogleFonts.notoSerif(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: cs.onSurface,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  child: Text(status,
-                    style: GoogleFonts.inter(
-                      fontSize: 9, fontWeight: FontWeight.bold,
-                      color: isActive ? Colors.green.shade700 : cs.onSurfaceVariant,
-                      letterSpacing: 0.8)),
-                ),
-              ]),
-            ]),
-          ),
-          const SizedBox(width: 8),
-          Icon(Icons.chevron_right_rounded, color: cs.onSurfaceVariant, size: 20),
-        ]),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.location_on_outlined,
+                        size: 11,
+                        color: cs.onSurfaceVariant,
+                      ),
+                      const SizedBox(width: 2),
+                      Expanded(
+                        child: Text(
+                          property.locationString as String,
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: cs.onSurfaceVariant,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Text(
+                        property.priceLabel as String,
+                        style: GoogleFonts.notoSerif(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w900,
+                          color: cs.onSurface,
+                        ),
+                      ),
+                      const Spacer(),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 3,
+                        ),
+                        decoration: BoxDecoration(
+                          color: isActive
+                              ? Colors.green.withOpacity(0.12)
+                              : cs.surfaceContainerHighest.withOpacity(0.5),
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                        child: Text(
+                          status,
+                          style: GoogleFonts.inter(
+                            fontSize: 9,
+                            fontWeight: FontWeight.bold,
+                            color: isActive
+                                ? Colors.green.shade700
+                                : cs.onSurfaceVariant,
+                            letterSpacing: 0.8,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            Icon(
+              Icons.chevron_right_rounded,
+              color: cs.onSurfaceVariant,
+              size: 20,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -587,8 +779,11 @@ class _EmptyState extends StatelessWidget {
   final String? action;
   final VoidCallback? onAction;
   const _EmptyState({
-    required this.icon, required this.title, required this.subtitle,
-    this.action, this.onAction,
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    this.action,
+    this.onAction,
   });
 
   @override
@@ -597,37 +792,63 @@ class _EmptyState extends StatelessWidget {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(40),
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Container(
-            width: 72, height: 72,
-            decoration: BoxDecoration(
-              color: cs.surfaceContainerHighest.withOpacity(0.4),
-              shape: BoxShape.circle),
-            child: Icon(icon, size: 32, color: cs.onSurfaceVariant),
-          ),
-          const SizedBox(height: 16),
-          Text(title,
-            style: GoogleFonts.notoSerif(
-              fontSize: 18, fontWeight: FontWeight.bold, color: cs.onSurface)),
-          const SizedBox(height: 6),
-          Text(subtitle,
-            textAlign: TextAlign.center,
-            style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13, height: 1.5)),
-          if (action != null) ...[
-            const SizedBox(height: 20),
-            GestureDetector(
-              onTap: onAction,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                decoration: BoxDecoration(
-                  color: cs.onSurface, borderRadius: BorderRadius.circular(12)),
-                child: Text(action!,
-                  style: GoogleFonts.inter(
-                    color: cs.surface, fontWeight: FontWeight.bold, fontSize: 13)),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 72,
+              height: 72,
+              decoration: BoxDecoration(
+                color: cs.surfaceContainerHighest.withOpacity(0.4),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, size: 32, color: cs.onSurfaceVariant),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              title,
+              style: GoogleFonts.notoSerif(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: cs.onSurface,
               ),
             ),
+            const SizedBox(height: 6),
+            Text(
+              subtitle,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: cs.onSurfaceVariant,
+                fontSize: 13,
+                height: 1.5,
+              ),
+            ),
+            if (action != null) ...[
+              const SizedBox(height: 20),
+              GestureDetector(
+                onTap: onAction,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 12,
+                  ),
+                  decoration: BoxDecoration(
+                    color: cs.onSurface,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    action!,
+                    style: GoogleFonts.inter(
+                      color: cs.surface,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ],
-        ]),
+        ),
       ),
     );
   }
@@ -644,24 +865,39 @@ class _ErrorState extends StatelessWidget {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Icon(Icons.error_outline_rounded, color: cs.error, size: 36),
-          const SizedBox(height: 12),
-          Text(message,
-            textAlign: TextAlign.center,
-            style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13)),
-          const SizedBox(height: 16),
-          GestureDetector(
-            onTap: onRetry,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
-              decoration: BoxDecoration(
-                color: cs.onSurface, borderRadius: BorderRadius.circular(10)),
-              child: Text('Retry',
-                style: TextStyle(color: cs.surface, fontWeight: FontWeight.bold)),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.error_outline_rounded, color: cs.error, size: 36),
+            const SizedBox(height: 12),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13),
             ),
-          ),
-        ]),
+            const SizedBox(height: 16),
+            GestureDetector(
+              onTap: onRetry,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 10,
+                ),
+                decoration: BoxDecoration(
+                  color: cs.onSurface,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  'Retry',
+                  style: TextStyle(
+                    color: cs.surface,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

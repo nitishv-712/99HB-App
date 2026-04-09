@@ -28,10 +28,10 @@ abstract final class ApiClient {
   }) async {
     final uri = Uri.parse('$_base$path');
 
-    final token = await TokenStorage.read();
+    final token = await AccessToken().read();
     final headers = <String, String>{
       if (!isMultipart) 'Content-Type': 'application/json',
-      if (token != null) 'Authorization': 'Bearer $token',
+      if (token != null) 'accessToken': 'Bearer $token',
       ...?extraHeaders,
     };
 

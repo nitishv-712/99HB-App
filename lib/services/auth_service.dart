@@ -20,8 +20,8 @@ abstract final class AuthService {
         'lastName': lastName,
         'email': email,
         'password': password,
-        if (phone != null) 'phone': phone,
-        if (role != null) 'role': role.name,
+        'phone': phone,
+        'role': role?.name,
       },
     );
     return ApiResponse.fromJson(json, (d) => d as Map<String, dynamic>);
@@ -37,6 +37,7 @@ abstract final class AuthService {
       method: 'POST',
       body: {'email': email, 'password': password},
     );
+    print(json);
     return ApiResponse.fromJson(json, (d) => d as Map<String, dynamic>);
   }
 
