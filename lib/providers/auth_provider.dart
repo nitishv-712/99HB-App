@@ -41,10 +41,10 @@ class AuthProvider extends ChangeNotifier {
   String _extractMessage(Object e) =>
       e is ApiException ? e.message : e.toString();
 
-  // Call once at app startup to restore session from stored token.
   Future<void> init() async {
-    final token = await AccessToken().token;
-    if (token == null) {
+    final accessToken = await AccessToken().read();
+    final refreshToken = await RefreshToken().read();
+    if (accessToken == null || refreshToken == null) {
       _status = AuthStatus.unauthenticated;
       notifyListeners();
       return;

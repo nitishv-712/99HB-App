@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:homebazaar/core/router/app_router.dart';
-import 'package:homebazaar/core/theme/app_theme.dart';
 import 'package:homebazaar/providers/auth_provider.dart';
 import 'package:homebazaar/providers/theme_provider.dart';
 import 'package:homebazaar/view/components/app_bottom_nav.dart';
@@ -65,11 +64,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           // ── Appearance ──────────────────────────────────────────────────
           _SectionLabel('APPEARANCE'),
           const SizedBox(height: 10),
-          _SettingsCard(
-            children: [
-              _ThemeTile(theme: theme),
-            ],
-          ),
+          _SettingsCard(children: [_ThemeTile(theme: theme)]),
           const SizedBox(height: 24),
 
           // ── Notifications ───────────────────────────────────────────────
@@ -291,11 +286,7 @@ class _ProfileCard extends StatelessWidget {
                     ),
                     if (user.isVerified == true) ...[
                       const SizedBox(width: 6),
-                      Icon(
-                        Icons.verified_rounded,
-                        size: 15,
-                        color: cs.error,
-                      ),
+                      Icon(Icons.verified_rounded, size: 15, color: cs.error),
                     ],
                   ],
                 ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:homebazaar/view/screen/settings_screen.dart';
+import 'package:homebazaar/view/screen/splash_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:homebazaar/providers/auth_provider.dart';
 import 'package:homebazaar/view/screen/buy_screen.dart';
@@ -26,7 +27,7 @@ abstract final class AppRouter {
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
       case AppRoutes.splash:
-        return _slide(const _SplashEntry());
+        return _slide(const SplashScreen());
       case AppRoutes.home:
         return _slide(const HomeScreen());
       case AppRoutes.signIn:
@@ -91,31 +92,4 @@ abstract final class AppRouter {
   );
 }
 
-// ── Splash / Auth Gate ────────────────────────────────────────────────────────
 
-class _SplashEntry extends StatefulWidget {
-  const _SplashEntry();
-
-  @override
-  State<_SplashEntry> createState() => _SplashEntryState();
-}
-
-class _SplashEntryState extends State<_SplashEntry> {
-  @override
-  void initState() {
-    super.initState();
-    context.read<AuthProvider>().init().then((_) {
-      if (!mounted) return;
-      final auth = context.read<AuthProvider>();
-      AppRouter.replace(
-        context,
-        auth.isAuthenticated ? AppRoutes.home : AppRoutes.signIn,
-      );
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(body: Center(child: CircularProgressIndicator()));
-  }
-}

@@ -16,63 +16,81 @@ class ApiException implements Exception {
 
 // ─── API Client ───────────────────────────────────────────────────────────────
 
-abstract final class ApiClient {
+final class ApiClient {
+  ApiClient._(); // Private constructor to prevent instantiation
+
   static String get _base => Env.apiBaseUrl;
 
   static Future<T> fetch<T>(
     String path, {
     String method = 'GET',
     Map<String, dynamic>? body,
-    bool isMultipart = false,
-    Map<String, String>? extraHeaders,
+    bool requiresAuth = true,
   }) async {
     final uri = Uri.parse('$_base$path');
 
-    final token = await AccessToken().read();
-    final headers = <String, String>{
-      if (!isMultipart) 'Content-Type': 'application/json',
-      if (token != null) 'accessToken': 'Bearer $token',
-      ...?extraHeaders,
-    };
+    final headers = <String, String>{'Content-Type': 'application/json'};
+
+    // Add authorization header if required
+    if (requiresAuth) {
+      final accessToken = await AccessToken().token;
+      if (accessToken != null && accessToken.isNotEmpty) {
+        headers['accesstoken'] = 'Bearer $accessToken';
+      }
+    }
 
     late http.Response res;
 
-    switch (method.toUpperCase()) {
-      case 'POST':
-        res = await http.post(
-          uri,
-          headers: headers,
-          body: body != null ? jsonEncode(body) : null,
-        );
-      case 'PATCH':
-        res = await http.patch(
-          uri,
-          headers: headers,
-          body: body != null ? jsonEncode(body) : null,
-        );
-      case 'PUT':
-        res = await http.put(
-          uri,
-          headers: headers,
-          body: body != null ? jsonEncode(body) : null,
-        );
-      case 'DELETE':
-        res = await http.delete(uri, headers: headers);
-      default:
-        res = await http.get(uri, headers: headers);
+    try {
+      switch (method.toUpperCase()) {
+        case 'POST':
+          res = await http.post(
+            uri,
+            headers: headers,
+            body: body != null ? jsonEncode(body) : null,
+          );
+        case 'PATCH':
+          res = await http.patch(
+            uri,
+            headers: headers,
+            body: body != null ? jsonEncode(body) : null,
+          );
+        case 'PUT':
+          res = await http.put(
+            uri,
+            headers: headers,
+            body: body != null ? jsonEncode(body) : null,
+          );
+        case 'DELETE':
+          res = await http.delete(uri, headers: headers);
+        default:
+          res = await http.get(uri, headers: headers);
+      }
+    } catch (e) {
+      throw ApiException('Network error: ${e.toString()}', null);
     }
+
     if (res.statusCode < 200 || res.statusCode >= 300) {
       Map<String, dynamic> err = {};
       try {
         err = jsonDecode(res.body) as Map<String, dynamic>;
-      } catch (_) {}
+      } catch (_) {
+        // Failed to parse error response
+      }
       throw ApiException(
         err['message'] as String? ?? 'Request failed (${res.statusCode})',
         res.statusCode,
       );
     }
 
-    return jsonDecode(res.body) as T;
+    try {
+      return jsonDecode(res.body) as T;
+    } catch (e) {
+      throw ApiException(
+        'Failed to parse response: ${e.toString()}',
+        res.statusCode,
+      );
+    }
   }
 
   /// Upload a file directly to a presigned URL (e.g. Supabase).
@@ -81,13 +99,18 @@ abstract final class ApiClient {
     List<int> fileBytes,
     String contentType,
   ) async {
-    final res = await http.put(
-      uploadUrl,
-      headers: {'Content-Type': contentType},
-      body: fileBytes,
-    );
-    if (res.statusCode < 200 || res.statusCode >= 300) {
-      throw ApiException('Upload failed (${res.statusCode})', res.statusCode);
+    try {
+      final res = await http.put(
+        uploadUrl,
+        headers: {'Content-Type': contentType},
+        body: fileBytes,
+      );
+      if (res.statusCode < 200 || res.statusCode >= 300) {
+        throw ApiException('Upload failed (${res.statusCode})', res.statusCode);
+      }
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw ApiException('Upload error: ${e.toString()}', null);
     }
   }
 

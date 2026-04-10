@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:homebazaar/core/router/app_router.dart';
+import 'package:homebazaar/model/property.dart';
 import 'package:homebazaar/providers/auth_provider.dart';
 import 'package:homebazaar/providers/user_provider.dart';
 import 'package:homebazaar/view/components/app_bottom_nav.dart';
@@ -643,15 +644,15 @@ class _PropertyCard extends StatelessWidget {
 // ── Listing Row (My Listings list) ────────────────────────────────────────────
 
 class _ListingRow extends StatelessWidget {
-  final dynamic property;
+  final ApiProperty property;
   const _ListingRow({required this.property});
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final imageUrl = property.primaryImageUrl as String?;
-    final status = (property.status.name as String).toUpperCase();
-    final isActive = property.status.name == 'active';
+    final imageUrl = property.primaryImageUrl;
+    final status = property.status.name.toUpperCase();
+    final isActive = property.status == PropertyStatus.active;
 
     return GestureDetector(
       onTap: () =>
@@ -686,7 +687,7 @@ class _ListingRow extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    property.title as String,
+                    property.title,
                     style: GoogleFonts.notoSerif(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
@@ -706,7 +707,7 @@ class _ListingRow extends StatelessWidget {
                       const SizedBox(width: 2),
                       Expanded(
                         child: Text(
-                          property.locationString as String,
+                          property.locationString,
                           style: TextStyle(
                             fontSize: 11,
                             color: cs.onSurfaceVariant,
@@ -721,7 +722,7 @@ class _ListingRow extends StatelessWidget {
                   Row(
                     children: [
                       Text(
-                        property.priceLabel as String,
+                        property.priceLabel,
                         style: GoogleFonts.notoSerif(
                           fontSize: 14,
                           fontWeight: FontWeight.w900,
@@ -862,9 +863,9 @@ class _ErrorState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(32),
+      child: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
