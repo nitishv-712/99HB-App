@@ -21,11 +21,6 @@ class AuthProvider extends ChangeNotifier {
     await RefreshToken().clear();
   }
 
-  Future<void> setTokens(String accessToken, String refreshToken) async {
-    await AccessToken().save(accessToken);
-    await RefreshToken().save(refreshToken);
-  }
-
   void _setLoading() {
     _status = AuthStatus.loading;
     _error = null;
@@ -71,11 +66,6 @@ class AuthProvider extends ChangeNotifier {
     _setLoading();
     try {
       final res = await AuthService.login(email: email, password: password);
-      final accessToken = res.data['accessToken'] as String?;
-      final refreshToken = res.data['refreshToken'] as String?;
-      if (accessToken != null && refreshToken != null) {
-        await setTokens(accessToken, refreshToken);
-      }
       _user = ApiUser.fromJson(res.data['user'] as Map<String, dynamic>);
       _status = AuthStatus.authenticated;
       notifyListeners();
@@ -104,11 +94,6 @@ class AuthProvider extends ChangeNotifier {
         phone: phone,
         role: role,
       );
-      final accessToken = res.data['accessToken'] as String?;
-      final refreshToken = res.data['refreshToken'] as String?;
-      if (accessToken != null && refreshToken != null) {
-        await setTokens(accessToken, refreshToken);
-      }
       _user = ApiUser.fromJson(res.data['user'] as Map<String, dynamic>);
       _status = AuthStatus.authenticated;
       notifyListeners();
@@ -123,11 +108,6 @@ class AuthProvider extends ChangeNotifier {
     _setLoading();
     try {
       final res = await AuthService.googleLogin(idToken: idToken, role: role);
-      final accessToken = res.data['token'] as String?;
-      final refreshToken = res.data['refreshToken'] as String?;
-      if (accessToken != null && refreshToken != null) {
-        await setTokens(accessToken, refreshToken);
-      }
       _user = ApiUser.fromJson(res.data['user'] as Map<String, dynamic>);
       _status = AuthStatus.authenticated;
       notifyListeners();

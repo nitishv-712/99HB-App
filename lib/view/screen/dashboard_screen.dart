@@ -3,7 +3,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:homebazaar/core/router/app_router.dart';
 import 'package:homebazaar/model/property.dart';
+import 'package:homebazaar/model/user.dart';
 import 'package:homebazaar/providers/auth_provider.dart';
+import 'package:homebazaar/providers/inquiries_provider.dart';
+import 'package:homebazaar/providers/misc_providers.dart';
 import 'package:homebazaar/providers/user_provider.dart';
 import 'package:homebazaar/view/components/app_bottom_nav.dart';
 import 'package:homebazaar/view/components/app_top_bar.dart';
@@ -26,6 +29,8 @@ class _DashboardScreenState extends State<DashboardScreen>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<UserProvider>().fetchSaved();
       context.read<UserProvider>().fetchMyListings();
+      context.read<InquiriesProvider>().fetchMyInquiries();
+      context.read<AnalyticsProvider>().fetchOverview();
     });
   }
 
@@ -45,30 +50,54 @@ class _DashboardScreenState extends State<DashboardScreen>
       body: Stack(
         children: [
           SafeArea(
-            child: Column(
-              children: [
-                const SizedBox(height: 72),
-                Expanded(
-                  child: DefaultTabController(
-                    length: 2,
-                    child: Column(
-                      children: [
-                        // Scrollable header + sticky tab bar
-                        _HeaderSection(user: user),
-                        // Tab bar
-                        _StickyTabBar(controller: _tabCtrl, cs: cs),
-                        // Tab content
-                        Expanded(
-                          child: TabBarView(
-                            controller: _tabCtrl,
-                            children: [_SavedTab(), _MyListingsTab()],
-                          ),
-                        ),
+            child: NestedScrollView(
+              headerSliverBuilder: (_, __) => [
+                SliverToBoxAdapter(
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 72),
+                      _ProfileCard(user: user),
+                      const SizedBox(height: 20),
+                      _StatsRow(),
+                      const SizedBox(height: 24),
+                      _QuickActions(),
+                      const SizedBox(height: 8),
+                    ],
+                  ),
+                ),
+                SliverPersistentHeader(
+                  pinned: true,
+                  delegate: _TabBarDelegate(
+                    TabBar(
+                      controller: _tabCtrl,
+                      labelStyle: GoogleFonts.inter(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1,
+                      ),
+                      unselectedLabelStyle: GoogleFonts.inter(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      labelColor: cs.onSurface,
+                      unselectedLabelColor: cs.onSurfaceVariant,
+                      indicatorColor: cs.onSurface,
+                      indicatorWeight: 2,
+                      indicatorSize: TabBarIndicatorSize.label,
+                      dividerColor: cs.outlineVariant.withOpacity(0.3),
+                      tabs: const [
+                        Tab(text: 'SAVED'),
+                        Tab(text: 'MY LISTINGS'),
                       ],
                     ),
+                    cs.surface,
                   ),
                 ),
               ],
+              body: TabBarView(
+                controller: _tabCtrl,
+                children: [_SavedTab(), _MyListingsTab()],
+              ),
             ),
           ),
           const AppTopBar(),
@@ -79,86 +108,48 @@ class _DashboardScreenState extends State<DashboardScreen>
   }
 }
 
-// ── Tab Bar Delegate ──────────────────────────────────────────────────────────
+// ── Pinned Tab Bar Delegate ───────────────────────────────────────────────────
 
-class _StickyTabBar extends StatelessWidget {
-  final TabController controller;
-  final ColorScheme cs;
-  const _StickyTabBar({required this.controller, required this.cs});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: cs.surface,
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: TabBar(
-        controller: controller,
-        labelStyle: GoogleFonts.inter(
-          fontSize: 12,
-          fontWeight: FontWeight.bold,
-          letterSpacing: 1,
-        ),
-        unselectedLabelStyle: GoogleFonts.inter(
-          fontSize: 12,
-          fontWeight: FontWeight.w500,
-        ),
-        labelColor: cs.onSurface,
-        unselectedLabelColor: cs.onSurfaceVariant,
-        indicatorColor: cs.onSurface,
-        indicatorWeight: 2,
-        indicatorSize: TabBarIndicatorSize.label,
-        dividerColor: cs.outlineVariant.withOpacity(0.3),
-        tabs: const [
-          Tab(text: 'SAVED'),
-          Tab(text: 'MY LISTINGS'),
-        ],
-      ),
-    );
-  }
-}
-
-// ── Header Section ────────────────────────────────────────────────────────────
-
-class _HeaderSection extends StatelessWidget {
-  final dynamic user;
-  const _HeaderSection({required this.user});
+class _TabBarDelegate extends SliverPersistentHeaderDelegate {
+  final TabBar tabBar;
+  final Color background;
+  const _TabBarDelegate(this.tabBar, this.background);
 
   @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          _ProfileCard(user: user),
-          const SizedBox(height: 24),
-          _StatsRow(user: user),
-          const SizedBox(height: 28),
-          const _QuickActions(),
-          const SizedBox(height: 8),
-        ],
-      ),
-    );
-  }
+  double get minExtent => tabBar.preferredSize.height;
+  @override
+  double get maxExtent => tabBar.preferredSize.height;
+
+  @override
+  Widget build(_, __, ___) => Container(
+        color: background,
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: tabBar,
+      );
+
+  @override
+  bool shouldRebuild(_TabBarDelegate old) => old.tabBar != tabBar;
 }
 
 // ── Profile Card ──────────────────────────────────────────────────────────────
 
 class _ProfileCard extends StatelessWidget {
-  final dynamic user;
+  final ApiUser? user;
   const _ProfileCard({required this.user});
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final name = user != null ? '${user.firstName} ${user.lastName}' : 'Guest';
+    final name =
+        user != null ? '${user!.firstName} ${user!.lastName}' : 'Guest';
     final email = user?.email ?? '';
     final role = user?.role ?? 'buyer';
-    final avatar = user?.avatar as String?;
+    final avatar = user?.avatar;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
       child: Row(
         children: [
-          // Avatar
           Container(
             width: 64,
             height: 64,
@@ -188,36 +179,39 @@ class _ProfileCard extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Text(
-                      name,
-                      style: GoogleFonts.notoSerif(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w900,
-                        color: cs.onSurface,
+                    Flexible(
+                      child: Text(
+                        name,
+                        style: GoogleFonts.notoSerif(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w900,
+                          color: cs.onSurface,
+                        ),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    if (user?.isVerified == true)
-                      Icon(Icons.verified_rounded, size: 16, color: cs.primary),
+                    if (user?.isVerified == true) ...[
+                      const SizedBox(width: 6),
+                      Icon(Icons.verified_rounded,
+                          size: 16, color: cs.primary),
+                    ],
                   ],
                 ),
                 const SizedBox(height: 2),
                 Text(
                   email,
                   style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12),
+                  overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 6),
                 Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 3,
-                  ),
+                      horizontal: 10, vertical: 3),
                   decoration: BoxDecoration(
                     color: cs.surfaceContainerHighest.withOpacity(0.5),
                     borderRadius: BorderRadius.circular(999),
                     border: Border.all(
-                      color: cs.outlineVariant.withOpacity(0.3),
-                    ),
+                        color: cs.outlineVariant.withOpacity(0.3)),
                   ),
                   child: Text(
                     role.toUpperCase(),
@@ -232,18 +226,20 @@ class _ProfileCard extends StatelessWidget {
               ],
             ),
           ),
-          // Edit button
+          const SizedBox(width: 12),
           GestureDetector(
-            onTap: () {},
+            onTap: () => AppRouter.push(context, AppRoutes.settings),
             child: Container(
               width: 38,
               height: 38,
               decoration: BoxDecoration(
                 color: cs.surfaceContainerHighest.withOpacity(0.4),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: cs.outlineVariant.withOpacity(0.3)),
+                border:
+                    Border.all(color: cs.outlineVariant.withOpacity(0.3)),
               ),
-              child: Icon(Icons.edit_outlined, size: 18, color: cs.onSurface),
+              child:
+                  Icon(Icons.edit_outlined, size: 18, color: cs.onSurface),
             ),
           ),
         ],
@@ -262,12 +258,12 @@ class _AvatarFallback extends StatelessWidget {
     final initials = name.trim().isEmpty
         ? '?'
         : name
-              .trim()
-              .split(' ')
-              .map((e) => e.isNotEmpty ? e[0] : '')
-              .take(2)
-              .join()
-              .toUpperCase();
+            .trim()
+            .split(' ')
+            .map((e) => e.isNotEmpty ? e[0] : '')
+            .take(2)
+            .join()
+            .toUpperCase();
     return Container(
       color: cs.surfaceContainerHighest,
       child: Center(
@@ -287,65 +283,63 @@ class _AvatarFallback extends StatelessWidget {
 // ── Stats Row ─────────────────────────────────────────────────────────────────
 
 class _StatsRow extends StatelessWidget {
-  final dynamic user;
-  const _StatsRow({required this.user});
-
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final saved = context.watch<UserProvider>().saved.length;
     final listings = context.watch<UserProvider>().myListings.length;
+    final inquiries = context.watch<InquiriesProvider>().inquiries.length;
 
     final stats = [
       (label: 'Saved', value: '$saved', icon: Icons.favorite_border_rounded),
       (label: 'Listings', value: '$listings', icon: Icons.home_work_outlined),
-      (label: 'Inquiries', value: '0', icon: Icons.chat_bubble_outline_rounded),
+      (
+        label: 'Inquiries',
+        value: '$inquiries',
+        icon: Icons.chat_bubble_outline_rounded
+      ),
     ];
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Row(
-        children: stats
-            .map(
-              (s) => Expanded(
-                child: Padding(
-                  padding: EdgeInsets.only(right: s == stats.last ? 0 : 10),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    decoration: BoxDecoration(
-                      color: cs.surfaceContainerHighest.withOpacity(0.35),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: cs.outlineVariant.withOpacity(0.25),
+        children: List.generate(stats.length, (i) {
+          final s = stats[i];
+          return Expanded(
+            child: Padding(
+              padding: EdgeInsets.only(right: i < stats.length - 1 ? 10 : 0),
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                decoration: BoxDecoration(
+                  color: cs.surfaceContainerHighest.withOpacity(0.35),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                      color: cs.outlineVariant.withOpacity(0.25)),
+                ),
+                child: Column(
+                  children: [
+                    Icon(s.icon, size: 20, color: cs.onSurface),
+                    const SizedBox(height: 8),
+                    Text(
+                      s.value,
+                      style: GoogleFonts.notoSerif(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w900,
+                        color: cs.onSurface,
                       ),
                     ),
-                    child: Column(
-                      children: [
-                        Icon(s.icon, size: 20, color: cs.onSurface),
-                        const SizedBox(height: 8),
-                        Text(
-                          s.value,
-                          style: GoogleFonts.notoSerif(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w900,
-                            color: cs.onSurface,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          s.label,
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: cs.onSurfaceVariant,
-                          ),
-                        ),
-                      ],
+                    const SizedBox(height: 2),
+                    Text(
+                      s.label,
+                      style: TextStyle(
+                          fontSize: 11, color: cs.onSurfaceVariant),
                     ),
-                  ),
+                  ],
                 ),
               ),
-            )
-            .toList(),
+            ),
+          );
+        }),
       ),
     );
   }
@@ -354,18 +348,36 @@ class _StatsRow extends StatelessWidget {
 // ── Quick Actions ─────────────────────────────────────────────────────────────
 
 class _QuickActions extends StatelessWidget {
-  const _QuickActions();
-
-  static const _actions = [
-    (icon: Icons.add_home_outlined, label: 'New\nListing'),
-    (icon: Icons.analytics_outlined, label: 'Analytics'),
-    (icon: Icons.compare_arrows_outlined, label: 'Compare'),
-    (icon: Icons.support_agent_outlined, label: 'Support'),
-  ];
-
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final analytics = context.watch<AnalyticsProvider>().overview;
+
+    final actions = [
+      (
+        icon: Icons.add_home_outlined,
+        label: 'New\nListing',
+        onTap: () {},
+      ),
+      (
+        icon: Icons.analytics_outlined,
+        label: analytics != null
+            ? '${analytics.totalViews}\nViews'
+            : 'Analytics',
+        onTap: () {},
+      ),
+      (
+        icon: Icons.compare_arrows_outlined,
+        label: 'Compare',
+        onTap: () {},
+      ),
+      (
+        icon: Icons.support_agent_outlined,
+        label: 'Support',
+        onTap: () {},
+      ),
+    ];
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
@@ -382,58 +394,53 @@ class _QuickActions extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Row(
-            children: _actions
-                .map(
-                  (a) => Expanded(
-                    child: Padding(
-                      padding: EdgeInsets.only(
-                        right: a == _actions.last ? 0 : 10,
+            children: List.generate(actions.length, (i) {
+              final a = actions[i];
+              final isPrimary = i == 0;
+              return Expanded(
+                child: Padding(
+                  padding:
+                      EdgeInsets.only(right: i < actions.length - 1 ? 10 : 0),
+                  child: GestureDetector(
+                    onTap: a.onTap,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      decoration: BoxDecoration(
+                        color: isPrimary
+                            ? cs.onSurface
+                            : cs.surfaceContainerHighest.withOpacity(0.35),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: isPrimary
+                              ? cs.onSurface
+                              : cs.outlineVariant.withOpacity(0.25),
+                        ),
                       ),
-                      child: GestureDetector(
-                        onTap: () {},
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          decoration: BoxDecoration(
-                            color: a == _actions.first
-                                ? cs.onSurface
-                                : cs.surfaceContainerHighest.withOpacity(0.35),
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: a == _actions.first
-                                  ? cs.onSurface
-                                  : cs.outlineVariant.withOpacity(0.25),
+                      child: Column(
+                        children: [
+                          Icon(
+                            a.icon,
+                            size: 22,
+                            color: isPrimary ? cs.surface : cs.onSurface,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            a.label,
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.inter(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w600,
+                              color: isPrimary ? cs.surface : cs.onSurface,
+                              height: 1.3,
                             ),
                           ),
-                          child: Column(
-                            children: [
-                              Icon(
-                                a.icon,
-                                size: 22,
-                                color: a == _actions.first
-                                    ? cs.surface
-                                    : cs.onSurface,
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                a.label,
-                                textAlign: TextAlign.center,
-                                style: GoogleFonts.inter(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w600,
-                                  color: a == _actions.first
-                                      ? cs.surface
-                                      : cs.onSurface,
-                                  height: 1.3,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+                        ],
                       ),
                     ),
                   ),
-                )
-                .toList(),
+                ),
+              );
+            }),
           ),
         ],
       ),
@@ -460,7 +467,7 @@ class _SavedTab extends StatelessWidget {
     }
 
     if (provider.saved.isEmpty) {
-      return _EmptyState(
+      return const _EmptyState(
         icon: Icons.favorite_border_rounded,
         title: 'No saved properties',
         subtitle: 'Properties you save will appear here.',
@@ -522,14 +529,14 @@ class _MyListingsTab extends StatelessWidget {
 // ── Property Card (Saved grid) ────────────────────────────────────────────────
 
 class _PropertyCard extends StatelessWidget {
-  final dynamic property;
+  final ApiProperty property;
   final bool staggered;
   const _PropertyCard({required this.property, required this.staggered});
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final imageUrl = property.primaryImageUrl as String?;
+    final imageUrl = property.primaryImageUrl;
 
     return Padding(
       padding: EdgeInsets.only(top: staggered ? 36 : 0),
@@ -575,7 +582,7 @@ class _PropertyCard extends StatelessWidget {
                       bottom: 10,
                       left: 10,
                       child: Text(
-                        property.priceLabel as String,
+                        property.priceLabel,
                         style: GoogleFonts.notoSerif(
                           fontSize: 13,
                           fontWeight: FontWeight.w900,
@@ -593,11 +600,8 @@ class _PropertyCard extends StatelessWidget {
                           color: Colors.white.withOpacity(0.9),
                           shape: BoxShape.circle,
                         ),
-                        child: Icon(
-                          Icons.favorite_rounded,
-                          size: 14,
-                          color: cs.onSurface,
-                        ),
+                        child: Icon(Icons.favorite_rounded,
+                            size: 14, color: cs.onSurface),
                       ),
                     ),
                   ],
@@ -606,7 +610,7 @@ class _PropertyCard extends StatelessWidget {
             ),
             const SizedBox(height: 10),
             Text(
-              property.title as String,
+              property.title,
               style: GoogleFonts.notoSerif(
                 fontSize: 13,
                 fontWeight: FontWeight.bold,
@@ -618,16 +622,14 @@ class _PropertyCard extends StatelessWidget {
             const SizedBox(height: 3),
             Row(
               children: [
-                Icon(
-                  Icons.location_on_outlined,
-                  size: 11,
-                  color: cs.onSurfaceVariant,
-                ),
+                Icon(Icons.location_on_outlined,
+                    size: 11, color: cs.onSurfaceVariant),
                 const SizedBox(width: 2),
                 Expanded(
                   child: Text(
-                    property.locationString as String,
-                    style: TextStyle(fontSize: 10, color: cs.onSurfaceVariant),
+                    property.locationString,
+                    style:
+                        TextStyle(fontSize: 10, color: cs.onSurfaceVariant),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -666,7 +668,6 @@ class _ListingRow extends StatelessWidget {
         ),
         child: Row(
           children: [
-            // Thumbnail
             ClipRRect(
               borderRadius: BorderRadius.circular(12),
               child: SizedBox(
@@ -676,7 +677,8 @@ class _ListingRow extends StatelessWidget {
                     ? Image.network(
                         imageUrl,
                         fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => _ImgPlaceholder(cs: cs),
+                        errorBuilder: (_, __, ___) =>
+                            _ImgPlaceholder(cs: cs),
                       )
                     : _ImgPlaceholder(cs: cs),
               ),
@@ -699,19 +701,14 @@ class _ListingRow extends StatelessWidget {
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      Icon(
-                        Icons.location_on_outlined,
-                        size: 11,
-                        color: cs.onSurfaceVariant,
-                      ),
+                      Icon(Icons.location_on_outlined,
+                          size: 11, color: cs.onSurfaceVariant),
                       const SizedBox(width: 2),
                       Expanded(
                         child: Text(
                           property.locationString,
                           style: TextStyle(
-                            fontSize: 11,
-                            color: cs.onSurfaceVariant,
-                          ),
+                              fontSize: 11, color: cs.onSurfaceVariant),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -732,9 +729,7 @@ class _ListingRow extends StatelessWidget {
                       const Spacer(),
                       Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 3,
-                        ),
+                            horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
                           color: isActive
                               ? Colors.green.withOpacity(0.12)
@@ -759,11 +754,8 @@ class _ListingRow extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 8),
-            Icon(
-              Icons.chevron_right_rounded,
-              color: cs.onSurfaceVariant,
-              size: 20,
-            ),
+            Icon(Icons.chevron_right_rounded,
+                color: cs.onSurfaceVariant, size: 20),
           ],
         ),
       ),
@@ -819,10 +811,7 @@ class _EmptyState extends StatelessWidget {
               subtitle,
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: cs.onSurfaceVariant,
-                fontSize: 13,
-                height: 1.5,
-              ),
+                  color: cs.onSurfaceVariant, fontSize: 13, height: 1.5),
             ),
             if (action != null) ...[
               const SizedBox(height: 20),
@@ -830,9 +819,7 @@ class _EmptyState extends StatelessWidget {
                 onTap: onAction,
                 child: Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 12,
-                  ),
+                      horizontal: 24, vertical: 12),
                   decoration: BoxDecoration(
                     color: cs.onSurface,
                     borderRadius: BorderRadius.circular(12),
@@ -881,9 +868,7 @@ class _ErrorState extends StatelessWidget {
               onTap: onRetry,
               child: Container(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 10,
-                ),
+                    horizontal: 24, vertical: 10),
                 decoration: BoxDecoration(
                   color: cs.onSurface,
                   borderRadius: BorderRadius.circular(10),
@@ -891,9 +876,7 @@ class _ErrorState extends StatelessWidget {
                 child: Text(
                   'Retry',
                   style: TextStyle(
-                    color: cs.surface,
-                    fontWeight: FontWeight.bold,
-                  ),
+                      color: cs.surface, fontWeight: FontWeight.bold),
                 ),
               ),
             ),
@@ -910,7 +893,7 @@ class _ImgPlaceholder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-    color: cs.surfaceContainerHigh,
-    child: Icon(Icons.image_outlined, color: cs.outline, size: 28),
-  );
+        color: cs.surfaceContainerHigh,
+        child: Icon(Icons.image_outlined, color: cs.outline, size: 28),
+      );
 }

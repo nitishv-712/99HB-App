@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:homebazaar/view/screen/settings_screen.dart';
 import 'package:homebazaar/view/screen/splash_screen.dart';
-import 'package:provider/provider.dart';
-import 'package:homebazaar/providers/auth_provider.dart';
 import 'package:homebazaar/view/screen/buy_screen.dart';
 import 'package:homebazaar/view/screen/dashboard_screen.dart';
 import 'package:homebazaar/view/screen/forgot_password_screen.dart';
@@ -91,5 +89,3 @@ abstract final class AppRouter {
     transitionDuration: const Duration(milliseconds: 280),
   );
 }
-
-

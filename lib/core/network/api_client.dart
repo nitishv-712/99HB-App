@@ -3,22 +3,16 @@ import 'package:http/http.dart' as http;
 import 'package:homebazaar/core/config/env.dart';
 import 'package:homebazaar/core/storage/token_storage.dart';
 
-// ─── Exception ────────────────────────────────────────────────────────────────
-
 class ApiException implements Exception {
   final String message;
   final int? statusCode;
   ApiException(this.message, [this.statusCode]);
-
   @override
   String toString() => 'ApiException($statusCode): $message';
 }
 
-// ─── API Client ───────────────────────────────────────────────────────────────
-
 final class ApiClient {
-  ApiClient._(); // Private constructor to prevent instantiation
-
+  ApiClient._();
   static String get _base => Env.apiBaseUrl;
 
   static Future<T> fetch<T>(
@@ -28,72 +22,66 @@ final class ApiClient {
     bool requiresAuth = true,
   }) async {
     final uri = Uri.parse('$_base$path');
-
-    final headers = <String, String>{'Content-Type': 'application/json'};
-
-    // Add authorization header if required
-    if (requiresAuth) {
-      final accessToken = await AccessToken().token;
-      if (accessToken != null && accessToken.isNotEmpty) {
-        headers['accesstoken'] = 'Bearer $accessToken';
-      }
-    }
-
-    late http.Response res;
+    final headers = await _getHeaders(requiresAuth);
 
     try {
-      switch (method.toUpperCase()) {
-        case 'POST':
-          res = await http.post(
-            uri,
-            headers: headers,
-            body: body != null ? jsonEncode(body) : null,
-          );
-        case 'PATCH':
-          res = await http.patch(
-            uri,
-            headers: headers,
-            body: body != null ? jsonEncode(body) : null,
-          );
-        case 'PUT':
-          res = await http.put(
-            uri,
-            headers: headers,
-            body: body != null ? jsonEncode(body) : null,
-          );
-        case 'DELETE':
-          res = await http.delete(uri, headers: headers);
-        default:
-          res = await http.get(uri, headers: headers);
-      }
-    } catch (e) {
-      throw ApiException('Network error: ${e.toString()}', null);
-    }
+      final request = http.Request(method.toUpperCase(), uri);
+      request.headers.addAll(headers);
+      if (body != null) request.body = jsonEncode(body);
 
-    if (res.statusCode < 200 || res.statusCode >= 300) {
-      Map<String, dynamic> err = {};
-      try {
-        err = jsonDecode(res.body) as Map<String, dynamic>;
-      } catch (_) {
-        // Failed to parse error response
-      }
-      throw ApiException(
-        err['message'] as String? ?? 'Request failed (${res.statusCode})',
-        res.statusCode,
-      );
-    }
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
 
-    try {
-      return jsonDecode(res.body) as T;
+      return _handleResponse<T>(response);
     } catch (e) {
-      throw ApiException(
-        'Failed to parse response: ${e.toString()}',
-        res.statusCode,
-      );
+      if (e is ApiException) rethrow;
+      throw ApiException('Connection error: ${e.toString()}');
     }
   }
 
-  /// Upload a file directly to a presigned URL (e.g. Supabase).
+  static Future<Map<String, String>> _getHeaders(bool requiresAuth) async {
+    final headers = {'Content-Type': 'application/json'};
+
+    if (requiresAuth) {
+      final access = await AccessToken().token;
+      final refresh = await RefreshToken().token;
+
+      if (access != null) headers['x-auth-accesstoken'] = access;
+      if (refresh != null) headers['x-auth-refreshtoken'] = refresh;
+    }
+    return headers;
+  }
+
+  static Future<T> _handleResponse<T>(http.Response res) async {
+    await _updateTokens(res.headers);
+    if (res.statusCode < 200 || res.statusCode >= 300) {
+      final msg = _parseErrorMessage(res.body, res.statusCode);
+      throw ApiException(msg, res.statusCode);
+    }
+    try {
+      return jsonDecode(res.body) as T;
+    } catch (e) {
+      throw ApiException('Parse error: ${e.toString()}', res.statusCode);
+    }
+  }
+
+  static Future<void> _updateTokens(Map<String, String> headers) async {
+    final newAccess = headers['x-auth-accesstoken'];
+    final newRefresh = headers['x-auth-refreshtoken'];
+
+    if (newAccess != null) await AccessToken().save(newAccess);
+    if (newRefresh != null) await RefreshToken().save(newRefresh);
+  }
+
+  static String _parseErrorMessage(String body, int code) {
+    try {
+      final data = jsonDecode(body);
+      return data['message'] ?? 'Error $code';
+    } catch (_) {
+      return 'Request failed with status: $code';
+    }
+  }
+
   static Future<void> uploadToPresignedUrl(
     Uri uploadUrl,
     List<int> fileBytes,
@@ -114,15 +102,10 @@ final class ApiClient {
     }
   }
 
-  /// Build query string from a map, dropping null/empty values.
   static String buildQuery(Map<String, dynamic> params) {
-    final filtered = params.entries
-        .where((e) => e.value != null && e.value.toString().isNotEmpty)
-        .map(
-          (e) =>
-              '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value.toString())}',
-        )
-        .join('&');
-    return filtered.isEmpty ? '' : '?$filtered';
+    params.removeWhere((k, v) => v == null || v.toString().isEmpty);
+    return params.isEmpty
+        ? ''
+        : '?${Uri(queryParameters: params.map((k, v) => MapEntry(k, v.toString()))).query}';
   }
 }
