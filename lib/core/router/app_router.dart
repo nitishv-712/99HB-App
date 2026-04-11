@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:homebazaar/view/screen/analytics_screen.dart';
+import 'package:homebazaar/view/screen/comparisons_screen.dart';
+import 'package:homebazaar/view/screen/inquiries_screen.dart';
+import 'package:homebazaar/view/screen/reviews_screen.dart';
+import 'package:homebazaar/view/screen/search_history_screen.dart';
 import 'package:homebazaar/view/screen/settings_screen.dart';
 import 'package:homebazaar/view/screen/splash_screen.dart';
+import 'package:homebazaar/view/screen/support_screen.dart';
 import 'package:homebazaar/view/screen/buy_screen.dart';
 import 'package:homebazaar/view/screen/dashboard_screen.dart';
 import 'package:homebazaar/view/screen/forgot_password_screen.dart';
@@ -19,6 +25,12 @@ abstract final class AppRoutes {
   static const dashboard = '/dashboard';
   static const propertyDetail = '/property/:id';
   static const settings = '/settings';
+  static const analytics = '/analytics';
+  static const inquiries = '/inquiries';
+  static const reviews = '/reviews';
+  static const searchHistory = '/search-history';
+  static const support = '/support';
+  static const comparisons = '/comparisons';
 }
 
 abstract final class AppRouter {
@@ -43,6 +55,18 @@ abstract final class AppRouter {
         return _slide(PropertyDetailScreen(propertyId: id));
       case AppRoutes.settings:
         return _slide(const SettingsScreen());
+      case AppRoutes.analytics:
+        return _slide(const AnalyticsScreen());
+      case AppRoutes.inquiries:
+        return _slide(const InquiriesScreen());
+      case AppRoutes.reviews:
+        return _slide(const ReviewsScreen());
+      case AppRoutes.searchHistory:
+        return _slide(const SearchHistoryScreen());
+      case AppRoutes.support:
+        return _slide(const SupportScreen());
+      case AppRoutes.comparisons:
+        return _slide(const ComparisonsScreen());
       default:
         return _slide(const HomeScreen());
     }

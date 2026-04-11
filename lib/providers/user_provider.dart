@@ -46,12 +46,20 @@ class UserProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> fetchMyListings({PropertyStatus? status, int? page, int? limit}) async {
+  Future<void> fetchMyListings({
+    PropertyStatus? status,
+    int? page,
+    int? limit,
+  }) async {
     _listingsLoading = true;
     _listingsError = null;
     notifyListeners();
     try {
-      final res = await UsersService.myListings(status: status, page: page, limit: limit);
+      final res = await UsersService.myListings(
+        status: status,
+        page: page,
+        limit: limit,
+      );
       _myListings = res.data;
     } catch (e) {
       _listingsError = e.toString();
@@ -76,9 +84,14 @@ class UserProvider extends ChangeNotifier {
     notifyListeners();
     try {
       final res = await UsersService.updateProfile(
-        firstName: firstName, lastName: lastName, avatar: avatar,
-        email: email, phone: phone, panNumber: panNumber,
-        panCardImage: panCardImage, aadharNumber: aadharNumber,
+        firstName: firstName,
+        lastName: lastName,
+        avatar: avatar,
+        email: email,
+        phone: phone,
+        panNumber: panNumber,
+        panCardImage: panCardImage,
+        aadharNumber: aadharNumber,
         aadharCardImage: aadharCardImage,
       );
       _updating = false;
@@ -108,7 +121,10 @@ class UserProvider extends ChangeNotifier {
   }) async {
     try {
       await UsersService.uploadToSupabase(
-        uploadUrl: uploadUrl, fileBytes: fileBytes, contentType: contentType);
+        uploadUrl: uploadUrl,
+        fileBytes: fileBytes,
+        contentType: contentType,
+      );
       return true;
     } catch (_) {
       return false;

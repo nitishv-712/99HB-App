@@ -19,20 +19,22 @@ class ApiSavedProperty {
   });
 
   factory ApiSavedProperty.fromJson(Map<String, dynamic> j) => ApiSavedProperty(
-        id: j['_id'] as String,
-        user: j['user'] as String,
-        property: j['property'] is Map
-            ? ApiProperty.fromJson(j['property'] as Map<String, dynamic>)
-            : j['property'] as String,
-        savedAt: j['savedAt'] as String,
-      );
+    id: j['_id'] as String,
+    user: j['user'] as String,
+    property: j['property'] is Map
+        ? ApiProperty.fromJson(j['property'] as Map<String, dynamic>)
+        : j['property'] as String,
+    savedAt: j['savedAt'] as String,
+  );
 
   Map<String, dynamic> toJson() => {
-        '_id': id,
-        'user': user,
-        'property': property is ApiProperty ? (property as ApiProperty).toJson() : property,
-        'savedAt': savedAt,
-      };
+    '_id': id,
+    'user': user,
+    'property': property is ApiProperty
+        ? (property as ApiProperty).toJson()
+        : property,
+    'savedAt': savedAt,
+  };
 }
 
 // ─── Search History ───────────────────────────────────────────────────────────
@@ -55,22 +57,22 @@ class ApiSearchHistory {
   });
 
   factory ApiSearchHistory.fromJson(Map<String, dynamic> j) => ApiSearchHistory(
-        id: j['_id'] as String,
-        user: j['user'] as String,
-        query: j['query'] as String,
-        filters: Map<String, dynamic>.from(j['filters'] as Map),
-        createdAt: j['createdAt'] as String,
-        updatedAt: j['updatedAt'] as String,
-      );
+    id: j['_id'] as String,
+    user: j['user'] as String,
+    query: j['query'] as String,
+    filters: Map<String, dynamic>.from(j['filters'] as Map),
+    createdAt: j['createdAt'] as String,
+    updatedAt: j['updatedAt'] as String,
+  );
 
   Map<String, dynamic> toJson() => {
-        '_id': id,
-        'user': user,
-        'query': query,
-        'filters': filters,
-        'createdAt': createdAt,
-        'updatedAt': updatedAt,
-      };
+    '_id': id,
+    'user': user,
+    'query': query,
+    'filters': filters,
+    'createdAt': createdAt,
+    'updatedAt': updatedAt,
+  };
 }
 
 // ─── Newsletter ───────────────────────────────────────────────────────────────
@@ -91,20 +93,20 @@ class ApiNewsletter {
   });
 
   factory ApiNewsletter.fromJson(Map<String, dynamic> j) => ApiNewsletter(
-        id: j['_id'] as String,
-        email: j['email'] as String,
-        isActive: j['isActive'] as bool,
-        createdAt: j['createdAt'] as String,
-        updatedAt: j['updatedAt'] as String,
-      );
+    id: j['_id'] as String,
+    email: j['email'] as String,
+    isActive: j['isActive'] as bool,
+    createdAt: j['createdAt'] as String,
+    updatedAt: j['updatedAt'] as String,
+  );
 
   Map<String, dynamic> toJson() => {
-        '_id': id,
-        'email': email,
-        'isActive': isActive,
-        'createdAt': createdAt,
-        'updatedAt': updatedAt,
-      };
+    '_id': id,
+    'email': email,
+    'isActive': isActive,
+    'createdAt': createdAt,
+    'updatedAt': updatedAt,
+  };
 }
 
 // ─── OTP ──────────────────────────────────────────────────────────────────────
@@ -129,24 +131,24 @@ class ApiOtp {
   });
 
   factory ApiOtp.fromJson(Map<String, dynamic> j) => ApiOtp(
-        id: j['_id'] as String,
-        email: j['email'] as String?,
-        phone: j['phone'] as String?,
-        isVerified: j['isVerified'] as bool,
-        attempts: j['attempts'] as int,
-        expiresAt: j['expiresAt'] as String,
-        createdAt: j['createdAt'] as String,
-      );
+    id: j['_id'] as String,
+    email: j['email'] as String?,
+    phone: j['phone'] as String?,
+    isVerified: j['isVerified'] as bool,
+    attempts: j['attempts'] as int,
+    expiresAt: j['expiresAt'] as String,
+    createdAt: j['createdAt'] as String,
+  );
 
   Map<String, dynamic> toJson() => {
-        '_id': id,
-        'email': email,
-        'phone': phone,
-        'isVerified': isVerified,
-        'attempts': attempts,
-        'expiresAt': expiresAt,
-        'createdAt': createdAt,
-      };
+    '_id': id,
+    'email': email,
+    'phone': phone,
+    'isVerified': isVerified,
+    'attempts': attempts,
+    'expiresAt': expiresAt,
+    'createdAt': createdAt,
+  };
 }
 
 // ─── Upload ───────────────────────────────────────────────────────────────────
@@ -164,15 +166,16 @@ class UploadLinkResponse {
     required this.filePath,
   });
 
-  factory UploadLinkResponse.fromJson(Map<String, dynamic> j) => UploadLinkResponse(
+  factory UploadLinkResponse.fromJson(Map<String, dynamic> j) =>
+      UploadLinkResponse(
         uploadUrl: j['uploadUrl'] as String,
         viewUrl: j['viewUrl'] as String,
         filePath: j['filePath'] as String,
       );
 
   Map<String, dynamic> toJson() => {
-        'uploadUrl': uploadUrl,
-        'viewUrl': viewUrl,
-        'filePath': filePath,
-      };
+    'uploadUrl': uploadUrl,
+    'viewUrl': viewUrl,
+    'filePath': filePath,
+  };
 }

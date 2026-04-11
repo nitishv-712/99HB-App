@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:homebazaar/core/router/app_router.dart';
 import 'package:homebazaar/providers/properties_provider.dart';
-import 'package:homebazaar/services/misc_services.dart';
+import 'package:homebazaar/services/newsletter_service.dart';
 import 'package:homebazaar/view/components/app_bottom_nav.dart';
 import 'package:homebazaar/view/components/app_top_bar.dart';
 import 'package:homebazaar/view/components/property_card.dart';

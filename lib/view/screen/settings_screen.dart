@@ -160,13 +160,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
               _NavTile(
                 icon: Icons.help_outline_rounded,
                 label: 'Help & FAQ',
-                onTap: () {},
+                onTap: () => AppRouter.push(context, AppRoutes.support),
               ),
               _Divider(),
               _NavTile(
                 icon: Icons.support_agent_outlined,
                 label: 'Contact Support',
-                onTap: () {},
+                onTap: () => AppRouter.push(context, AppRoutes.support),
               ),
               _Divider(),
               _NavTile(

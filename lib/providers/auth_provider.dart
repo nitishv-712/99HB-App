@@ -8,6 +8,7 @@ enum AuthStatus { initial, loading, authenticated, unauthenticated }
 
 class AuthProvider extends ChangeNotifier {
   AuthStatus _status = AuthStatus.initial;
+
   ApiUser? _user;
   String? _error;
 
@@ -54,8 +55,7 @@ class AuthProvider extends ChangeNotifier {
       _user = ApiUser.fromJson(res.data['user'] as Map<String, dynamic>);
       _status = AuthStatus.authenticated;
     } catch (e) {
-      await AccessToken().clear();
-      await RefreshToken().clear();
+      await tokenClear();
       _user = null;
       _status = AuthStatus.unauthenticated;
     }

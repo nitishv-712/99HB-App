@@ -6,7 +6,8 @@ import 'package:homebazaar/model/property.dart';
 import 'package:homebazaar/model/user.dart';
 import 'package:homebazaar/providers/auth_provider.dart';
 import 'package:homebazaar/providers/inquiries_provider.dart';
-import 'package:homebazaar/providers/misc_providers.dart';
+import 'package:homebazaar/providers/analytics_provider.dart';
+import 'package:homebazaar/providers/saved_provider.dart';
 import 'package:homebazaar/providers/user_provider.dart';
 import 'package:homebazaar/view/components/app_bottom_nav.dart';
 import 'package:homebazaar/view/components/app_top_bar.dart';
@@ -357,24 +358,24 @@ class _QuickActions extends StatelessWidget {
       (
         icon: Icons.add_home_outlined,
         label: 'New\nListing',
-        onTap: () {},
+        onTap: () => AppRouter.push(context, AppRoutes.buy),
       ),
       (
         icon: Icons.analytics_outlined,
         label: analytics != null
             ? '${analytics.totalViews}\nViews'
             : 'Analytics',
-        onTap: () {},
+        onTap: () => AppRouter.push(context, AppRoutes.analytics),
       ),
       (
         icon: Icons.compare_arrows_outlined,
         label: 'Compare',
-        onTap: () {},
+        onTap: () => AppRouter.push(context, AppRoutes.comparisons),
       ),
       (
         icon: Icons.support_agent_outlined,
         label: 'Support',
-        onTap: () {},
+        onTap: () => AppRouter.push(context, AppRoutes.support),
       ),
     ];
 
