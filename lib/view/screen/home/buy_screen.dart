@@ -70,7 +70,7 @@ class _BuyScreenState extends State<BuyScreen> {
   }
 
   void _fetch() {
-    context.read<PropertiesProvider>().fetchList(
+    context.read<PropertiesProvider>().fetchListForced(
       PropertyFilters(
         type: _listingType,
         propType: _propTypes[_typeIndex].type,

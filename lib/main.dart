@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
+import 'package:homebazaar/core/error_handler.dart';
 import 'package:homebazaar/core/router/app_router.dart';
 import 'package:homebazaar/providers/theme_provider.dart';
 import 'package:homebazaar/providers/auth_provider.dart';
@@ -34,6 +35,8 @@ class MyApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           theme: theme.currentTheme,
           themeMode: theme.themeMode,
+          navigatorKey: AppErrorHandler.navigatorKey,
+          scaffoldMessengerKey: AppErrorHandler.scaffoldMessengerKey,
           initialRoute: AppRoutes.splash,
           onGenerateRoute: AppRouter.onGenerateRoute,
         ),

@@ -1,8 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:homebazaar/core/router/app_router.dart';
+import 'package:homebazaar/providers/analytics_provider.dart';
 import 'package:homebazaar/providers/auth_provider.dart';
+import 'package:homebazaar/providers/comparisons_provider.dart';
+import 'package:homebazaar/providers/inquiries_provider.dart';
+import 'package:homebazaar/providers/reviews_provider.dart';
+import 'package:homebazaar/providers/saved_provider.dart';
+import 'package:homebazaar/providers/search_history_provider.dart';
+import 'package:homebazaar/providers/support_provider.dart';
 import 'package:homebazaar/providers/theme_provider.dart';
+import 'package:homebazaar/providers/user_provider.dart';
 import 'package:homebazaar/view/components/app_bottom_nav.dart';
 import 'package:provider/provider.dart';
 
@@ -116,7 +124,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 _NavTile(
                   icon: Icons.person_outline_rounded,
                   label: 'Edit Profile',
-                  onTap: () {},
+                  onTap: () => AppRouter.push(context, AppRoutes.editProfile),
                 ),
                 _Divider(),
                 _NavTile(
@@ -213,6 +221,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
               onTap: () async {
                 await context.read<AuthProvider>().logout();
                 if (context.mounted) {
+                  // Clear all provider caches on logout
+                  context.read<UserProvider>().clear();
+                  context.read<SavedProvider>().invalidate();
+                  context.read<InquiriesProvider>().invalidateList();
+                  context.read<ComparisonsProvider>().invalidateList();
+                  context.read<ReviewsProvider>().invalidateProperty('');
+                  context.read<SupportProvider>().invalidateList();
+                  context.read<SearchHistoryProvider>().deleteAll();
+                  context.read<AnalyticsProvider>().invalidateOverview();
                   AppRouter.pushAndClearStack(context, AppRoutes.signIn);
                 }
               },
@@ -324,19 +341,7 @@ class _ProfileCard extends StatelessWidget {
               ],
             ),
           ),
-          GestureDetector(
-            onTap: () {},
-            child: Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: cs.surfaceContainerHighest.withOpacity(0.4),
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: cs.outlineVariant.withOpacity(0.3)),
-              ),
-              child: Icon(Icons.edit_outlined, size: 16, color: cs.onSurface),
-            ),
-          ),
+
         ],
       ),
     );

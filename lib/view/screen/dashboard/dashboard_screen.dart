@@ -7,7 +7,6 @@ import 'package:homebazaar/model/user.dart';
 import 'package:homebazaar/providers/auth_provider.dart';
 import 'package:homebazaar/providers/inquiries_provider.dart';
 import 'package:homebazaar/providers/analytics_provider.dart';
-import 'package:homebazaar/providers/saved_provider.dart';
 import 'package:homebazaar/providers/user_provider.dart';
 import 'package:homebazaar/view/components/app_bottom_nav.dart';
 import 'package:homebazaar/view/components/app_top_bar.dart';
@@ -228,21 +227,7 @@ class _ProfileCard extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 12),
-          GestureDetector(
-            onTap: () => AppRouter.push(context, AppRoutes.settings),
-            child: Container(
-              width: 38,
-              height: 38,
-              decoration: BoxDecoration(
-                color: cs.surfaceContainerHighest.withOpacity(0.4),
-                borderRadius: BorderRadius.circular(12),
-                border:
-                    Border.all(color: cs.outlineVariant.withOpacity(0.3)),
-              ),
-              child:
-                  Icon(Icons.edit_outlined, size: 18, color: cs.onSurface),
-            ),
-          ),
+
         ],
       ),
     );
@@ -358,7 +343,7 @@ class _QuickActions extends StatelessWidget {
       (
         icon: Icons.add_home_outlined,
         label: 'New\nListing',
-        onTap: () => AppRouter.push(context, AppRoutes.buy),
+        onTap: () => AppRouter.push(context, AppRoutes.createListing),
       ),
       (
         icon: Icons.analytics_outlined,

@@ -8,6 +8,7 @@ class PropertiesProvider extends ChangeNotifier {
   List<ApiProperty> _properties = [];
   bool _listLoading = false;
   String? _listError;
+  bool _listLoaded = false;
   PropertyFilters _filters = const PropertyFilters();
 
   List<ApiProperty> get properties => _properties;
@@ -19,23 +20,28 @@ class PropertiesProvider extends ChangeNotifier {
   List<ApiProperty> _featured = [];
   bool _featuredLoading = false;
   String? _featuredError;
+  bool _featuredLoaded = false;
 
   List<ApiProperty> get featured => _featured;
   bool get featuredLoading => _featuredLoading;
   String? get featuredError => _featuredError;
 
-  // ── Detail ────────────────────────────────────────────────────────────────
-  ApiProperty? _detail;
+  // ── Detail cache (id → property) ─────────────────────────────────────────
+  final Map<String, ApiProperty> _detailCache = {};
+  String? _detailId;
   bool _detailLoading = false;
   String? _detailError;
 
-  ApiProperty? get detail => _detail;
+  ApiProperty? get detail => _detailId != null ? _detailCache[_detailId] : null;
   bool get detailLoading => _detailLoading;
   String? get detailError => _detailError;
 
   // ── Actions ───────────────────────────────────────────────────────────────
 
+  /// Fetches list only if filters changed or not yet loaded.
   Future<void> fetchList([PropertyFilters? filters]) async {
+    final filtersChanged = filters != null && filters != _filters;
+    if (_listLoaded && !filtersChanged && _listError == null) return;
     if (filters != null) _filters = filters;
     _listLoading = true;
     _listError = null;
@@ -43,6 +49,7 @@ class PropertiesProvider extends ChangeNotifier {
     try {
       final res = await PropertiesService.list(_filters);
       _properties = res.data;
+      _listLoaded = true;
     } catch (e) {
       _listError = e.toString();
     }
@@ -50,18 +57,24 @@ class PropertiesProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void updateFilters(PropertyFilters filters) {
-    _filters = filters;
-    fetchList();
+  /// Force re-fetch regardless of cache (used when filters change).
+  Future<void> fetchListForced([PropertyFilters? filters]) async {
+    if (filters != null) _filters = filters;
+    _listLoaded = false;
+    await fetchList();
   }
 
+  void updateFilters(PropertyFilters filters) => fetchListForced(filters);
+
   Future<void> fetchFeatured() async {
+    if (_featuredLoaded && _featuredError == null) return;
     _featuredLoading = true;
     _featuredError = null;
     notifyListeners();
     try {
       final res = await PropertiesService.featured();
       _featured = res.data;
+      _featuredLoaded = true;
     } catch (e) {
       _featuredError = e.toString();
     }
@@ -70,19 +83,25 @@ class PropertiesProvider extends ChangeNotifier {
   }
 
   Future<void> fetchDetail(String id) async {
+    _detailId = id;
+    if (_detailCache.containsKey(id) && _detailError == null) {
+      notifyListeners();
+      return;
+    }
     _detailLoading = true;
     _detailError = null;
-    _detail = null;
     notifyListeners();
     try {
       final res = await PropertiesService.get(id);
-      _detail = res.data;
+      _detailCache[id] = res.data;
     } catch (e) {
       _detailError = e.toString();
     }
     _detailLoading = false;
     notifyListeners();
   }
+
+  void invalidateDetail(String id) => _detailCache.remove(id);
 
   Future<bool> create({
     required String title,
@@ -116,6 +135,7 @@ class PropertiesProvider extends ChangeNotifier {
         images: images,
       );
       _properties.insert(0, res.data);
+      _detailCache[res.data.id] = res.data;
       notifyListeners();
       return true;
     } catch (_) {
@@ -128,7 +148,7 @@ class PropertiesProvider extends ChangeNotifier {
       final res = await PropertiesService.update(id, body);
       final idx = _properties.indexWhere((p) => p.id == id);
       if (idx != -1) _properties[idx] = res.data;
-      if (_detail?.id == id) _detail = res.data;
+      _detailCache[id] = res.data;
       notifyListeners();
       return true;
     } catch (_) {
@@ -140,7 +160,8 @@ class PropertiesProvider extends ChangeNotifier {
     try {
       await PropertiesService.delete(id);
       _properties.removeWhere((p) => p.id == id);
-      if (_detail?.id == id) _detail = null;
+      _detailCache.remove(id);
+      if (_detailId == id) _detailId = null;
       notifyListeners();
       return true;
     } catch (_) {

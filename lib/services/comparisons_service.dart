@@ -22,14 +22,20 @@ abstract final class ComparisonsService {
         if (tags != null) 'tags': tags,
       },
     );
+    print(json); // --- IGNORE ---
     return ApiResponse.fromJson(
       json,
-      (d) => ApiComparison.fromJson((d as Map<String, dynamic>)['comparison'] as Map<String, dynamic>),
+      (d) => ApiComparison.fromJson(
+        (d as Map<String, dynamic>)['comparison'] as Map<String, dynamic>,
+      ),
     );
   }
 
   /// GET /comparisons
-  static Future<ApiResponse<List<ApiComparison>>> list({int? page, int? limit}) async {
+  static Future<ApiResponse<List<ApiComparison>>> list({
+    int? page,
+    int? limit,
+  }) async {
     final qs = ApiClient.buildQuery({
       if (page != null) 'page': page,
       if (limit != null) 'limit': limit,
@@ -37,7 +43,9 @@ abstract final class ComparisonsService {
     final json = await ApiClient.fetch<Map<String, dynamic>>('/comparisons$qs');
     return ApiResponse.fromJson(json, (d) {
       final list = d as List;
-      return list.map((e) => ApiComparison.fromJson(e as Map<String, dynamic>)).toList();
+      return list
+          .map((e) => ApiComparison.fromJson(e as Map<String, dynamic>))
+          .toList();
     });
   }
 
@@ -69,12 +77,17 @@ abstract final class ComparisonsService {
     );
     return ApiResponse.fromJson(
       json,
-      (d) => ApiComparison.fromJson((d as Map<String, dynamic>)['comparison'] as Map<String, dynamic>),
+      (d) => ApiComparison.fromJson(
+        (d as Map<String, dynamic>)['comparison'] as Map<String, dynamic>,
+      ),
     );
   }
 
   /// POST /comparisons/:id/add-property
-  static Future<ApiResponse<ApiComparison>> addProperty(String id, String propertyId) async {
+  static Future<ApiResponse<ApiComparison>> addProperty(
+    String id,
+    String propertyId,
+  ) async {
     final json = await ApiClient.fetch<Map<String, dynamic>>(
       '/comparisons/$id/add-property',
       method: 'POST',
@@ -82,12 +95,17 @@ abstract final class ComparisonsService {
     );
     return ApiResponse.fromJson(
       json,
-      (d) => ApiComparison.fromJson((d as Map<String, dynamic>)['comparison'] as Map<String, dynamic>),
+      (d) => ApiComparison.fromJson(
+        (d as Map<String, dynamic>)['comparison'] as Map<String, dynamic>,
+      ),
     );
   }
 
   /// POST /comparisons/:id/remove-property
-  static Future<ApiResponse<ApiComparison>> removeProperty(String id, String propertyId) async {
+  static Future<ApiResponse<ApiComparison>> removeProperty(
+    String id,
+    String propertyId,
+  ) async {
     final json = await ApiClient.fetch<Map<String, dynamic>>(
       '/comparisons/$id/remove-property',
       method: 'POST',
@@ -95,12 +113,17 @@ abstract final class ComparisonsService {
     );
     return ApiResponse.fromJson(
       json,
-      (d) => ApiComparison.fromJson((d as Map<String, dynamic>)['comparison'] as Map<String, dynamic>),
+      (d) => ApiComparison.fromJson(
+        (d as Map<String, dynamic>)['comparison'] as Map<String, dynamic>,
+      ),
     );
   }
 
   /// DELETE /comparisons/:id
   static Future<void> delete(String id) async {
-    await ApiClient.fetch<Map<String, dynamic>>('/comparisons/$id', method: 'DELETE');
+    await ApiClient.fetch<Map<String, dynamic>>(
+      '/comparisons/$id',
+      method: 'DELETE',
+    );
   }
 }

@@ -14,15 +14,26 @@ abstract final class SavedService {
     });
     final json = await ApiClient.fetch<Map<String, dynamic>>('/saved$qs');
     return ApiResponse.fromJson(json, (d) {
-      return (d as List)
+      if (d is List) return d
           .map((e) => ApiSavedProperty.fromJson(e as Map<String, dynamic>))
           .toList();
+      if (d is Map<String, dynamic>) {
+        for (final key in ['savedProperties', 'saved', 'items', 'data']) {
+          if (d[key] is List) {
+            return (d[key] as List)
+                .map((e) => ApiSavedProperty.fromJson(e as Map<String, dynamic>))
+                .toList();
+          }
+        }
+      }
+      return <ApiSavedProperty>[];
     });
   }
 
   /// POST /saved/toggle/:propertyId
   static Future<ApiResponse<Map<String, dynamic>>> toggle(
-      String propertyId) async {
+    String propertyId,
+  ) async {
     final json = await ApiClient.fetch<Map<String, dynamic>>(
       '/saved/toggle/$propertyId',
       method: 'POST',

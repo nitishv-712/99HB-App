@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:homebazaar/core/router/app_router.dart';
 import 'package:homebazaar/model/analytics.dart';
 import 'package:homebazaar/providers/analytics_provider.dart';
 import 'package:homebazaar/view/components/app_bottom_nav.dart';
@@ -104,7 +105,11 @@ class _Body extends StatelessWidget {
           const SizedBox(height: 12),
           ...data.topByViews
               .take(5)
-              .map((p) => _TopRow(title: p.title, metric: '${p.views} views')),
+              .map((p) => _TopRow(
+                    title: p.title,
+                    metric: '${p.views} views',
+                    propertyId: p.id,
+                  )),
         ],
         if (data.topByInquiries.isNotEmpty) ...[
           const SizedBox(height: 24),
@@ -113,7 +118,10 @@ class _Body extends StatelessWidget {
           ...data.topByInquiries
               .take(5)
               .map((p) => _TopRow(
-                  title: p.title, metric: '${p.inquiries} inquiries')),
+                    title: p.title,
+                    metric: '${p.inquiries} inquiries',
+                    propertyId: p.id,
+                  )),
         ],
       ],
     );
@@ -280,35 +288,49 @@ class _TrendChart extends StatelessWidget {
 class _TopRow extends StatelessWidget {
   final String title;
   final String metric;
-  const _TopRow({required this.title, required this.metric});
+  final String propertyId;
+  const _TopRow(
+      {required this.title,
+      required this.metric,
+      required this.propertyId});
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        color: cs.surfaceContainerHighest.withOpacity(0.3),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: cs.outlineVariant.withOpacity(0.2)),
+    return GestureDetector(
+      onTap: () => AppRouter.push(
+        context,
+        AppRoutes.propertyAnalytics,
+        args: {'id': propertyId, 'title': title},
       ),
-      child: Row(
-        children: [
-          Expanded(
-              child: Text(title,
-                  style: GoogleFonts.inter(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: cs.onSurface),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis)),
-          Text(metric,
-              style: GoogleFonts.inter(
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  color: cs.onSurfaceVariant)),
-        ],
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        decoration: BoxDecoration(
+          color: cs.surfaceContainerHighest.withOpacity(0.3),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: cs.outlineVariant.withOpacity(0.2)),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+                child: Text(title,
+                    style: GoogleFonts.inter(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: cs.onSurface),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis)),
+            Text(metric,
+                style: GoogleFonts.inter(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: cs.onSurfaceVariant)),
+            const SizedBox(width: 6),
+            Icon(Icons.chevron_right_rounded,
+                size: 16, color: cs.onSurfaceVariant),
+          ],
+        ),
       ),
     );
   }

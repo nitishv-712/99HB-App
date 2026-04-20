@@ -6,7 +6,9 @@ import 'package:homebazaar/model/comparison.dart';
 import 'package:homebazaar/model/property.dart';
 import 'package:homebazaar/model/review.dart';
 import 'package:homebazaar/model/user.dart';
+import 'package:homebazaar/providers/auth_provider.dart';
 import 'package:homebazaar/providers/comparisons_provider.dart';
+import 'package:homebazaar/providers/inquiries_provider.dart';
 import 'package:homebazaar/providers/saved_provider.dart';
 import 'package:homebazaar/providers/properties_provider.dart';
 import 'package:homebazaar/providers/reviews_provider.dart';
@@ -808,7 +810,40 @@ class _Sidebar extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: const StadiumBorder(),
                     ),
-                    onPressed: () => AppRouter.push(context, AppRoutes.signIn),
+                    onPressed: () async {
+                      final auth = context.read<AuthProvider>();
+                      if (!auth.isAuthenticated) {
+                        AppRouter.push(context, AppRoutes.signIn);
+                        return;
+                      }
+                      final text = messageCtrl.text.trim();
+                      if (text.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text('Please enter a message')),
+                        );
+                        return;
+                      }
+                      final ok = await context
+                          .read<InquiriesProvider>()
+                          .submit(
+                            propertyId: property.id,
+                            message: text,
+                          );
+                      if (!context.mounted) return;
+                      if (ok) {
+                        messageCtrl.clear();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text('Inquiry sent successfully')),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text('Failed to send inquiry')),
+                        );
+                      }
+                    },
                     icon: const Icon(
                       Icons.send_rounded,
                       color: Colors.white,

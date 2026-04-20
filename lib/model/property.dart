@@ -133,10 +133,10 @@ class PropertyImage {
   });
 
   factory PropertyImage.fromJson(Map<String, dynamic> j) => PropertyImage(
-    id: j['_id'] as String,
+    id: (j['_id'] ?? j['id'] ?? '') as String,
     url: j['url'] as String,
     filename: j['filename'] as String?,
-    isPrimary: j['isPrimary'] as bool,
+    isPrimary: (j['isPrimary'] as bool?) ?? false,
   );
 
   Map<String, dynamic> toJson() => {
@@ -216,9 +216,11 @@ class ApiProperty {
     id: (j['_id'] ?? j['id']) as String,
     title: j['title'] as String,
     description: j['description'] as String?,
-    listingType: _listingTypeFromString(j['listingType'] as String),
-    propertyType: _propertyTypeFromString(j['propertyType'] as String),
-    status: _propertyStatusFromString(j['status'] as String),
+    listingType: _listingTypeFromString((j['listingType'] as String?) ?? 'sale'),
+    propertyType: _propertyTypeFromString((j['propertyType'] as String?) ?? 'Apartment'),
+    status: j['status'] != null
+        ? _propertyStatusFromString(j['status'] as String)
+        : PropertyStatus.active,
     badge: _badgeFromString(j['badge'] as String?),
     price: (j['price'] as num).toDouble(),
     address: PropertyAddress.fromJson(j['address'] as Map<String, dynamic>),

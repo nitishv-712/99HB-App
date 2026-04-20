@@ -1,19 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:homebazaar/view/screen/analytics_screen.dart';
-import 'package:homebazaar/view/screen/comparisons_screen.dart';
-import 'package:homebazaar/view/screen/inquiries_screen.dart';
-import 'package:homebazaar/view/screen/reviews_screen.dart';
-import 'package:homebazaar/view/screen/search_history_screen.dart';
-import 'package:homebazaar/view/screen/settings_screen.dart';
-import 'package:homebazaar/view/screen/splash_screen.dart';
-import 'package:homebazaar/view/screen/support_screen.dart';
-import 'package:homebazaar/view/screen/buy_screen.dart';
-import 'package:homebazaar/view/screen/dashboard_screen.dart';
-import 'package:homebazaar/view/screen/forgot_password_screen.dart';
-import 'package:homebazaar/view/screen/home_screen.dart';
-import 'package:homebazaar/view/screen/property_detail_screen.dart';
-import 'package:homebazaar/view/screen/sign_in_screen.dart';
-import 'package:homebazaar/view/screen/sign_up_screen.dart';
+import 'package:homebazaar/view/screen/analytics/analytics_screen.dart';
+import 'package:homebazaar/view/screen/analytics/property_analytics_screen.dart';
+import 'package:homebazaar/view/screen/comparisons/comparisons_screen.dart';
+import 'package:homebazaar/view/screen/dashboard/create_listing_screen.dart';
+import 'package:homebazaar/view/screen/dashboard/dashboard_screen.dart';
+import 'package:homebazaar/view/screen/dashboard/edit_profile_screen.dart';
+import 'package:homebazaar/view/screen/home/buy_screen.dart';
+import 'package:homebazaar/view/screen/home/home_screen.dart';
+import 'package:homebazaar/view/screen/home/property_detail_screen.dart';
+import 'package:homebazaar/view/screen/inquiries/inquiries_screen.dart';
+import 'package:homebazaar/view/screen/reviews/reviews_screen.dart';
+import 'package:homebazaar/view/screen/account/search_history_screen.dart';
+import 'package:homebazaar/view/screen/account/settings_screen.dart';
+import 'package:homebazaar/view/screen/auth/splash_screen.dart';
+import 'package:homebazaar/view/screen/auth/forgot_password_screen.dart';
+import 'package:homebazaar/view/screen/auth/sign_in_screen.dart';
+import 'package:homebazaar/view/screen/auth/sign_up_screen.dart';
+import 'package:homebazaar/view/screen/support/support_screen.dart';
 
 abstract final class AppRoutes {
   static const splash = '/';
@@ -31,6 +34,9 @@ abstract final class AppRoutes {
   static const searchHistory = '/search-history';
   static const support = '/support';
   static const comparisons = '/comparisons';
+  static const editProfile = '/edit-profile';
+  static const createListing = '/create-listing';
+  static const propertyAnalytics = '/property-analytics';
 }
 
 abstract final class AppRouter {
@@ -67,6 +73,16 @@ abstract final class AppRouter {
         return _slide(const SupportScreen());
       case AppRoutes.comparisons:
         return _slide(const ComparisonsScreen());
+      case AppRoutes.editProfile:
+        return _slide(const EditProfileScreen());
+      case AppRoutes.createListing:
+        return _slide(const CreateListingScreen());
+      case AppRoutes.propertyAnalytics:
+        final args = settings.arguments as Map<String, String?>?;
+        return _slide(PropertyAnalyticsScreen(
+          propertyId: args?['id'] ?? '',
+          propertyTitle: args?['title'],
+        ));
       default:
         return _slide(const HomeScreen());
     }

@@ -9,6 +9,7 @@ class UserProvider extends ChangeNotifier {
   List<ApiProperty> _saved = [];
   bool _savedLoading = false;
   String? _savedError;
+  bool _savedLoaded = false;
 
   List<ApiProperty> get saved => _saved;
   bool get savedLoading => _savedLoading;
@@ -18,6 +19,7 @@ class UserProvider extends ChangeNotifier {
   List<ApiProperty> _myListings = [];
   bool _listingsLoading = false;
   String? _listingsError;
+  bool _listingsLoaded = false;
 
   List<ApiProperty> get myListings => _myListings;
   bool get listingsLoading => _listingsLoading;
@@ -33,12 +35,14 @@ class UserProvider extends ChangeNotifier {
   // ── Actions ───────────────────────────────────────────────────────────────
 
   Future<void> fetchSaved() async {
+    if (_savedLoaded && _savedError == null) return;
     _savedLoading = true;
     _savedError = null;
     notifyListeners();
     try {
       final res = await UsersService.saved();
       _saved = res.data;
+      _savedLoaded = true;
     } catch (e) {
       _savedError = e.toString();
     }
@@ -46,27 +50,30 @@ class UserProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void invalidateSaved() => _savedLoaded = false;
+
   Future<void> fetchMyListings({
     PropertyStatus? status,
     int? page,
     int? limit,
   }) async {
+    if (_listingsLoaded && _listingsError == null) return;
     _listingsLoading = true;
     _listingsError = null;
     notifyListeners();
     try {
       final res = await UsersService.myListings(
-        status: status,
-        page: page,
-        limit: limit,
-      );
+          status: status, page: page, limit: limit);
       _myListings = res.data;
+      _listingsLoaded = true;
     } catch (e) {
       _listingsError = e.toString();
     }
     _listingsLoading = false;
     notifyListeners();
   }
+
+  void invalidateListings() => _listingsLoaded = false;
 
   Future<ApiUser?> updateProfile({
     String? firstName,
@@ -129,5 +136,16 @@ class UserProvider extends ChangeNotifier {
     } catch (_) {
       return false;
     }
+  }
+
+  /// Call after logout to clear all cached data.
+  void clear() {
+    _saved = [];
+    _savedLoaded = false;
+    _savedError = null;
+    _myListings = [];
+    _listingsLoaded = false;
+    _listingsError = null;
+    notifyListeners();
   }
 }

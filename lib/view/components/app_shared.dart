@@ -22,63 +22,65 @@ class AppEmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(40),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 72,
-              height: 72,
-              decoration: BoxDecoration(
-                color: cs.surfaceContainerHighest.withOpacity(0.4),
-                shape: BoxShape.circle,
+    return SingleChildScrollView(
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(40),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 72,
+                height: 72,
+                decoration: BoxDecoration(
+                  color: cs.surfaceContainerHighest.withOpacity(0.4),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, size: 32, color: cs.onSurfaceVariant),
               ),
-              child: Icon(icon, size: 32, color: cs.onSurfaceVariant),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              title,
-              style: GoogleFonts.notoSerif(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: cs.onSurface,
+              const SizedBox(height: 16),
+              Text(
+                title,
+                style: GoogleFonts.notoSerif(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: cs.onSurface,
+                ),
               ),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              subtitle,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: cs.onSurfaceVariant,
-                fontSize: 13,
-                height: 1.5,
+              const SizedBox(height: 6),
+              Text(
+                subtitle,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: cs.onSurfaceVariant,
+                  fontSize: 13,
+                  height: 1.5,
+                ),
               ),
-            ),
-            if (action != null) ...[
-              const SizedBox(height: 20),
-              GestureDetector(
-                onTap: onAction,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 24, vertical: 12),
-                  decoration: BoxDecoration(
-                    color: cs.onSurface,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    action!,
-                    style: GoogleFonts.inter(
-                      color: cs.surface,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 13,
+              if (action != null) ...[
+                const SizedBox(height: 20),
+                GestureDetector(
+                  onTap: onAction,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: cs.onSurface,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      action!,
+                      style: GoogleFonts.inter(
+                        color: cs.surface,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                      ),
                     ),
                   ),
                 ),
-              ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );
