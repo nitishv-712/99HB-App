@@ -56,12 +56,15 @@ class ComparisonsProvider extends ChangeNotifier {
     try {
       final raw = await ComparisonsService.get(id);
       final data = raw['data'] as Map<String, dynamic>;
+      print(data); // --- IGNORE ---
       final comp = ApiComparison.fromJson(
         data['comparison'] as Map<String, dynamic>,
       );
+      print(comp); // --- IGNORE ---
       final analysis = ComparisonAnalysis.fromJson(
         data['analysis'] as Map<String, dynamic>,
       );
+      print(analysis); // --- IGNORE ---
       _detailCache[id] = (comparison: comp, analysis: analysis);
     } catch (e) {
       _detailError = e.toString();
