@@ -11,7 +11,7 @@ import 'package:homebazaar/providers/search_history_provider.dart';
 import 'package:homebazaar/providers/support_provider.dart';
 import 'package:homebazaar/providers/theme_provider.dart';
 import 'package:homebazaar/providers/user_provider.dart';
-import 'package:homebazaar/view/components/app_bottom_nav.dart';
+import 'package:homebazaar/view/components/app_shared.dart';
 import 'package:provider/provider.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -36,30 +36,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     return Scaffold(
       backgroundColor: cs.surface,
-      appBar: AppBar(
-        backgroundColor: cs.surface,
-        surfaceTintColor: Colors.transparent,
-        elevation: 0,
-        scrolledUnderElevation: 1,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios_new_rounded,
-            color: cs.onSurface,
-            size: 20,
-          ),
-          onPressed: () => Navigator.of(context).maybePop(),
-        ),
-        title: Text(
-          'Settings',
-          style: GoogleFonts.notoSerif(
-            fontSize: 18,
-            fontWeight: FontWeight.w900,
-            color: cs.onSurface,
-            letterSpacing: -0.3,
-          ),
-        ),
-        centerTitle: true,
-      ),
+      appBar: const AppStandardBar(title: 'Settings'),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 120),
         children: [
@@ -242,7 +219,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
         ],
       ),
-      bottomNavigationBar: const AppBottomNav(currentIndex: 3),
     );
   }
 }
@@ -341,7 +317,6 @@ class _ProfileCard extends StatelessWidget {
               ],
             ),
           ),
-
         ],
       ),
     );

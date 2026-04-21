@@ -12,7 +12,6 @@ import 'package:homebazaar/providers/inquiries_provider.dart';
 import 'package:homebazaar/providers/saved_provider.dart';
 import 'package:homebazaar/providers/properties_provider.dart';
 import 'package:homebazaar/providers/reviews_provider.dart';
-import 'package:homebazaar/view/components/app_bottom_nav.dart';
 import 'package:homebazaar/view/components/app_loader.dart';
 import 'package:provider/provider.dart';
 
@@ -57,59 +56,54 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
 
     return Scaffold(
       backgroundColor: cs.surface,
+      appBar: AppBar(
+        backgroundColor: cs.surface,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 1,
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: cs.onSurface,
+            size: 20,
+          ),
+          onPressed: () => Navigator.of(context).maybePop(),
+        ),
+        title: Text(
+          'Property Details',
+          style: GoogleFonts.notoSerif(
+            fontSize: 18,
+            fontWeight: FontWeight.w900,
+            color: cs.onSurface,
+            letterSpacing: -0.3,
+          ),
+        ),
+        centerTitle: true,
+        actions: [
+          if (widget.propertyId != null)
+            Consumer<SavedProvider>(
+              builder: (_, saved, __) {
+                final isSaved = saved.isSaved(widget.propertyId!);
+                return IconButton(
+                  icon: Icon(
+                    isSaved
+                        ? Icons.favorite_rounded
+                        : Icons.favorite_border_rounded,
+                    color: isSaved ? AppColors.primary : cs.onSurface,
+                  ),
+                  onPressed: () =>
+                      context.read<SavedProvider>().toggle(widget.propertyId!),
+                );
+              },
+            ),
+        ],
+      ),
       body: Consumer<PropertiesProvider>(
         builder: (context, prov, _) {
           return Stack(
             children: [
               CustomScrollView(
                 slivers: [
-                  SliverAppBar(
-                    pinned: true,
-                    backgroundColor: cs.surface,
-                    surfaceTintColor: Colors.transparent,
-                    elevation: 0,
-                    scrolledUnderElevation: 1,
-                    leading: IconButton(
-                      icon: Icon(
-                        Icons.arrow_back_ios_new_rounded,
-                        color: cs.onSurface,
-                        size: 20,
-                      ),
-                      onPressed: () => Navigator.of(context).maybePop(),
-                    ),
-                    title: Text(
-                      'Property Details',
-                      style: GoogleFonts.notoSerif(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w900,
-                        color: cs.onSurface,
-                        letterSpacing: -0.3,
-                      ),
-                    ),
-                    centerTitle: true,
-                    actions: [
-                      if (widget.propertyId != null)
-                        Consumer<SavedProvider>(
-                          builder: (_, saved, __) {
-                            final isSaved =
-                                saved.isSaved(widget.propertyId!);
-                            return IconButton(
-                              icon: Icon(
-                                isSaved
-                                    ? Icons.favorite_rounded
-                                    : Icons.favorite_border_rounded,
-                                color: isSaved
-                                    ? AppColors.primary
-                                    : cs.onSurface,
-                              ),
-                              onPressed: () => context
-                                  .read<SavedProvider>()
-                                  .toggle(widget.propertyId!),
-                            );
-                          },
-                        ),
-                    ],
-                  ),
                   if (prov.detail != null) ...[
                     SliverToBoxAdapter(
                       child: _HeroGallery(
@@ -153,8 +147,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                                     messageCtrl: _messageCtrl,
                                   ),
                                   const SizedBox(height: 32),
-                                  _ReviewsSection(
-                                      propertyId: prov.detail!.id),
+                                  _ReviewsSection(propertyId: prov.detail!.id),
                                 ],
                               ),
                       ),
@@ -197,7 +190,6 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
           );
         },
       ),
-      bottomNavigationBar: AppBottomNav(currentIndex: _navIndex),
     );
   }
 }
@@ -820,27 +812,28 @@ class _Sidebar extends StatelessWidget {
                       if (text.isEmpty) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                              content: Text('Please enter a message')),
+                            content: Text('Please enter a message'),
+                          ),
                         );
                         return;
                       }
-                      final ok = await context
-                          .read<InquiriesProvider>()
-                          .submit(
-                            propertyId: property.id,
-                            message: text,
-                          );
+                      final ok = await context.read<InquiriesProvider>().submit(
+                        propertyId: property.id,
+                        message: text,
+                      );
                       if (!context.mounted) return;
                       if (ok) {
                         messageCtrl.clear();
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                              content: Text('Inquiry sent successfully')),
+                            content: Text('Inquiry sent successfully'),
+                          ),
                         );
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                              content: Text('Failed to send inquiry')),
+                            content: Text('Failed to send inquiry'),
+                          ),
                         );
                       }
                     },
@@ -890,7 +883,7 @@ class _Sidebar extends StatelessWidget {
             ],
           ),
         ),
-              const SizedBox(height: 20),
+        const SizedBox(height: 20),
 
         // Add to Comparison
         _AddToComparisonButton(propertyId: property.id),
@@ -1026,8 +1019,7 @@ class _AddToComparisonButton extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.compare_arrows_outlined,
-                size: 18, color: cs.onSurface),
+            Icon(Icons.compare_arrows_outlined, size: 18, color: cs.onSurface),
             const SizedBox(width: 8),
             Text(
               'Add to Comparison',
@@ -1048,11 +1040,13 @@ class _AddToComparisonButton extends StatelessWidget {
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
       builder: (_) => MultiProvider(
         providers: [
           ChangeNotifierProvider.value(
-              value: context.read<ComparisonsProvider>()),
+            value: context.read<ComparisonsProvider>(),
+          ),
         ],
         child: _ComparisonSheet(propertyId: propertyId),
       ),
@@ -1100,32 +1094,41 @@ class _ComparisonSheetState extends State<_ComparisonSheet> {
               width: 36,
               height: 4,
               decoration: BoxDecoration(
-                  color: cs.outlineVariant,
-                  borderRadius: BorderRadius.circular(999)),
+                color: cs.outlineVariant,
+                borderRadius: BorderRadius.circular(999),
+              ),
             ),
           ),
           const SizedBox(height: 20),
-          Text('Add to Comparison',
-              style: GoogleFonts.notoSerif(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w900,
-                  color: cs.onSurface)),
+          Text(
+            'Add to Comparison',
+            style: GoogleFonts.notoSerif(
+              fontSize: 20,
+              fontWeight: FontWeight.w900,
+              color: cs.onSurface,
+            ),
+          ),
           const SizedBox(height: 16),
 
           // Existing comparisons
           if (prov.comparisons.isNotEmpty) ...[
-            Text('EXISTING',
-                style: GoogleFonts.inter(
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 2,
-                    color: cs.onSurfaceVariant.withOpacity(0.6))),
+            Text(
+              'EXISTING',
+              style: GoogleFonts.inter(
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 2,
+                color: cs.onSurfaceVariant.withOpacity(0.6),
+              ),
+            ),
             const SizedBox(height: 10),
-            ...prov.comparisons.map((c) => _ComparisonOption(
-                  comparison: c,
-                  propertyId: widget.propertyId,
-                  onDone: () => Navigator.pop(context),
-                )),
+            ...prov.comparisons.map(
+              (c) => _ComparisonOption(
+                comparison: c,
+                propertyId: widget.propertyId,
+                onDone: () => Navigator.pop(context),
+              ),
+            ),
             const SizedBox(height: 16),
           ],
 
@@ -1141,11 +1144,14 @@ class _ComparisonSheetState extends State<_ComparisonSheet> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Center(
-                  child: Text('+ New Comparison',
-                      style: GoogleFonts.inter(
-                          color: cs.surface,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 13)),
+                  child: Text(
+                    '+ New Comparison',
+                    style: GoogleFonts.inter(
+                      color: cs.surface,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                    ),
+                  ),
                 ),
               ),
             )
@@ -1172,10 +1178,14 @@ class _ComparisonSheetState extends State<_ComparisonSheet> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Center(
-                          child: Text('Cancel',
-                              style: GoogleFonts.inter(
-                                  fontWeight: FontWeight.bold,
-                                  color: cs.onSurface))),
+                        child: Text(
+                          'Cancel',
+                          style: GoogleFonts.inter(
+                            fontWeight: FontWeight.bold,
+                            color: cs.onSurface,
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -1189,8 +1199,9 @@ class _ComparisonSheetState extends State<_ComparisonSheet> {
                             if (name.isEmpty) return;
                             setState(() => _creating = true);
                             await context.read<ComparisonsProvider>().create(
-                                name: name,
-                                propertyIds: [widget.propertyId]);
+                              name: name,
+                              propertyIds: [widget.propertyId],
+                            );
                             setState(() => _creating = false);
                             if (context.mounted) Navigator.pop(context);
                           },
@@ -1206,11 +1217,17 @@ class _ComparisonSheetState extends State<_ComparisonSheet> {
                                 width: 18,
                                 height: 18,
                                 child: CircularProgressIndicator(
-                                    strokeWidth: 2, color: cs.surface))
-                            : Text('Create',
+                                  strokeWidth: 2,
+                                  color: cs.surface,
+                                ),
+                              )
+                            : Text(
+                                'Create',
                                 style: GoogleFonts.inter(
-                                    fontWeight: FontWeight.bold,
-                                    color: cs.surface)),
+                                  fontWeight: FontWeight.bold,
+                                  color: cs.surface,
+                                ),
+                              ),
                       ),
                     ),
                   ),
@@ -1229,10 +1246,11 @@ class _ComparisonOption extends StatefulWidget {
   final ApiComparison comparison;
   final String propertyId;
   final VoidCallback onDone;
-  const _ComparisonOption(
-      {required this.comparison,
-      required this.propertyId,
-      required this.onDone});
+  const _ComparisonOption({
+    required this.comparison,
+    required this.propertyId,
+    required this.onDone,
+  });
 
   @override
   State<_ComparisonOption> createState() => _ComparisonOptionState();
@@ -1241,8 +1259,9 @@ class _ComparisonOption extends StatefulWidget {
 class _ComparisonOptionState extends State<_ComparisonOption> {
   bool _loading = false;
 
-  bool get _alreadyAdded => widget.comparison.propertyIds.any((p) =>
-      (p is String ? p : (p as dynamic).id as String) == widget.propertyId);
+  bool get _alreadyAdded => widget.comparison.propertyIds.any(
+    (p) => (p is String ? p : (p as dynamic).id as String) == widget.propertyId,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -1254,9 +1273,10 @@ class _ComparisonOptionState extends State<_ComparisonOption> {
           ? null
           : () async {
               setState(() => _loading = true);
-              await context
-                  .read<ComparisonsProvider>()
-                  .addProperty(widget.comparison.id, widget.propertyId);
+              await context.read<ComparisonsProvider>().addProperty(
+                widget.comparison.id,
+                widget.propertyId,
+              );
               setState(() => _loading = false);
               widget.onDone();
             },
@@ -1269,9 +1289,10 @@ class _ComparisonOptionState extends State<_ComparisonOption> {
               : cs.surfaceContainerHighest.withOpacity(0.3),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-              color: added
-                  ? cs.outlineVariant.withOpacity(0.1)
-                  : cs.outlineVariant.withOpacity(0.25)),
+            color: added
+                ? cs.outlineVariant.withOpacity(0.1)
+                : cs.outlineVariant.withOpacity(0.25),
+          ),
         ),
         child: Row(
           children: [
@@ -1279,29 +1300,36 @@ class _ComparisonOptionState extends State<_ComparisonOption> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(widget.comparison.name,
-                      style: GoogleFonts.inter(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: added
-                              ? cs.onSurfaceVariant
-                              : cs.onSurface)),
                   Text(
-                      '${widget.comparison.propertyIds.length} propert${widget.comparison.propertyIds.length == 1 ? 'y' : 'ies'}',
-                      style: TextStyle(
-                          fontSize: 11, color: cs.onSurfaceVariant)),
+                    widget.comparison.name,
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: added ? cs.onSurfaceVariant : cs.onSurface,
+                    ),
+                  ),
+                  Text(
+                    '${widget.comparison.propertyIds.length} propert${widget.comparison.propertyIds.length == 1 ? 'y' : 'ies'}',
+                    style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant),
+                  ),
                 ],
               ),
             ),
             if (_loading)
               SizedBox(
-                  width: 18,
-                  height: 18,
-                  child: CircularProgressIndicator(
-                      strokeWidth: 2, color: cs.onSurface))
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: cs.onSurface,
+                ),
+              )
             else if (added)
-              Icon(Icons.check_circle_rounded,
-                  size: 18, color: Colors.green.shade600)
+              Icon(
+                Icons.check_circle_rounded,
+                size: 18,
+                color: Colors.green.shade600,
+              )
             else
               Icon(Icons.add_rounded, size: 18, color: cs.onSurface),
           ],
@@ -1331,9 +1359,13 @@ class _ReviewsSection extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Text('Reviews',
-                        style: GoogleFonts.notoSerif(
-                            fontSize: 22, fontWeight: FontWeight.bold)),
+                    Text(
+                      'Reviews',
+                      style: GoogleFonts.notoSerif(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     const SizedBox(width: 16),
                     Divider(color: cs.outlineVariant.withOpacity(0.2)),
                   ],
@@ -1342,7 +1374,9 @@ class _ReviewsSection extends StatelessWidget {
                   onTap: () => _showSubmitSheet(context, prov, propertyId),
                   child: Container(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 14, vertical: 8),
+                      horizontal: 14,
+                      vertical: 8,
+                    ),
                     decoration: BoxDecoration(
                       color: cs.onSurface,
                       borderRadius: BorderRadius.circular(10),
@@ -1350,9 +1384,10 @@ class _ReviewsSection extends StatelessWidget {
                     child: Text(
                       prov.userReview != null ? 'Edit Review' : 'Write Review',
                       style: GoogleFonts.inter(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: cs.surface),
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: cs.surface,
+                      ),
                     ),
                   ),
                 ),
@@ -1372,9 +1407,10 @@ class _ReviewsSection extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 24),
                 child: Center(
-                  child: Text('No reviews yet. Be the first!',
-                      style: TextStyle(
-                          color: cs.onSurfaceVariant, fontSize: 13)),
+                  child: Text(
+                    'No reviews yet. Be the first!',
+                    style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13),
+                  ),
                 ),
               )
             else
@@ -1388,12 +1424,16 @@ class _ReviewsSection extends StatelessWidget {
   }
 
   void _showSubmitSheet(
-      BuildContext context, ReviewsProvider prov, String propertyId) {
+    BuildContext context,
+    ReviewsProvider prov,
+    String propertyId,
+  ) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
       builder: (_) => ChangeNotifierProvider.value(
         value: prov,
         child: _SubmitReviewSheet(
@@ -1428,15 +1468,17 @@ class _RatingSummary extends StatelessWidget {
               Text(
                 stats.averageRating.toStringAsFixed(1),
                 style: GoogleFonts.notoSerif(
-                    fontSize: 40,
-                    fontWeight: FontWeight.w900,
-                    color: cs.onSurface),
+                  fontSize: 40,
+                  fontWeight: FontWeight.w900,
+                  color: cs.onSurface,
+                ),
               ),
               _StarRow(rating: stats.averageRating.round()),
               const SizedBox(height: 4),
-              Text('${stats.totalReviews} reviews',
-                  style: TextStyle(
-                      fontSize: 11, color: cs.onSurfaceVariant)),
+              Text(
+                '${stats.totalReviews} reviews',
+                style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant),
+              ),
             ],
           ),
           const SizedBox(width: 20),
@@ -1452,13 +1494,15 @@ class _RatingSummary extends StatelessWidget {
                   padding: const EdgeInsets.only(bottom: 4),
                   child: Row(
                     children: [
-                      Text('$star',
-                          style: TextStyle(
-                              fontSize: 11,
-                              color: cs.onSurfaceVariant)),
+                      Text(
+                        '$star',
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: cs.onSurfaceVariant,
+                        ),
+                      ),
                       const SizedBox(width: 6),
-                      Icon(Icons.star_rounded,
-                          size: 10, color: Colors.amber),
+                      Icon(Icons.star_rounded, size: 10, color: Colors.amber),
                       const SizedBox(width: 6),
                       Expanded(
                         child: ClipRRect(
@@ -1466,18 +1510,21 @@ class _RatingSummary extends StatelessWidget {
                           child: LinearProgressIndicator(
                             value: pct,
                             minHeight: 5,
-                            backgroundColor:
-                                cs.surfaceContainerHighest,
+                            backgroundColor: cs.surfaceContainerHighest,
                             valueColor: const AlwaysStoppedAnimation(
-                                Colors.amber),
+                              Colors.amber,
+                            ),
                           ),
                         ),
                       ),
                       const SizedBox(width: 6),
-                      Text('$count',
-                          style: TextStyle(
-                              fontSize: 10,
-                              color: cs.onSurfaceVariant)),
+                      Text(
+                        '$count',
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: cs.onSurfaceVariant,
+                        ),
+                      ),
                     ],
                   ),
                 );
@@ -1534,14 +1581,16 @@ class _ReviewCard extends StatelessWidget {
               CircleAvatar(
                 radius: 18,
                 backgroundColor: cs.surfaceContainerHighest,
-                backgroundImage:
-                    avatar != null ? NetworkImage(avatar) : null,
+                backgroundImage: avatar != null ? NetworkImage(avatar) : null,
                 child: avatar == null
-                    ? Text(name.isNotEmpty ? name[0].toUpperCase() : '?',
+                    ? Text(
+                        name.isNotEmpty ? name[0].toUpperCase() : '?',
                         style: GoogleFonts.inter(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
-                            color: cs.onSurface))
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                          color: cs.onSurface,
+                        ),
+                      )
                     : null,
               ),
               const SizedBox(width: 10),
@@ -1549,16 +1598,21 @@ class _ReviewCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(name,
-                        style: GoogleFonts.inter(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: cs.onSurface)),
-                    Text(review.createdAt.substring(0, 10),
-                        style: TextStyle(
-                            fontSize: 11,
-                            color:
-                                cs.onSurfaceVariant.withOpacity(0.6))),
+                    Text(
+                      name,
+                      style: GoogleFonts.inter(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: cs.onSurface,
+                      ),
+                    ),
+                    Text(
+                      review.createdAt.substring(0, 10),
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: cs.onSurfaceVariant.withOpacity(0.6),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -1566,17 +1620,23 @@ class _ReviewCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 10),
-          Text(review.title,
-              style: GoogleFonts.inter(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: cs.onSurface)),
+          Text(
+            review.title,
+            style: GoogleFonts.inter(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+              color: cs.onSurface,
+            ),
+          ),
           const SizedBox(height: 4),
-          Text(review.comment,
-              style: TextStyle(
-                  fontSize: 13,
-                  color: cs.onSurfaceVariant,
-                  height: 1.5)),
+          Text(
+            review.comment,
+            style: TextStyle(
+              fontSize: 13,
+              color: cs.onSurfaceVariant,
+              height: 1.5,
+            ),
+          ),
         ],
       ),
     );
@@ -1608,8 +1668,7 @@ class _StarRow extends StatelessWidget {
 class _SubmitReviewSheet extends StatefulWidget {
   final String propertyId;
   final ApiReview? existing;
-  const _SubmitReviewSheet(
-      {required this.propertyId, required this.existing});
+  const _SubmitReviewSheet({required this.propertyId, required this.existing});
 
   @override
   State<_SubmitReviewSheet> createState() => _SubmitReviewSheetState();
@@ -1625,10 +1684,8 @@ class _SubmitReviewSheetState extends State<_SubmitReviewSheet> {
   void initState() {
     super.initState();
     _rating = widget.existing?.rating ?? 5;
-    _titleCtrl =
-        TextEditingController(text: widget.existing?.title ?? '');
-    _commentCtrl =
-        TextEditingController(text: widget.existing?.comment ?? '');
+    _titleCtrl = TextEditingController(text: widget.existing?.title ?? '');
+    _commentCtrl = TextEditingController(text: widget.existing?.comment ?? '');
   }
 
   @override
@@ -1659,25 +1716,32 @@ class _SubmitReviewSheetState extends State<_SubmitReviewSheet> {
               width: 36,
               height: 4,
               decoration: BoxDecoration(
-                  color: cs.outlineVariant,
-                  borderRadius: BorderRadius.circular(999)),
+                color: cs.outlineVariant,
+                borderRadius: BorderRadius.circular(999),
+              ),
             ),
           ),
           const SizedBox(height: 20),
-          Text(isEdit ? 'Edit Review' : 'Write a Review',
-              style: GoogleFonts.notoSerif(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w900,
-                  color: cs.onSurface)),
+          Text(
+            isEdit ? 'Edit Review' : 'Write a Review',
+            style: GoogleFonts.notoSerif(
+              fontSize: 20,
+              fontWeight: FontWeight.w900,
+              color: cs.onSurface,
+            ),
+          ),
           const SizedBox(height: 20),
 
           // Star picker
-          Text('RATING',
-              style: GoogleFonts.inter(
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 2,
-                  color: cs.onSurfaceVariant.withOpacity(0.6))),
+          Text(
+            'RATING',
+            style: GoogleFonts.inter(
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 2,
+              color: cs.onSurfaceVariant.withOpacity(0.6),
+            ),
+          ),
           const SizedBox(height: 8),
           Row(
             children: List.generate(5, (i) {
@@ -1687,9 +1751,7 @@ class _SubmitReviewSheetState extends State<_SubmitReviewSheet> {
                 child: Padding(
                   padding: const EdgeInsets.only(right: 4),
                   child: Icon(
-                    filled
-                        ? Icons.star_rounded
-                        : Icons.star_border_rounded,
+                    filled ? Icons.star_rounded : Icons.star_border_rounded,
                     size: 36,
                     color: Colors.amber,
                   ),
@@ -1727,23 +1789,24 @@ class _SubmitReviewSheetState extends State<_SubmitReviewSheet> {
                   ? null
                   : () async {
                       if (_titleCtrl.text.trim().isEmpty ||
-                          _commentCtrl.text.trim().isEmpty) return;
+                          _commentCtrl.text.trim().isEmpty)
+                        return;
                       setState(() => _loading = true);
                       bool ok;
                       if (isEdit) {
                         ok = await context.read<ReviewsProvider>().update(
-                              widget.existing!.id,
-                              rating: _rating,
-                              title: _titleCtrl.text.trim(),
-                              comment: _commentCtrl.text.trim(),
-                            );
+                          widget.existing!.id,
+                          rating: _rating,
+                          title: _titleCtrl.text.trim(),
+                          comment: _commentCtrl.text.trim(),
+                        );
                       } else {
                         ok = await context.read<ReviewsProvider>().submit(
-                              propertyId: widget.propertyId,
-                              rating: _rating,
-                              title: _titleCtrl.text.trim(),
-                              comment: _commentCtrl.text.trim(),
-                            );
+                          propertyId: widget.propertyId,
+                          rating: _rating,
+                          title: _titleCtrl.text.trim(),
+                          comment: _commentCtrl.text.trim(),
+                        );
                       }
                       setState(() => _loading = false);
                       if (ok && context.mounted) Navigator.pop(context);
@@ -1751,20 +1814,27 @@ class _SubmitReviewSheetState extends State<_SubmitReviewSheet> {
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 decoration: BoxDecoration(
-                    color: cs.onSurface,
-                    borderRadius: BorderRadius.circular(14)),
+                  color: cs.onSurface,
+                  borderRadius: BorderRadius.circular(14),
+                ),
                 child: Center(
                   child: _loading
                       ? SizedBox(
                           width: 20,
                           height: 20,
                           child: CircularProgressIndicator(
-                              strokeWidth: 2, color: cs.surface))
-                      : Text(isEdit ? 'Update Review' : 'Submit Review',
+                            strokeWidth: 2,
+                            color: cs.surface,
+                          ),
+                        )
+                      : Text(
+                          isEdit ? 'Update Review' : 'Submit Review',
                           style: GoogleFonts.inter(
-                              color: cs.surface,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14)),
+                            color: cs.surface,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
+                        ),
                 ),
               ),
             ),

@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import 'package:homebazaar/model/comparison.dart';
 import 'package:homebazaar/model/property.dart';
 import 'package:homebazaar/providers/comparisons_provider.dart';
-import 'package:homebazaar/view/components/app_bottom_nav.dart';
 import 'package:homebazaar/view/components/app_shared.dart';
 
 // ── Comparisons List ──────────────────────────────────────────────────────────
@@ -57,7 +56,6 @@ class _ComparisonsScreenState extends State<ComparisonsScreen> {
           );
         },
       ),
-      bottomNavigationBar: const AppBottomNav(currentIndex: 2),
     );
   }
 }

@@ -39,7 +39,7 @@ class _SplashScreenState extends State<SplashScreen>
         final auth = context.read<AuthProvider>();
         AppRouter.replace(
           context,
-          auth.isAuthenticated ? AppRoutes.home : AppRoutes.signIn,
+          auth.isAuthenticated ? AppRoutes.onBoarding : AppRoutes.signIn,
         );
       });
     });

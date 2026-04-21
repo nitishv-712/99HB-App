@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:homebazaar/view/components/app_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:homebazaar/core/router/app_router.dart';
 import 'package:homebazaar/model/property.dart';
@@ -8,8 +9,6 @@ import 'package:homebazaar/providers/auth_provider.dart';
 import 'package:homebazaar/providers/inquiries_provider.dart';
 import 'package:homebazaar/providers/analytics_provider.dart';
 import 'package:homebazaar/providers/user_provider.dart';
-import 'package:homebazaar/view/components/app_bottom_nav.dart';
-import 'package:homebazaar/view/components/app_top_bar.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -69,69 +68,55 @@ class _DashboardScreenState extends State<DashboardScreen>
 
     return Scaffold(
       backgroundColor: cs.surface,
-      body: Stack(
-        children: [
-          SafeArea(
-            child: FadeTransition(
-              opacity: _fadeAnim,
-              child: SlideTransition(
-                position: _slideAnim,
-                child: NestedScrollView(
-                  headerSliverBuilder: (_, __) => [
-                    SliverToBoxAdapter(
-                      child: Column(
-                        children: [
-                          const SizedBox(height: 60),
-                          _ProfileCard(user: user),
-                          const SizedBox(height: 20),
-                          _StatsRow(),
-                          const SizedBox(height: 20),
-                          _QuickActions(),
-                          const SizedBox(height: 8),
-                        ],
-                      ),
-                    ),
-                    SliverPersistentHeader(
-                      pinned: true,
-                      delegate: _TabBarDelegate(
-                        TabBar(
-                          controller: _tabCtrl,
-                          labelStyle: GoogleFonts.inter(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 1,
-                          ),
-                          unselectedLabelStyle: GoogleFonts.inter(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                          ),
-                          labelColor: cs.onSurface,
-                          unselectedLabelColor: cs.onSurfaceVariant,
-                          indicatorColor: cs.onSurface,
-                          indicatorWeight: 2,
-                          indicatorSize: TabBarIndicatorSize.label,
-                          dividerColor: cs.outlineVariant.withOpacity(0.3),
-                          tabs: const [
-                            Tab(text: 'SAVED'),
-                            Tab(text: 'MY LISTINGS'),
-                          ],
-                        ),
-                        cs.surface,
-                      ),
-                    ),
-                  ],
-                  body: TabBarView(
-                    controller: _tabCtrl,
-                    children: [_SavedTab(), _MyListingsTab()],
-                  ),
-                ),
-              ),
+      appBar: BrandAppBar(),
+      body: NestedScrollView(
+        headerSliverBuilder: (_, __) => [
+          SliverToBoxAdapter(
+            child: Column(
+              children: [
+                _ProfileCard(user: user),
+                const SizedBox(height: 20),
+                _StatsRow(),
+                const SizedBox(height: 20),
+                _QuickActions(),
+                const SizedBox(height: 8),
+              ],
             ),
           ),
-          const AppTopBar(),
+          SliverPersistentHeader(
+            pinned: true,
+            delegate: _TabBarDelegate(
+              TabBar(
+                controller: _tabCtrl,
+                labelStyle: GoogleFonts.inter(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1,
+                ),
+                unselectedLabelStyle: GoogleFonts.inter(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                ),
+                labelColor: cs.onSurface,
+                unselectedLabelColor: cs.onSurfaceVariant,
+                indicatorColor: cs.onSurface,
+                indicatorWeight: 2,
+                indicatorSize: TabBarIndicatorSize.label,
+                dividerColor: cs.outlineVariant.withOpacity(0.3),
+                tabs: const [
+                  Tab(text: 'SAVED'),
+                  Tab(text: 'MY LISTINGS'),
+                ],
+              ),
+              cs.surface,
+            ),
+          ),
         ],
+        body: TabBarView(
+          controller: _tabCtrl,
+          children: [_SavedTab(), _MyListingsTab()],
+        ),
       ),
-      bottomNavigationBar: const AppBottomNav(currentIndex: 2),
     );
   }
 }
@@ -171,7 +156,6 @@ class _ProfileCard extends StatelessWidget {
     final name = user != null
         ? '${user!.firstName} ${user!.lastName}'
         : 'Guest';
-    final email = user?.email ?? '';
     final role = user?.role ?? 'buyer';
     final avatar = user?.avatar;
 
@@ -240,12 +224,6 @@ class _ProfileCard extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 2),
-                Text(
-                  email,
-                  style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12),
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 6),
                 Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 10,
@@ -271,8 +249,6 @@ class _ProfileCard extends StatelessWidget {
               ],
             ),
           ),
-          // Edit profile button
-          _AnimatedIconButton(icon: Icons.edit_outlined, onTap: () {}, cs: cs),
         ],
       ),
     );
@@ -377,7 +353,6 @@ class _AvatarFallback extends StatelessWidget {
 }
 
 // ── Stats Row ─────────────────────────────────────────────────────────────────
-
 class _StatsRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -385,51 +360,64 @@ class _StatsRow extends StatelessWidget {
     final saved = context.watch<UserProvider>().saved.length;
     final listings = context.watch<UserProvider>().myListings.length;
     final inquiries = context.watch<InquiriesProvider>().inquiries.length;
-
-    final stats = [
-      (
-        label: 'Saved',
-        value: '$saved',
-        icon: Icons.favorite_border_rounded,
-        trend: '+3',
-        positive: true,
-      ),
-      (
-        label: 'Listings',
-        value: '$listings',
-        icon: Icons.home_work_outlined,
-        trend: 'active',
-        positive: true,
-      ),
-      (
-        label: 'Inquiries',
-        value: '$inquiries',
-        icon: Icons.chat_bubble_outline_rounded,
-        trend: '5 new',
-        positive: false,
-      ),
-    ];
+    final h = MediaQuery.of(context).size.width * 0.48;
+    final cardH = (h - 10) / 2;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Row(
-        children: List.generate(stats.length, (i) {
-          final s = stats[i];
-          return Expanded(
-            child: Padding(
-              padding: EdgeInsets.only(right: i < stats.length - 1 ? 10 : 0),
-              child: _AnimatedStatCard(
-                label: s.label,
-                value: s.value,
-                icon: s.icon,
-                trend: s.trend,
-                positive: s.positive,
-                delay: Duration(milliseconds: 80 * i),
-                cs: cs,
+      child: SizedBox(
+        height: h,
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                children: [
+                  SizedBox(
+                    height: cardH,
+                    child: _AnimatedStatCard(
+                      label: 'Saved',
+                      value: '$saved',
+                      icon: Icons.favorite_border_rounded,
+                      trend: '+3',
+                      positive: true,
+                      delay: Duration.zero,
+                      cs: cs,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    height: cardH,
+                    child: _AnimatedStatCard(
+                      label: 'Listings',
+                      value: '$listings',
+                      icon: Icons.home_work_outlined,
+                      trend: 'active',
+                      positive: true,
+                      delay: const Duration(milliseconds: 80),
+                      cs: cs,
+                    ),
+                  ),
+                ],
               ),
             ),
-          );
-        }),
+            const SizedBox(width: 10),
+            Expanded(
+              child: SizedBox(
+                height: h,
+                child: _AnimatedStatCard(
+                  label: 'Inquiries',
+                  value: '$inquiries',
+                  icon: Icons.chat_bubble_outline_rounded,
+                  trend: '5 new',
+                  positive: false,
+                  delay: const Duration(milliseconds: 160),
+                  cs: cs,
+                  large: true,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -443,6 +431,7 @@ class _AnimatedStatCard extends StatefulWidget {
   final bool positive;
   final Duration delay;
   final ColorScheme cs;
+  final bool large;
 
   const _AnimatedStatCard({
     required this.label,
@@ -452,6 +441,7 @@ class _AnimatedStatCard extends StatefulWidget {
     required this.positive,
     required this.delay,
     required this.cs,
+    this.large = false,
   });
 
   @override
@@ -491,49 +481,129 @@ class _AnimatedStatCardState extends State<_AnimatedStatCard>
   @override
   Widget build(BuildContext context) {
     final cs = widget.cs;
-    final trendColor = widget.positive
-        ? const Color(0xFF3B6D11)
-        : const Color(0xFFA32D2D);
-
     return FadeTransition(
       opacity: _fade,
       child: ScaleTransition(
         scale: _scale,
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 14),
-          decoration: BoxDecoration(
-            color: cs.surfaceContainerHighest.withOpacity(0.35),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: cs.outlineVariant.withOpacity(0.2)),
+          width: double.infinity,
+          padding: EdgeInsets.symmetric(
+            vertical: widget.large ? 16 : 12,
+            horizontal: widget.large ? 8 : 0,
           ),
-          child: Column(
-            children: [
-              Icon(widget.icon, size: 18, color: cs.onSurface),
-              const SizedBox(height: 7),
-              Text(
-                widget.value,
-                style: GoogleFonts.notoSerif(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w900,
-                  color: cs.onSurface,
-                ),
-              ),
-              const SizedBox(height: 1),
-              Text(
-                widget.label,
-                style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                widget.trend,
-                style: TextStyle(
-                  fontSize: 9,
-                  fontWeight: FontWeight.w600,
-                  color: trendColor,
-                ),
+          decoration: BoxDecoration(
+            color: widget.large ? cs.onSurface : cs.surfaceContainerLowest,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: widget.large
+                  ? Colors.transparent
+                  : cs.outlineVariant.withOpacity(0.15),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: cs.onSurface.withOpacity(0.04),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
               ),
             ],
           ),
+          child: widget.large
+              ? Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: cs.surface.withOpacity(0.14),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(widget.icon, size: 20, color: cs.surface),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      widget.value,
+                      style: GoogleFonts.notoSerif(
+                        fontSize: 30,
+                        fontWeight: FontWeight.w900,
+                        color: cs.surface,
+                        height: 1,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      widget.label,
+                      style: GoogleFonts.inter(
+                        fontSize: 10,
+                        color: cs.surface.withOpacity(0.6),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: cs.surface.withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: Text(
+                        widget.trend,
+                        style: GoogleFonts.inter(
+                          fontSize: 9,
+                          fontWeight: FontWeight.bold,
+                          color: cs.surface,
+                          letterSpacing: 0.4,
+                        ),
+                      ),
+                    ),
+                  ],
+                )
+              : Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          color: cs.surfaceContainerHighest.withOpacity(0.6),
+                          borderRadius: BorderRadius.circular(11),
+                        ),
+                        child: Icon(widget.icon, size: 17, color: cs.onSurface),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              widget.value,
+                              style: GoogleFonts.notoSerif(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w900,
+                                color: cs.onSurface,
+                                height: 1,
+                              ),
+                            ),
+                            const SizedBox(height: 3),
+                            Text(
+                              widget.label,
+                              style: GoogleFonts.inter(
+                                fontSize: 10,
+                                color: cs.onSurfaceVariant,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
         ),
       ),
     );
@@ -673,38 +743,43 @@ class _PressableActionCardState extends State<_PressableActionCard>
       onTapCancel: () => _ctrl.reverse(),
       child: ScaleTransition(
         scale: _scale,
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          decoration: BoxDecoration(
-            color: widget.isPrimary
-                ? cs.onSurface
-                : cs.surfaceContainerHighest.withOpacity(0.35),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
+        child: SizedBox(
+          height: 72,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 12),
+            decoration: BoxDecoration(
               color: widget.isPrimary
                   ? cs.onSurface
-                  : cs.outlineVariant.withOpacity(0.2),
+                  : cs.surfaceContainerHighest.withOpacity(0.35),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: widget.isPrimary
+                    ? cs.onSurface
+                    : cs.outlineVariant.withOpacity(0.2),
+              ),
             ),
-          ),
-          child: Column(
-            children: [
-              Icon(
-                widget.icon,
-                size: 22,
-                color: widget.isPrimary ? cs.surface : cs.onSurface,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                widget.label,
-                textAlign: TextAlign.center,
-                style: GoogleFonts.inter(
-                  fontSize: 10,
-                  fontWeight: FontWeight.w600,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  widget.icon,
+                  size: 20,
                   color: widget.isPrimary ? cs.surface : cs.onSurface,
-                  height: 1.3,
                 ),
-              ),
-            ],
+                const SizedBox(height: 6),
+                Text(
+                  widget.label.replaceAll('\n', ' '),
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: GoogleFonts.inter(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
+                    color: widget.isPrimary ? cs.surface : cs.onSurface,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -1154,21 +1229,21 @@ class _EmptyState extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return Center(
-      child: Padding(
+      child: SingleChildScrollView(
         padding: const EdgeInsets.all(40),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: 72,
-              height: 72,
+              width: 60,
+              height: 60,
               decoration: BoxDecoration(
                 color: cs.surfaceContainerHighest.withOpacity(0.4),
                 shape: BoxShape.circle,
               ),
               child: Icon(icon, size: 32, color: cs.onSurfaceVariant),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             Text(
               title,
               style: GoogleFonts.notoSerif(

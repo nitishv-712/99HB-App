@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:homebazaar/view/components/app_bar.dart';
+import 'package:homebazaar/view/components/service_tile.dart';
 import 'package:provider/provider.dart';
 import 'package:homebazaar/core/router/app_router.dart';
 import 'package:homebazaar/providers/properties_provider.dart';
 import 'package:homebazaar/services/newsletter_service.dart';
-import 'package:homebazaar/view/components/app_bottom_nav.dart';
-import 'package:homebazaar/view/components/app_top_bar.dart';
 import 'package:homebazaar/view/components/property_card.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -36,40 +36,27 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      body: Stack(
+      backgroundColor: cs.surface,
+      appBar: BrandAppBar(),
+      body: ListView(
         children: [
-          SafeArea(
-            child: CustomScrollView(
-              slivers: [
-                const SliverToBoxAdapter(child: SizedBox(height: 72)),
-                SliverToBoxAdapter(
-                  child: _HeroSection(searchCtrl: _searchCtrl),
-                ),
-                const SliverToBoxAdapter(child: SizedBox(height: 28)),
-                const SliverToBoxAdapter(child: _QuickLinks()),
-                const SliverToBoxAdapter(child: SizedBox(height: 32)),
-                const SliverToBoxAdapter(child: _FeaturedListings()),
-                const SliverToBoxAdapter(child: SizedBox(height: 32)),
-                const SliverToBoxAdapter(child: _ServicesSection()),
-                const SliverToBoxAdapter(child: SizedBox(height: 32)),
-                SliverToBoxAdapter(
-                  child: _NewsletterSection(emailCtrl: _emailCtrl),
-                ),
-                const SliverToBoxAdapter(child: SizedBox(height: 32)),
-              ],
-            ),
-          ),
-          const AppTopBar(),
+          _HeroSection(searchCtrl: _searchCtrl),
+          const SizedBox(height: 28),
+          const _QuickLinks(),
+          const SizedBox(height: 32),
+          const _FeaturedListings(),
+          const SizedBox(height: 32),
+          const _ServicesSection(),
+          const SizedBox(height: 32),
+          _NewsletterSection(emailCtrl: _emailCtrl),
+          const SizedBox(height: 32),
         ],
       ),
-      bottomNavigationBar: const AppBottomNav(currentIndex: 0),
     );
   }
 }
-
-// ── Hero Section ──────────────────────────────────────────────────────────────
 
 class _HeroSection extends StatelessWidget {
   final TextEditingController searchCtrl;
@@ -193,7 +180,6 @@ class _HeroSection extends StatelessWidget {
 }
 
 // ── Quick Links ───────────────────────────────────────────────────────────────
-
 class _QuickLinks extends StatelessWidget {
   const _QuickLinks();
 
@@ -205,10 +191,20 @@ class _QuickLinks extends StatelessWidget {
         icon: Icons.real_estate_agent_outlined,
         label: 'Buy',
         color: cs.onSurface,
+        onTap: () => AppRouter.push(context, AppRoutes.buy),
       ),
-      (icon: Icons.key_outlined, label: 'Rent', color: cs.onSurface),
-      (icon: Icons.sell_outlined, label: 'Sell', color: cs.onSurface),
-      (icon: Icons.calculate_outlined, label: 'EMI', color: cs.onSurface),
+      (
+        icon: Icons.key_outlined,
+        label: 'Rent',
+        color: cs.onSurface,
+        onTap: () => AppRouter.push(context, AppRoutes.rent),
+      ),
+      (
+        icon: Icons.sell_outlined,
+        label: 'Sell',
+        color: cs.onSurface,
+        onTap: () => AppRouter.push(context, AppRoutes.buy),
+      ),
     ];
 
     return Padding(
@@ -220,7 +216,7 @@ class _QuickLinks extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 5),
                   child: GestureDetector(
-                    onTap: () => AppRouter.push(context, AppRoutes.buy),
+                    onTap: e.onTap,
                     child: Column(
                       children: [
                         Container(
@@ -257,7 +253,6 @@ class _QuickLinks extends StatelessWidget {
 }
 
 // ── Featured Listings ─────────────────────────────────────────────────────────
-
 class _FeaturedListings extends StatelessWidget {
   const _FeaturedListings();
 
@@ -402,7 +397,6 @@ class _FeaturedListings extends StatelessWidget {
 }
 
 // ── Services Section ──────────────────────────────────────────────────────────
-
 class _ServicesSection extends StatelessWidget {
   const _ServicesSection();
 
@@ -434,109 +428,44 @@ class _ServicesSection extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 20),
-          Row(
+          GridView(
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              mainAxisSpacing: 12,
+              crossAxisSpacing: 12,
+              childAspectRatio: 0.9,
+            ),
+            shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
             children: [
-              Expanded(
-                child: _ServiceTile(
-                  icon: Icons.verified_user_outlined,
-                  title: 'Certified Agents',
-                  desc: 'Vetted advisors with 10+ years of expertise.',
-                  bg: cs.surfaceContainerHighest.withOpacity(0.4),
-                ),
+              ServiceTile(
+                icon: Icons.verified_user_outlined,
+                title: 'Certified Agents',
+                desc: 'Vetted advisors with 10+ years of expertise.',
+                bg: cs.surfaceContainerHighest.withOpacity(0.4),
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _ServiceTile(
-                  icon: Icons.view_in_ar_outlined,
-                  title: '3D Walkthroughs',
-                  desc: 'Immersive virtual tours of every listing.',
-                  bg: cs.onSurface,
-                  iconColor: cs.surface,
-                  titleColor: cs.surface,
-                  descColor: cs.surface.withOpacity(0.6),
-                ),
+              ServiceTile(
+                icon: Icons.view_in_ar_outlined,
+                title: '3D Walkthroughs',
+                desc: 'Immersive virtual tours of every listing.',
+                bg: cs.onSurface,
+                iconColor: cs.surface,
+                titleColor: cs.surface,
+                descColor: cs.surface.withOpacity(0.6),
+              ),
+              ServiceTile(
+                icon: Icons.gavel_outlined,
+                title: 'Legal Help',
+                desc: 'End-to-end documentation support.',
+                bg: cs.surfaceContainerHighest.withOpacity(0.4),
+              ),
+              ServiceTile(
+                icon: Icons.groups_outlined,
+                title: 'Bulk Buying',
+                desc: 'Institutional-grade pricing for investors.',
+                bg: cs.surfaceContainerHighest.withOpacity(0.4),
               ),
             ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: _ServiceTile(
-                  icon: Icons.gavel_outlined,
-                  title: 'Legal Help',
-                  desc: 'End-to-end documentation support.',
-                  bg: cs.surfaceContainerHighest.withOpacity(0.4),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _ServiceTile(
-                  icon: Icons.groups_outlined,
-                  title: 'Bulk Buying',
-                  desc: 'Institutional-grade pricing for investors.',
-                  bg: cs.surfaceContainerHighest.withOpacity(0.4),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ServiceTile extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String desc;
-  final Color bg;
-  final Color? iconColor;
-  final Color? titleColor;
-  final Color? descColor;
-
-  const _ServiceTile({
-    required this.icon,
-    required this.title,
-    required this.desc,
-    required this.bg,
-    this.iconColor,
-    this.titleColor,
-    this.descColor,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, color: iconColor ?? cs.onSurface, size: 28),
-          const SizedBox(height: 16),
-          Text(
-            title,
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-              color: titleColor ?? cs.onSurface,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            desc,
-            style: TextStyle(
-              fontSize: 12,
-              color: descColor ?? cs.onSurfaceVariant,
-              height: 1.5,
-            ),
-            maxLines: 3,
-            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),

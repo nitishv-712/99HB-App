@@ -8,8 +8,11 @@ import 'package:homebazaar/view/components/app_shared.dart';
 class PropertyAnalyticsScreen extends StatefulWidget {
   final String propertyId;
   final String? propertyTitle;
-  const PropertyAnalyticsScreen(
-      {super.key, required this.propertyId, this.propertyTitle});
+  const PropertyAnalyticsScreen({
+    super.key,
+    required this.propertyId,
+    this.propertyTitle,
+  });
 
   @override
   State<PropertyAnalyticsScreen> createState() =>
@@ -20,9 +23,11 @@ class _PropertyAnalyticsScreenState extends State<PropertyAnalyticsScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => context
-        .read<AnalyticsProvider>()
-        .fetchPropertyAnalytics(widget.propertyId));
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => context.read<AnalyticsProvider>().fetchPropertyAnalytics(
+        widget.propertyId,
+      ),
+    );
   }
 
   @override
@@ -31,7 +36,8 @@ class _PropertyAnalyticsScreenState extends State<PropertyAnalyticsScreen> {
     return Scaffold(
       backgroundColor: cs.surface,
       appBar: AppStandardBar(
-          title: widget.propertyTitle ?? 'Property Analytics'),
+        title: widget.propertyTitle ?? 'Property Analytics',
+      ),
       body: Consumer<AnalyticsProvider>(
         builder: (_, prov, __) {
           if (prov.propertyLoading) {
@@ -40,8 +46,7 @@ class _PropertyAnalyticsScreenState extends State<PropertyAnalyticsScreen> {
           if (prov.propertyError != null) {
             return AppErrorRetry(
               message: prov.propertyError!,
-              onRetry: () =>
-                  prov.fetchPropertyAnalytics(widget.propertyId),
+              onRetry: () => prov.fetchPropertyAnalytics(widget.propertyId),
             );
           }
           final data = prov.propertyAnalytics;
@@ -76,11 +81,14 @@ class _Body extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(p.title,
-                  style: GoogleFonts.notoSerif(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w900,
-                      color: cs.surface)),
+              Text(
+                p.title,
+                style: GoogleFonts.notoSerif(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w900,
+                  color: cs.surface,
+                ),
+              ),
               const SizedBox(height: 6),
               Row(
                 children: [
@@ -98,38 +106,51 @@ class _Body extends StatelessWidget {
         const SizedBox(height: 20),
         const AppSectionLabel('PERFORMANCE'),
         const SizedBox(height: 12),
-        Row(children: [
-          Expanded(
+        Row(
+          children: [
+            Expanded(
               child: _StatCard(
-                  label: 'Views',
-                  value: '${a.totalViews}',
-                  icon: Icons.visibility_outlined)),
-          const SizedBox(width: 12),
-          Expanded(
+                label: 'Views',
+                value: '${a.totalViews}',
+                icon: Icons.visibility_outlined,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
               child: _StatCard(
-                  label: 'Saves',
-                  value: '${a.totalSaves}',
-                  icon: Icons.bookmark_border_rounded)),
-        ]),
+                label: 'Saves',
+                value: '${a.totalSaves}',
+                icon: Icons.bookmark_border_rounded,
+              ),
+            ),
+          ],
+        ),
         const SizedBox(height: 12),
-        Row(children: [
-          Expanded(
+        Row(
+          children: [
+            Expanded(
               child: _StatCard(
-                  label: 'Inquiries',
-                  value: '${a.totalInquiries}',
-                  icon: Icons.chat_bubble_outline_rounded)),
-          const SizedBox(width: 12),
-          Expanded(
+                label: 'Inquiries',
+                value: '${a.totalInquiries}',
+                icon: Icons.chat_bubble_outline_rounded,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
               child: _StatCard(
-                  label: 'Conversion',
-                  value: '${a.conversionRate.toStringAsFixed(1)}%',
-                  icon: Icons.trending_up_rounded)),
-        ]),
+                label: 'Conversion',
+                value: '${a.conversionRate.toStringAsFixed(1)}%',
+                icon: Icons.trending_up_rounded,
+              ),
+            ),
+          ],
+        ),
         const SizedBox(height: 12),
         _StatCard(
-            label: 'Save Rate',
-            value: '${a.saveRate.toStringAsFixed(1)}%',
-            icon: Icons.favorite_border_rounded),
+          label: 'Save Rate',
+          value: '${a.saveRate.toStringAsFixed(1)}%',
+          icon: Icons.favorite_border_rounded,
+        ),
 
         const SizedBox(height: 24),
         const AppSectionLabel('INQUIRY STATUS'),
@@ -167,12 +188,15 @@ class _PillDark extends StatelessWidget {
         color: cs.surface.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(999),
       ),
-      child: Text(label,
-          style: GoogleFonts.inter(
-              fontSize: 9,
-              fontWeight: FontWeight.bold,
-              color: cs.surface,
-              letterSpacing: 0.8)),
+      child: Text(
+        label,
+        style: GoogleFonts.inter(
+          fontSize: 9,
+          fontWeight: FontWeight.bold,
+          color: cs.surface,
+          letterSpacing: 0.8,
+        ),
+      ),
     );
   }
 }
@@ -181,8 +205,11 @@ class _StatCard extends StatelessWidget {
   final String label;
   final String value;
   final IconData icon;
-  const _StatCard(
-      {required this.label, required this.value, required this.icon});
+  const _StatCard({
+    required this.label,
+    required this.value,
+    required this.icon,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -199,14 +226,19 @@ class _StatCard extends StatelessWidget {
         children: [
           Icon(icon, size: 20, color: cs.onSurfaceVariant),
           const SizedBox(height: 10),
-          Text(value,
-              style: GoogleFonts.notoSerif(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w900,
-                  color: cs.onSurface)),
+          Text(
+            value,
+            style: GoogleFonts.notoSerif(
+              fontSize: 22,
+              fontWeight: FontWeight.w900,
+              color: cs.onSurface,
+            ),
+          ),
           const SizedBox(height: 2),
-          Text(label,
-              style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant)),
+          Text(
+            label,
+            style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant),
+          ),
         ],
       ),
     );
@@ -232,27 +264,34 @@ class _InquiryStatusCard extends StatelessWidget {
         children: [
           Expanded(
             child: _StatusItem(
-                label: 'Active',
-                value: status.active,
-                color: Colors.green),
+              label: 'Active',
+              value: status.active,
+              color: Colors.green,
+            ),
           ),
           Container(
-              width: 1,
-              height: 40,
-              color: cs.outlineVariant.withValues(alpha: 0.3)),
+            width: 1,
+            height: 40,
+            color: cs.outlineVariant.withValues(alpha: 0.3),
+          ),
           Expanded(
             child: _StatusItem(
-                label: 'Closed',
-                value: status.closed,
-                color: cs.onSurfaceVariant),
+              label: 'Closed',
+              value: status.closed,
+              color: cs.onSurfaceVariant,
+            ),
           ),
           Container(
-              width: 1,
-              height: 40,
-              color: cs.outlineVariant.withValues(alpha: 0.3)),
+            width: 1,
+            height: 40,
+            color: cs.outlineVariant.withValues(alpha: 0.3),
+          ),
           Expanded(
             child: _StatusItem(
-                label: 'Total', value: total, color: cs.onSurface),
+              label: 'Total',
+              value: total,
+              color: cs.onSurface,
+            ),
           ),
         ],
       ),
@@ -264,21 +303,32 @@ class _StatusItem extends StatelessWidget {
   final String label;
   final int value;
   final Color color;
-  const _StatusItem(
-      {required this.label, required this.value, required this.color});
+  const _StatusItem({
+    required this.label,
+    required this.value,
+    required this.color,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text('$value',
-            style: GoogleFonts.notoSerif(
-                fontSize: 22, fontWeight: FontWeight.w900, color: color)),
+        Text(
+          '$value',
+          style: GoogleFonts.notoSerif(
+            fontSize: 22,
+            fontWeight: FontWeight.w900,
+            color: color,
+          ),
+        ),
         const SizedBox(height: 2),
-        Text(label,
-            style: TextStyle(
-                fontSize: 11,
-                color: Theme.of(context).colorScheme.onSurfaceVariant)),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 11,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ),
       ],
     );
   }
@@ -291,8 +341,7 @@ class _TrendChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final maxVal =
-        points.map((p) => p.count).reduce((a, b) => a > b ? a : b);
+    final maxVal = points.map((p) => p.count).reduce((a, b) => a > b ? a : b);
     return Container(
       height: 100,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
@@ -357,8 +406,9 @@ class _InquiryRow extends StatelessWidget {
             child: Text(
               inq.id as String,
               style: GoogleFonts.robotoMono(
-                  fontSize: 12,
-                  color: cs.onSurfaceVariant),
+                fontSize: 12,
+                color: cs.onSurfaceVariant,
+              ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),

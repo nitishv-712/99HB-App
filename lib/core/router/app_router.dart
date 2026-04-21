@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:homebazaar/model/property.dart';
 import 'package:homebazaar/view/screen/analytics/analytics_screen.dart';
 import 'package:homebazaar/view/screen/analytics/property_analytics_screen.dart';
 import 'package:homebazaar/view/screen/comparisons/comparisons_screen.dart';
@@ -9,6 +10,7 @@ import 'package:homebazaar/view/screen/home/buy_screen.dart';
 import 'package:homebazaar/view/screen/home/home_screen.dart';
 import 'package:homebazaar/view/screen/home/property_detail_screen.dart';
 import 'package:homebazaar/view/screen/inquiries/inquiries_screen.dart';
+import 'package:homebazaar/view/screen/dashboard.dart';
 import 'package:homebazaar/view/screen/reviews/reviews_screen.dart';
 import 'package:homebazaar/view/screen/account/search_history_screen.dart';
 import 'package:homebazaar/view/screen/account/settings_screen.dart';
@@ -20,11 +22,13 @@ import 'package:homebazaar/view/screen/support/support_screen.dart';
 
 abstract final class AppRoutes {
   static const splash = '/';
+  static const onBoarding = '/dash';
   static const home = '/home';
   static const signIn = '/sign-in';
   static const signUp = '/sign-up';
   static const forgotPassword = '/forgot-password';
   static const buy = '/buy';
+  static const rent = '/rent';
   static const dashboard = '/dashboard';
   static const propertyDetail = '/property/:id';
   static const settings = '/settings';
@@ -44,6 +48,8 @@ abstract final class AppRouter {
     switch (settings.name) {
       case AppRoutes.splash:
         return _slide(const SplashScreen());
+      case AppRoutes.onBoarding:
+        return _slide(const Dash());
       case AppRoutes.home:
         return _slide(const HomeScreen());
       case AppRoutes.signIn:
@@ -54,6 +60,8 @@ abstract final class AppRouter {
         return _slide(const ForgotPasswordScreen());
       case AppRoutes.buy:
         return _slide(const BuyScreen());
+      case AppRoutes.rent:
+        return _slide(const BuyScreen(initialListingType: ListingType.rent));
       case AppRoutes.dashboard:
         return _slide(const DashboardScreen());
       case AppRoutes.propertyDetail:
@@ -79,10 +87,12 @@ abstract final class AppRouter {
         return _slide(const CreateListingScreen());
       case AppRoutes.propertyAnalytics:
         final args = settings.arguments as Map<String, String?>?;
-        return _slide(PropertyAnalyticsScreen(
-          propertyId: args?['id'] ?? '',
-          propertyTitle: args?['title'],
-        ));
+        return _slide(
+          PropertyAnalyticsScreen(
+            propertyId: args?['id'] ?? '',
+            propertyTitle: args?['title'],
+          ),
+        );
       default:
         return _slide(const HomeScreen());
     }

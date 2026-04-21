@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import 'package:homebazaar/core/router/app_router.dart';
 import 'package:homebazaar/model/analytics.dart';
 import 'package:homebazaar/providers/analytics_provider.dart';
-import 'package:homebazaar/view/components/app_bottom_nav.dart';
 import 'package:homebazaar/view/components/app_shared.dart';
 
 class AnalyticsScreen extends StatefulWidget {
@@ -19,7 +18,8 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback(
-        (_) => context.read<AnalyticsProvider>().fetchOverview());
+      (_) => context.read<AnalyticsProvider>().fetchOverview(),
+    );
   }
 
   @override
@@ -35,8 +35,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
           }
           if (prov.overviewError != null) {
             return AppErrorRetry(
-                message: prov.overviewError!,
-                onRetry: prov.fetchOverview);
+              message: prov.overviewError!,
+              onRetry: prov.fetchOverview,
+            );
           }
           if (prov.overview == null) {
             return const AppEmptyState(
@@ -48,7 +49,6 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
           return _Body(data: prov.overview!);
         },
       ),
-      bottomNavigationBar: const AppBottomNav(currentIndex: 2),
     );
   }
 }
@@ -64,33 +64,45 @@ class _Body extends StatelessWidget {
       children: [
         const AppSectionLabel('OVERVIEW'),
         const SizedBox(height: 12),
-        Row(children: [
-          Expanded(
+        Row(
+          children: [
+            Expanded(
               child: _StatCard(
-                  label: 'Total Views',
-                  value: '${data.totalViews}',
-                  icon: Icons.visibility_outlined)),
-          const SizedBox(width: 12),
-          Expanded(
+                label: 'Total Views',
+                value: '${data.totalViews}',
+                icon: Icons.visibility_outlined,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
               child: _StatCard(
-                  label: 'Total Saves',
-                  value: '${data.totalSaves}',
-                  icon: Icons.bookmark_border_rounded)),
-        ]),
+                label: 'Total Saves',
+                value: '${data.totalSaves}',
+                icon: Icons.bookmark_border_rounded,
+              ),
+            ),
+          ],
+        ),
         const SizedBox(height: 12),
-        Row(children: [
-          Expanded(
+        Row(
+          children: [
+            Expanded(
               child: _StatCard(
-                  label: 'Inquiries',
-                  value: '${data.totalInquiries}',
-                  icon: Icons.chat_bubble_outline_rounded)),
-          const SizedBox(width: 12),
-          Expanded(
+                label: 'Inquiries',
+                value: '${data.totalInquiries}',
+                icon: Icons.chat_bubble_outline_rounded,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
               child: _StatCard(
-                  label: 'Conversion',
-                  value: '${data.conversionRate.toStringAsFixed(1)}%',
-                  icon: Icons.trending_up_rounded)),
-        ]),
+                label: 'Conversion',
+                value: '${data.conversionRate.toStringAsFixed(1)}%',
+                icon: Icons.trending_up_rounded,
+              ),
+            ),
+          ],
+        ),
         const SizedBox(height: 24),
         const AppSectionLabel('LISTING STATUS'),
         const SizedBox(height: 12),
@@ -105,11 +117,13 @@ class _Body extends StatelessWidget {
           const SizedBox(height: 12),
           ...data.topByViews
               .take(5)
-              .map((p) => _TopRow(
-                    title: p.title,
-                    metric: '${p.views} views',
-                    propertyId: p.id,
-                  )),
+              .map(
+                (p) => _TopRow(
+                  title: p.title,
+                  metric: '${p.views} views',
+                  propertyId: p.id,
+                ),
+              ),
         ],
         if (data.topByInquiries.isNotEmpty) ...[
           const SizedBox(height: 24),
@@ -117,11 +131,13 @@ class _Body extends StatelessWidget {
           const SizedBox(height: 12),
           ...data.topByInquiries
               .take(5)
-              .map((p) => _TopRow(
-                    title: p.title,
-                    metric: '${p.inquiries} inquiries',
-                    propertyId: p.id,
-                  )),
+              .map(
+                (p) => _TopRow(
+                  title: p.title,
+                  metric: '${p.inquiries} inquiries',
+                  propertyId: p.id,
+                ),
+              ),
         ],
       ],
     );
@@ -132,8 +148,11 @@ class _StatCard extends StatelessWidget {
   final String label;
   final String value;
   final IconData icon;
-  const _StatCard(
-      {required this.label, required this.value, required this.icon});
+  const _StatCard({
+    required this.label,
+    required this.value,
+    required this.icon,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -150,14 +169,19 @@ class _StatCard extends StatelessWidget {
         children: [
           Icon(icon, size: 20, color: cs.onSurfaceVariant),
           const SizedBox(height: 10),
-          Text(value,
-              style: GoogleFonts.notoSerif(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w900,
-                  color: cs.onSurface)),
+          Text(
+            value,
+            style: GoogleFonts.notoSerif(
+              fontSize: 22,
+              fontWeight: FontWeight.w900,
+              color: cs.onSurface,
+            ),
+          ),
           const SizedBox(height: 2),
-          Text(label,
-              style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant)),
+          Text(
+            label,
+            style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant),
+          ),
         ],
       ),
     );
@@ -179,7 +203,7 @@ class _StatusBreakdown extends StatelessWidget {
       (
         label: 'Archived',
         value: data.archivedListings,
-        color: cs.onSurfaceVariant
+        color: cs.onSurfaceVariant,
       ),
     ];
     return Container(
@@ -191,19 +215,23 @@ class _StatusBreakdown extends StatelessWidget {
       ),
       child: Column(
         children: items.map((item) {
-          final pct =
-              data.totalListings > 0 ? item.value / data.totalListings : 0.0;
+          final pct = data.totalListings > 0
+              ? item.value / data.totalListings
+              : 0.0;
           return Padding(
             padding: const EdgeInsets.only(bottom: 12),
             child: Row(
               children: [
                 SizedBox(
                   width: 72,
-                  child: Text(item.label,
-                      style: GoogleFonts.inter(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: cs.onSurface)),
+                  child: Text(
+                    item.label,
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: cs.onSurface,
+                    ),
+                  ),
                 ),
                 Expanded(
                   child: ClipRRect(
@@ -217,11 +245,14 @@ class _StatusBreakdown extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 10),
-                Text('${item.value}',
-                    style: GoogleFonts.inter(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: cs.onSurface)),
+                Text(
+                  '${item.value}',
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: cs.onSurface,
+                  ),
+                ),
               ],
             ),
           );
@@ -246,12 +277,14 @@ class _TrendChart extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
         ),
         child: Center(
-            child: Text('No trend data',
-                style: TextStyle(color: cs.onSurfaceVariant))),
+          child: Text(
+            'No trend data',
+            style: TextStyle(color: cs.onSurfaceVariant),
+          ),
+        ),
       );
     }
-    final maxVal =
-        points.map((p) => p.count).reduce((a, b) => a > b ? a : b);
+    final maxVal = points.map((p) => p.count).reduce((a, b) => a > b ? a : b);
     return Container(
       height: 100,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
@@ -289,10 +322,11 @@ class _TopRow extends StatelessWidget {
   final String title;
   final String metric;
   final String propertyId;
-  const _TopRow(
-      {required this.title,
-      required this.metric,
-      required this.propertyId});
+  const _TopRow({
+    required this.title,
+    required this.metric,
+    required this.propertyId,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -314,21 +348,31 @@ class _TopRow extends StatelessWidget {
         child: Row(
           children: [
             Expanded(
-                child: Text(title,
-                    style: GoogleFonts.inter(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: cs.onSurface),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis)),
-            Text(metric,
+              child: Text(
+                title,
                 style: GoogleFonts.inter(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: cs.onSurfaceVariant)),
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: cs.onSurface,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            Text(
+              metric,
+              style: GoogleFonts.inter(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: cs.onSurfaceVariant,
+              ),
+            ),
             const SizedBox(width: 6),
-            Icon(Icons.chevron_right_rounded,
-                size: 16, color: cs.onSurfaceVariant),
+            Icon(
+              Icons.chevron_right_rounded,
+              size: 16,
+              color: cs.onSurfaceVariant,
+            ),
           ],
         ),
       ),

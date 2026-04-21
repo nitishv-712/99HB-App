@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import 'package:homebazaar/model/property.dart';
 import 'package:homebazaar/model/review.dart';
 import 'package:homebazaar/providers/reviews_provider.dart';
-import 'package:homebazaar/view/components/app_bottom_nav.dart';
 import 'package:homebazaar/view/components/app_shared.dart';
 
 class ReviewsScreen extends StatefulWidget {
@@ -19,7 +18,8 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback(
-        (_) => context.read<ReviewsProvider>().fetchMyReviews());
+      (_) => context.read<ReviewsProvider>().fetchMyReviews(),
+    );
   }
 
   @override
@@ -35,7 +35,9 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
           }
           if (prov.myError != null) {
             return AppErrorRetry(
-                message: prov.myError!, onRetry: prov.fetchMyReviews);
+              message: prov.myError!,
+              onRetry: prov.fetchMyReviews,
+            );
           }
           if (prov.myReviews.isEmpty) {
             return const AppEmptyState(
@@ -53,12 +55,13 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
               return _ReviewCard(
                 review: review,
                 onDelete: () async {
-                  final ok = await context
-                      .read<ReviewsProvider>()
-                      .delete(review.id);
+                  final ok = await context.read<ReviewsProvider>().delete(
+                    review.id,
+                  );
                   if (ok && context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Review deleted')));
+                      const SnackBar(content: Text('Review deleted')),
+                    );
                   }
                 },
               );
@@ -66,7 +69,6 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
           );
         },
       ),
-      bottomNavigationBar: const AppBottomNav(currentIndex: 2),
     );
   }
 }
@@ -99,9 +101,10 @@ class _ReviewCard extends StatelessWidget {
                 child: Text(
                   prop?.title ?? 'Property',
                   style: GoogleFonts.inter(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: cs.onSurfaceVariant),
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: cs.onSurfaceVariant,
+                  ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -110,29 +113,41 @@ class _ReviewCard extends StatelessWidget {
               const SizedBox(width: 8),
               GestureDetector(
                 onTap: onDelete,
-                child: Icon(Icons.delete_outline_rounded,
-                    size: 18, color: cs.error),
+                child: Icon(
+                  Icons.delete_outline_rounded,
+                  size: 18,
+                  color: cs.error,
+                ),
               ),
             ],
           ),
           const SizedBox(height: 8),
-          Text(review.title,
-              style: GoogleFonts.notoSerif(
-                  fontSize: 15,
-                  fontWeight: FontWeight.bold,
-                  color: cs.onSurface)),
+          Text(
+            review.title,
+            style: GoogleFonts.notoSerif(
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
+              color: cs.onSurface,
+            ),
+          ),
           const SizedBox(height: 4),
-          Text(review.comment,
-              style: TextStyle(
-                  fontSize: 13, color: cs.onSurfaceVariant, height: 1.5)),
+          Text(
+            review.comment,
+            style: TextStyle(
+              fontSize: 13,
+              color: cs.onSurfaceVariant,
+              height: 1.5,
+            ),
+          ),
           const SizedBox(height: 8),
           Text(
             review.createdAt.length >= 10
                 ? review.createdAt.substring(0, 10)
                 : review.createdAt,
             style: TextStyle(
-                fontSize: 11,
-                color: cs.onSurfaceVariant.withOpacity(0.6)),
+              fontSize: 11,
+              color: cs.onSurfaceVariant.withOpacity(0.6),
+            ),
           ),
         ],
       ),

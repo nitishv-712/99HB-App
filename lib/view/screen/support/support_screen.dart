@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import 'package:homebazaar/model/support_ticket.dart';
 import 'package:homebazaar/providers/auth_provider.dart';
 import 'package:homebazaar/providers/support_provider.dart';
-import 'package:homebazaar/view/components/app_bottom_nav.dart';
 import 'package:homebazaar/view/components/app_shared.dart';
 
 // ── Support List ──────────────────────────────────────────────────────────────
@@ -21,7 +20,8 @@ class _SupportScreenState extends State<SupportScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback(
-        (_) => context.read<SupportProvider>().fetchList());
+      (_) => context.read<SupportProvider>().fetchList(),
+    );
   }
 
   @override
@@ -44,8 +44,7 @@ class _SupportScreenState extends State<SupportScreen> {
             return const Center(child: CircularProgressIndicator());
           }
           if (prov.error != null) {
-            return AppErrorRetry(
-                message: prov.error!, onRetry: prov.fetchList);
+            return AppErrorRetry(message: prov.error!, onRetry: prov.fetchList);
           }
           if (prov.tickets.isEmpty) {
             return AppEmptyState(
@@ -64,7 +63,6 @@ class _SupportScreenState extends State<SupportScreen> {
           );
         },
       ),
-      bottomNavigationBar: const AppBottomNav(currentIndex: 2),
     );
   }
 
@@ -73,7 +71,8 @@ class _SupportScreenState extends State<SupportScreen> {
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
       builder: (_) => ChangeNotifierProvider.value(
         value: context.read<SupportProvider>(),
         child: const _CreateTicketSheet(),
@@ -121,7 +120,8 @@ class _TicketTile extends StatelessWidget {
       onTap: () => Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (_) => TicketDetailScreen(ticketId: ticket.id)),
+          builder: (_) => TicketDetailScreen(ticketId: ticket.id),
+        ),
       ),
       child: Container(
         padding: const EdgeInsets.all(14),
@@ -136,45 +136,53 @@ class _TicketTile extends StatelessWidget {
               width: 44,
               height: 44,
               decoration: BoxDecoration(
-                  color: color.withOpacity(0.1), shape: BoxShape.circle),
-              child: Icon(Icons.support_agent_outlined,
-                  size: 20, color: color),
+                color: color.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(Icons.support_agent_outlined, size: 20, color: color),
             ),
             const SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(ticket.subject,
-                      style: GoogleFonts.inter(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: cs.onSurface),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis),
+                  Text(
+                    ticket.subject,
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: cs.onSurface,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                   const SizedBox(height: 2),
                   Text(
                     ticket.category.name[0].toUpperCase() +
                         ticket.category.name.substring(1),
                     style: GoogleFonts.inter(
-                        fontSize: 11, color: cs.onSurfaceVariant),
+                      fontSize: 11,
+                      color: cs.onSurfaceVariant,
+                    ),
                   ),
                 ],
               ),
             ),
             Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
               decoration: BoxDecoration(
                 color: color.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(999),
               ),
-              child: Text(_statusLabel(ticket.status),
-                  style: GoogleFonts.inter(
-                      fontSize: 9,
-                      fontWeight: FontWeight.bold,
-                      color: color,
-                      letterSpacing: 0.8)),
+              child: Text(
+                _statusLabel(ticket.status),
+                style: GoogleFonts.inter(
+                  fontSize: 9,
+                  fontWeight: FontWeight.bold,
+                  color: color,
+                  letterSpacing: 0.8,
+                ),
+              ),
             ),
           ],
         ),
@@ -224,16 +232,20 @@ class _CreateTicketSheetState extends State<_CreateTicketSheet> {
               width: 36,
               height: 4,
               decoration: BoxDecoration(
-                  color: cs.outlineVariant,
-                  borderRadius: BorderRadius.circular(999)),
+                color: cs.outlineVariant,
+                borderRadius: BorderRadius.circular(999),
+              ),
             ),
           ),
           const SizedBox(height: 20),
-          Text('New Support Ticket',
-              style: GoogleFonts.notoSerif(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w900,
-                  color: cs.onSurface)),
+          Text(
+            'New Support Ticket',
+            style: GoogleFonts.notoSerif(
+              fontSize: 20,
+              fontWeight: FontWeight.w900,
+              color: cs.onSurface,
+            ),
+          ),
           const SizedBox(height: 20),
           TextField(
             controller: _subjectCtrl,
@@ -251,10 +263,12 @@ class _CreateTicketSheetState extends State<_CreateTicketSheet> {
               labelStyle: TextStyle(color: cs.onSurfaceVariant),
             ),
             items: TicketCategory.values
-                .map((c) => DropdownMenuItem(
+                .map(
+                  (c) => DropdownMenuItem(
                     value: c,
-                    child: Text(c.name[0].toUpperCase() +
-                        c.name.substring(1))))
+                    child: Text(c.name[0].toUpperCase() + c.name.substring(1)),
+                  ),
+                )
                 .toList(),
             onChanged: (v) => setState(() => _category = v!),
           ),
@@ -277,20 +291,27 @@ class _CreateTicketSheetState extends State<_CreateTicketSheet> {
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 decoration: BoxDecoration(
-                    color: cs.onSurface,
-                    borderRadius: BorderRadius.circular(14)),
+                  color: cs.onSurface,
+                  borderRadius: BorderRadius.circular(14),
+                ),
                 child: Center(
                   child: _loading
                       ? SizedBox(
                           width: 20,
                           height: 20,
                           child: CircularProgressIndicator(
-                              strokeWidth: 2, color: cs.surface))
-                      : Text('Submit Ticket',
+                            strokeWidth: 2,
+                            color: cs.surface,
+                          ),
+                        )
+                      : Text(
+                          'Submit Ticket',
                           style: GoogleFonts.inter(
-                              color: cs.surface,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14)),
+                            color: cs.surface,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
+                        ),
                 ),
               ),
             ),
@@ -307,10 +328,10 @@ class _CreateTicketSheetState extends State<_CreateTicketSheet> {
     }
     setState(() => _loading = true);
     final ok = await context.read<SupportProvider>().create(
-          subject: _subjectCtrl.text.trim(),
-          category: _category,
-          message: _msgCtrl.text.trim(),
-        );
+      subject: _subjectCtrl.text.trim(),
+      category: _category,
+      message: _msgCtrl.text.trim(),
+    );
     setState(() => _loading = false);
     if (ok && mounted) Navigator.pop(context);
   }
@@ -334,7 +355,8 @@ class _TicketDetailScreenState extends State<TicketDetailScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback(
-        (_) => context.read<SupportProvider>().fetchDetail(widget.ticketId));
+      (_) => context.read<SupportProvider>().fetchDetail(widget.ticketId),
+    );
   }
 
   @override
@@ -350,8 +372,11 @@ class _TicketDetailScreenState extends State<TicketDetailScreen> {
     _msgCtrl.clear();
     await context.read<SupportProvider>().addMessage(widget.ticketId, text);
     if (_scrollCtrl.hasClients) {
-      _scrollCtrl.animateTo(_scrollCtrl.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
+      _scrollCtrl.animateTo(
+        _scrollCtrl.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
     }
   }
 
@@ -373,9 +398,13 @@ class _TicketDetailScreenState extends State<TicketDetailScreen> {
               if (!isOpen) return const SizedBox.shrink();
               return TextButton(
                 onPressed: () => prov.close(widget.ticketId),
-                child: Text('Close',
-                    style: TextStyle(
-                        color: cs.error, fontWeight: FontWeight.bold)),
+                child: Text(
+                  'Close',
+                  style: TextStyle(
+                    color: cs.error,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               );
             },
           ),
@@ -388,35 +417,38 @@ class _TicketDetailScreenState extends State<TicketDetailScreen> {
           }
           if (prov.detailError != null) {
             return AppErrorRetry(
-                message: prov.detailError!,
-                onRetry: () => prov.fetchDetail(widget.ticketId));
+              message: prov.detailError!,
+              onRetry: () => prov.fetchDetail(widget.ticketId),
+            );
           }
           final detail = prov.detail;
           if (detail == null) return const SizedBox.shrink();
 
-          final isOpen = detail.ticket.status == TicketStatus.open ||
+          final isOpen =
+              detail.ticket.status == TicketStatus.open ||
               detail.ticket.status == TicketStatus.inProgress;
 
           return Column(
             children: [
               Container(
                 width: double.infinity,
-                padding:
-                    const EdgeInsets.fromLTRB(20, 12, 20, 12),
+                padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
                 color: cs.surfaceContainerHighest.withOpacity(0.3),
-                child: Text(detail.ticket.subject,
-                    style: GoogleFonts.inter(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: cs.onSurface)),
+                child: Text(
+                  detail.ticket.subject,
+                  style: GoogleFonts.inter(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: cs.onSurface,
+                  ),
+                ),
               ),
               Expanded(
                 child: detail.messages.isEmpty
                     ? const Center(child: Text('No messages yet'))
                     : ListView.builder(
                         controller: _scrollCtrl,
-                        padding:
-                            const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
                         itemCount: detail.messages.length,
                         itemBuilder: (_, i) {
                           final msg = detail.messages[i];
@@ -449,8 +481,11 @@ class _SupportBubble extends StatelessWidget {
   final String text;
   final bool isMe;
   final bool isAdmin;
-  const _SupportBubble(
-      {required this.text, required this.isMe, required this.isAdmin});
+  const _SupportBubble({
+    required this.text,
+    required this.isMe,
+    required this.isAdmin,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -459,16 +494,16 @@ class _SupportBubble extends StatelessWidget {
       alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
         margin: const EdgeInsets.only(bottom: 10),
-        padding:
-            const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-        constraints:
-            BoxConstraints(maxWidth: MediaQuery.sizeOf(context).width * 0.72),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        constraints: BoxConstraints(
+          maxWidth: MediaQuery.sizeOf(context).width * 0.72,
+        ),
         decoration: BoxDecoration(
           color: isAdmin
               ? cs.primary.withOpacity(0.1)
               : isMe
-                  ? cs.onSurface
-                  : cs.surfaceContainerHighest.withOpacity(0.5),
+              ? cs.onSurface
+              : cs.surfaceContainerHighest.withOpacity(0.5),
           borderRadius: BorderRadius.only(
             topLeft: const Radius.circular(16),
             topRight: const Radius.circular(16),
@@ -480,15 +515,21 @@ class _SupportBubble extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (isAdmin)
-              Text('Support',
-                  style: GoogleFonts.inter(
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                      color: cs.primary)),
-            Text(text,
+              Text(
+                'Support',
                 style: GoogleFonts.inter(
-                    fontSize: 14,
-                    color: isMe && !isAdmin ? cs.surface : cs.onSurface)),
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  color: cs.primary,
+                ),
+              ),
+            Text(
+              text,
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                color: isMe && !isAdmin ? cs.surface : cs.onSurface,
+              ),
+            ),
           ],
         ),
       ),

@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:homebazaar/view/components/app_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:homebazaar/core/router/app_router.dart';
 import 'package:homebazaar/model/filters.dart';
 import 'package:homebazaar/model/property.dart';
 import 'package:homebazaar/providers/properties_provider.dart';
-import 'package:homebazaar/view/components/app_bottom_nav.dart';
-import 'package:homebazaar/view/components/app_top_bar.dart';
 
 // ── Filter config ─────────────────────────────────────────────────────────────
 
@@ -43,7 +42,8 @@ const _bedOptions = [
 // ── Screen ────────────────────────────────────────────────────────────────────
 
 class BuyScreen extends StatefulWidget {
-  const BuyScreen({super.key});
+  final ListingType initialListingType;
+  const BuyScreen({super.key, this.initialListingType = ListingType.sale});
 
   @override
   State<BuyScreen> createState() => _BuyScreenState();
@@ -54,12 +54,13 @@ class _BuyScreenState extends State<BuyScreen> {
   int _sortIndex = 0;
   int _priceIndex = 0;
   int _bedIndex = 0;
-  ListingType _listingType = ListingType.sale;
+  late ListingType _listingType;
   final _searchCtrl = TextEditingController();
 
   @override
   void initState() {
     super.initState();
+    _listingType = widget.initialListingType;
     WidgetsBinding.instance.addPostFrameCallback((_) => _fetch());
   }
 
@@ -93,167 +94,153 @@ class _BuyScreenState extends State<BuyScreen> {
 
     return Scaffold(
       backgroundColor: cs.surface,
-      body: Stack(
-        children: [
-          SafeArea(
-            child: CustomScrollView(
-              slivers: [
-                const SliverToBoxAdapter(child: SizedBox(height: 72)),
-
-                // ── Header ──────────────────────────────────────────────────
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+      appBar: BrandAppBar(),
+      body: CustomScrollView(
+        slivers: [
+          // ── Header ──────────────────────────────────────────────────
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'BROWSE',
+                    style: GoogleFonts.inter(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 2.5,
+                      color: cs.onSurfaceVariant,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        _listingType == ListingType.sale
+                            ? 'For Sale'
+                            : 'For Rent',
+                        style: GoogleFonts.notoSerif(
+                          fontSize: 36,
+                          fontWeight: FontWeight.w900,
+                          color: cs.onSurface,
+                          height: 1.1,
+                        ),
+                      ),
+                      _ListingToggle(
+                        value: _listingType,
+                        onChanged: (t) => setState(() {
+                          _listingType = t;
+                          _fetch();
+                        }),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  // Search bar
+                  Container(
+                    decoration: BoxDecoration(
+                      color: cs.surfaceContainerHighest.withOpacity(0.4),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(
+                        color: cs.outlineVariant.withOpacity(0.3),
+                      ),
+                    ),
+                    child: Row(
                       children: [
-                        Text(
-                          'BROWSE',
-                          style: GoogleFonts.inter(
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 2.5,
-                            color: cs.onSurfaceVariant,
-                          ),
+                        const SizedBox(width: 14),
+                        Icon(
+                          Icons.search_rounded,
+                          color: cs.onSurfaceVariant,
+                          size: 20,
                         ),
-                        const SizedBox(height: 4),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Text(
-                              _listingType == ListingType.sale
-                                  ? 'For Sale'
-                                  : 'For Rent',
-                              style: GoogleFonts.notoSerif(
-                                fontSize: 36,
-                                fontWeight: FontWeight.w900,
-                                color: cs.onSurface,
-                                height: 1.1,
-                              ),
-                            ),
-                            _ListingToggle(
-                              value: _listingType,
-                              onChanged: (t) => setState(() {
-                                _listingType = t;
-                                _fetch();
-                              }),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-
-                        // Search bar
-                        Container(
-                          decoration: BoxDecoration(
-                            color: cs.surfaceContainerHighest.withOpacity(0.4),
-                            borderRadius: BorderRadius.circular(14),
-                            border: Border.all(
-                              color: cs.outlineVariant.withOpacity(0.3),
-                            ),
-                          ),
-                          child: Row(
-                            children: [
-                              const SizedBox(width: 14),
-                              Icon(
-                                Icons.search_rounded,
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: TextField(
+                            controller: _searchCtrl,
+                            onSubmitted: (_) => _applyFilter(),
+                            style: TextStyle(color: cs.onSurface, fontSize: 14),
+                            decoration: InputDecoration(
+                              hintText: 'Search city, project or builder...',
+                              hintStyle: TextStyle(
                                 color: cs.onSurfaceVariant,
-                                size: 20,
+                                fontSize: 14,
                               ),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: TextField(
-                                  controller: _searchCtrl,
-                                  onSubmitted: (_) => _applyFilter(),
-                                  style: TextStyle(
-                                    color: cs.onSurface,
-                                    fontSize: 14,
-                                  ),
-                                  decoration: InputDecoration(
-                                    hintText:
-                                        'Search city, project or builder...',
-                                    hintStyle: TextStyle(
-                                      color: cs.onSurfaceVariant,
-                                      fontSize: 14,
-                                    ),
-                                    border: InputBorder.none,
-                                    filled: false,
-                                    isDense: true,
-                                    contentPadding: const EdgeInsets.symmetric(
-                                      vertical: 14,
-                                    ),
-                                  ),
-                                ),
+                              border: InputBorder.none,
+                              filled: false,
+                              isDense: true,
+                              contentPadding: const EdgeInsets.symmetric(
+                                vertical: 14,
                               ),
-                              GestureDetector(
-                                onTap: _applyFilter,
-                                child: Container(
-                                  margin: const EdgeInsets.all(5),
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                    vertical: 9,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: cs.onSurface,
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: Text(
-                                    'Search',
-                                    style: GoogleFonts.inter(
-                                      color: cs.surface,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
+                            ),
                           ),
                         ),
-                        const SizedBox(height: 16),
+                        GestureDetector(
+                          onTap: _applyFilter,
+                          child: Container(
+                            margin: const EdgeInsets.all(5),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 9,
+                            ),
+                            decoration: BoxDecoration(
+                              color: cs.onSurface,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Text(
+                              'Search',
+                              style: GoogleFonts.inter(
+                                color: cs.surface,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   ),
-                ),
-
-                // ── Sticky filters ───────────────────────────────────────────
-                SliverPersistentHeader(
-                  pinned: true,
-                  delegate: _FilterDelegate(
-                    typeIndex: _typeIndex,
-                    sortIndex: _sortIndex,
-                    priceIndex: _priceIndex,
-                    bedIndex: _bedIndex,
-                    onTypeChanged: (i) {
-                      setState(() => _typeIndex = i);
-                      _fetch();
-                    },
-                    onSortChanged: (i) {
-                      setState(() => _sortIndex = i);
-                      _fetch();
-                    },
-                    onPriceChanged: (i) {
-                      setState(() => _priceIndex = i);
-                      _fetch();
-                    },
-                    onBedChanged: (i) {
-                      setState(() => _bedIndex = i);
-                      _fetch();
-                    },
-                  ),
-                ),
-
-                // ── Results ──────────────────────────────────────────────────
-                const SliverToBoxAdapter(child: SizedBox(height: 20)),
-                _ResultsSliver(onRetry: _fetch),
-                const SliverToBoxAdapter(child: SizedBox(height: 32)),
-              ],
+                  const SizedBox(height: 16),
+                ],
+              ),
             ),
           ),
-          const AppTopBar(),
+
+          // ── Sticky filters ───────────────────────────────────────────
+          SliverPersistentHeader(
+            pinned: true,
+            delegate: _FilterDelegate(
+              typeIndex: _typeIndex,
+              sortIndex: _sortIndex,
+              priceIndex: _priceIndex,
+              bedIndex: _bedIndex,
+              onTypeChanged: (i) {
+                setState(() => _typeIndex = i);
+                _fetch();
+              },
+              onSortChanged: (i) {
+                setState(() => _sortIndex = i);
+                _fetch();
+              },
+              onPriceChanged: (i) {
+                setState(() => _priceIndex = i);
+                _fetch();
+              },
+              onBedChanged: (i) {
+                setState(() => _bedIndex = i);
+                _fetch();
+              },
+            ),
+          ),
+
+          // ── Results ──────────────────────────────────────────────────
+          const SliverToBoxAdapter(child: SizedBox(height: 20)),
+          _ResultsSliver(onRetry: _fetch),
+          const SliverToBoxAdapter(child: SizedBox(height: 32)),
         ],
       ),
-      bottomNavigationBar: const AppBottomNav(currentIndex: 1),
     );
   }
 }
@@ -510,9 +497,9 @@ class _FilterDelegate extends SliverPersistentHeaderDelegate {
   });
 
   @override
-  double get minExtent => 96;
+  double get minExtent => 104;
   @override
-  double get maxExtent => 96;
+  double get maxExtent => 104;
 
   @override
   Widget build(
@@ -521,18 +508,31 @@ class _FilterDelegate extends SliverPersistentHeaderDelegate {
     bool overlapsContent,
   ) {
     final cs = Theme.of(context).colorScheme;
-    return Container(
-      color: cs.surface,
-      padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
+    final elevated = shrinkOffset > 0;
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      decoration: BoxDecoration(
+        color: cs.surface,
+        boxShadow: elevated
+            ? [
+                BoxShadow(
+                  color: cs.shadow.withOpacity(0.06),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ]
+            : [],
+      ),
+      padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
       child: Column(
         children: [
-          // Type chips
+          // Type chips row
           SizedBox(
             height: 36,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: _propTypes.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 8),
+              separatorBuilder: (_, __) => const SizedBox(width: 6),
               itemBuilder: (context, i) {
                 final active = i == typeIndex;
                 return GestureDetector(
@@ -540,27 +540,41 @@ class _FilterDelegate extends SliverPersistentHeaderDelegate {
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 180),
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
+                      horizontal: 14,
                       vertical: 8,
                     ),
                     decoration: BoxDecoration(
-                      color: active
-                          ? cs.onSurface
-                          : cs.surfaceContainerHighest.withOpacity(0.4),
-                      borderRadius: BorderRadius.circular(10),
+                      color: active ? cs.onSurface : Colors.transparent,
+                      borderRadius: BorderRadius.circular(999),
                       border: Border.all(
                         color: active
                             ? cs.onSurface
-                            : cs.outlineVariant.withOpacity(0.3),
+                            : cs.outlineVariant.withOpacity(0.4),
+                        width: active ? 0 : 1,
                       ),
                     ),
-                    child: Text(
-                      _propTypes[i].label,
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: active ? cs.surface : cs.onSurface,
-                      ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (active) ...[
+                          Icon(
+                            Icons.check_rounded,
+                            size: 11,
+                            color: cs.surface,
+                          ),
+                          const SizedBox(width: 4),
+                        ],
+                        Text(
+                          _propTypes[i].label,
+                          style: GoogleFonts.inter(
+                            fontSize: 12,
+                            fontWeight: active
+                                ? FontWeight.bold
+                                : FontWeight.w500,
+                            color: active ? cs.surface : cs.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 );
@@ -568,34 +582,39 @@ class _FilterDelegate extends SliverPersistentHeaderDelegate {
             ),
           ),
           const SizedBox(height: 8),
-          // Dropdown row
+          // Filter pills row
           Row(
             children: [
               Expanded(
                 child: _FilterChip(
                   label: _priceRanges[priceIndex].label,
+                  icon: Icons.currency_rupee_rounded,
                   items: _priceRanges.map((e) => e.label).toList(),
                   selectedIndex: priceIndex,
                   onChanged: onPriceChanged,
+                  active: priceIndex != 0,
                 ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 6),
               Expanded(
                 child: _FilterChip(
                   label: _bedOptions[bedIndex].label,
+                  icon: Icons.bed_outlined,
                   items: _bedOptions.map((e) => e.label).toList(),
                   selectedIndex: bedIndex,
                   onChanged: onBedChanged,
+                  active: bedIndex != 0,
                 ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 6),
               Expanded(
                 child: _FilterChip(
                   label: _sortOptions[sortIndex].label,
+                  icon: Icons.sort_rounded,
                   items: _sortOptions.map((e) => e.label).toList(),
                   selectedIndex: sortIndex,
                   onChanged: onSortChanged,
-                  icon: Icons.sort_rounded,
+                  active: sortIndex != 0,
                 ),
               ),
             ],
@@ -619,13 +638,15 @@ class _FilterChip extends StatelessWidget {
   final int selectedIndex;
   final ValueChanged<int> onChanged;
   final IconData icon;
+  final bool active;
 
   const _FilterChip({
     required this.label,
     required this.items,
     required this.selectedIndex,
     required this.onChanged,
-    this.icon = Icons.expand_more_rounded,
+    required this.icon,
+    this.active = false,
   });
 
   @override
@@ -636,33 +657,50 @@ class _FilterChip extends StatelessWidget {
         final result = await showModalBottomSheet<int>(
           context: context,
           shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
           ),
           builder: (_) => _PickerSheet(items: items, selected: selectedIndex),
         );
         if (result != null) onChanged(result);
       },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
         decoration: BoxDecoration(
-          color: cs.surfaceContainerHighest.withOpacity(0.4),
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: cs.outlineVariant.withOpacity(0.3)),
+          color: active
+              ? cs.onSurface
+              : cs.surfaceContainerHighest.withOpacity(0.35),
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(
+            color: active ? cs.onSurface : cs.outlineVariant.withOpacity(0.3),
+          ),
         ),
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Expanded(
+            Icon(
+              icon,
+              size: 12,
+              color: active ? cs.surface : cs.onSurfaceVariant,
+            ),
+            const SizedBox(width: 5),
+            Flexible(
               child: Text(
                 label,
                 overflow: TextOverflow.ellipsis,
                 style: GoogleFonts.inter(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
-                  color: cs.onSurface,
+                  color: active ? cs.surface : cs.onSurface,
                 ),
               ),
             ),
-            Icon(icon, size: 14, color: cs.onSurfaceVariant),
+            const SizedBox(width: 3),
+            Icon(
+              Icons.keyboard_arrow_down_rounded,
+              size: 13,
+              color: active ? cs.surface.withOpacity(0.7) : cs.onSurfaceVariant,
+            ),
           ],
         ),
       ),

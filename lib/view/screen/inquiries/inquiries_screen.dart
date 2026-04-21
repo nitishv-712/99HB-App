@@ -5,7 +5,6 @@ import 'package:homebazaar/model/inquiry.dart';
 import 'package:homebazaar/model/property.dart';
 import 'package:homebazaar/providers/auth_provider.dart';
 import 'package:homebazaar/providers/inquiries_provider.dart';
-import 'package:homebazaar/view/components/app_bottom_nav.dart';
 import 'package:homebazaar/view/components/app_shared.dart';
 
 // ── Inquiries List ────────────────────────────────────────────────────────────
@@ -24,7 +23,8 @@ class _InquiriesScreenState extends State<InquiriesScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback(
-        (_) => context.read<InquiriesProvider>().fetchMyInquiries());
+      (_) => context.read<InquiriesProvider>().fetchMyInquiries(),
+    );
   }
 
   @override
@@ -43,10 +43,8 @@ class _InquiriesScreenState extends State<InquiriesScreen> {
             },
             itemBuilder: (_) => const [
               PopupMenuItem(value: null, child: Text('All')),
-              PopupMenuItem(
-                  value: InquiryStatus.active, child: Text('Active')),
-              PopupMenuItem(
-                  value: InquiryStatus.closed, child: Text('Closed')),
+              PopupMenuItem(value: InquiryStatus.active, child: Text('Active')),
+              PopupMenuItem(value: InquiryStatus.closed, child: Text('Closed')),
             ],
           ),
         ],
@@ -58,8 +56,9 @@ class _InquiriesScreenState extends State<InquiriesScreen> {
           }
           if (prov.error != null) {
             return AppErrorRetry(
-                message: prov.error!,
-                onRetry: () => prov.fetchMyInquiries(status: _filter));
+              message: prov.error!,
+              onRetry: () => prov.fetchMyInquiries(status: _filter),
+            );
           }
           if (prov.inquiries.isEmpty) {
             return const AppEmptyState(
@@ -76,7 +75,6 @@ class _InquiriesScreenState extends State<InquiriesScreen> {
           );
         },
       ),
-      bottomNavigationBar: const AppBottomNav(currentIndex: 2),
     );
   }
 }
@@ -97,7 +95,8 @@ class _InquiryTile extends StatelessWidget {
       onTap: () => Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (_) => InquiryChatScreen(inquiryId: inquiry.id)),
+          builder: (_) => InquiryChatScreen(inquiryId: inquiry.id),
+        ),
       ),
       child: Container(
         padding: const EdgeInsets.all(14),
@@ -117,11 +116,11 @@ class _InquiryTile extends StatelessWidget {
                     : cs.surfaceContainerHighest.withOpacity(0.5),
                 shape: BoxShape.circle,
               ),
-              child: Icon(Icons.chat_bubble_outline_rounded,
-                  size: 20,
-                  color: isActive
-                      ? Colors.green.shade700
-                      : cs.onSurfaceVariant),
+              child: Icon(
+                Icons.chat_bubble_outline_rounded,
+                size: 20,
+                color: isActive ? Colors.green.shade700 : cs.onSurfaceVariant,
+              ),
             ),
             const SizedBox(width: 14),
             Expanded(
@@ -131,26 +130,30 @@ class _InquiryTile extends StatelessWidget {
                   Text(
                     prop?.title ?? 'Property',
                     style: GoogleFonts.inter(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: cs.onSurface),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: cs.onSurface,
+                    ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                   if (prop?.locationString.isNotEmpty == true) ...[
                     const SizedBox(height: 2),
-                    Text(prop!.locationString,
-                        style: TextStyle(
-                            fontSize: 11, color: cs.onSurfaceVariant),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis),
+                    Text(
+                      prop!.locationString,
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: cs.onSurfaceVariant,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ],
                 ],
               ),
             ),
             Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
               decoration: BoxDecoration(
                 color: isActive
                     ? Colors.green.withOpacity(0.1)
@@ -160,12 +163,11 @@ class _InquiryTile extends StatelessWidget {
               child: Text(
                 inquiry.status.name.toUpperCase(),
                 style: GoogleFonts.inter(
-                    fontSize: 9,
-                    fontWeight: FontWeight.bold,
-                    color: isActive
-                        ? Colors.green.shade700
-                        : cs.onSurfaceVariant,
-                    letterSpacing: 0.8),
+                  fontSize: 9,
+                  fontWeight: FontWeight.bold,
+                  color: isActive ? Colors.green.shade700 : cs.onSurfaceVariant,
+                  letterSpacing: 0.8,
+                ),
               ),
             ),
           ],
@@ -193,7 +195,8 @@ class _InquiryChatScreenState extends State<InquiryChatScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback(
-        (_) => context.read<InquiriesProvider>().fetchDetail(widget.inquiryId));
+      (_) => context.read<InquiriesProvider>().fetchDetail(widget.inquiryId),
+    );
   }
 
   @override
@@ -209,8 +212,11 @@ class _InquiryChatScreenState extends State<InquiryChatScreen> {
     _msgCtrl.clear();
     await context.read<InquiriesProvider>().sendMessage(widget.inquiryId, text);
     if (_scrollCtrl.hasClients) {
-      _scrollCtrl.animateTo(_scrollCtrl.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
+      _scrollCtrl.animateTo(
+        _scrollCtrl.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
     }
   }
 
@@ -232,9 +238,13 @@ class _InquiryChatScreenState extends State<InquiryChatScreen> {
               return TextButton(
                 onPressed: () =>
                     prov.updateStatus(widget.inquiryId, InquiryStatus.closed),
-                child: Text('Close',
-                    style: TextStyle(
-                        color: cs.error, fontWeight: FontWeight.bold)),
+                child: Text(
+                  'Close',
+                  style: TextStyle(
+                    color: cs.error,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               );
             },
           ),
@@ -247,18 +257,17 @@ class _InquiryChatScreenState extends State<InquiryChatScreen> {
           }
           if (prov.detailError != null) {
             return AppErrorRetry(
-                message: prov.detailError!,
-                onRetry: () => prov.fetchDetail(widget.inquiryId));
+              message: prov.detailError!,
+              onRetry: () => prov.fetchDetail(widget.inquiryId),
+            );
           }
           final messages = prov.detail?.messages ?? [];
-          final isActive =
-              prov.detail?.inquiry.status == InquiryStatus.active;
+          final isActive = prov.detail?.inquiry.status == InquiryStatus.active;
           return Column(
             children: [
               Expanded(
                 child: messages.isEmpty
-                    ? const Center(
-                        child: Text('No messages yet'))
+                    ? const Center(child: Text('No messages yet'))
                     : ListView.builder(
                         controller: _scrollCtrl,
                         padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
@@ -266,7 +275,9 @@ class _InquiryChatScreenState extends State<InquiryChatScreen> {
                         itemBuilder: (_, i) {
                           final msg = messages[i];
                           return _ChatBubble(
-                              message: msg, isMe: msg.sender == myId);
+                            message: msg,
+                            isMe: msg.sender == myId,
+                          );
                         },
                       ),
               ),
@@ -296,10 +307,10 @@ class _ChatBubble extends StatelessWidget {
       alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
         margin: const EdgeInsets.only(bottom: 10),
-        padding:
-            const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-        constraints:
-            BoxConstraints(maxWidth: MediaQuery.sizeOf(context).width * 0.72),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        constraints: BoxConstraints(
+          maxWidth: MediaQuery.sizeOf(context).width * 0.72,
+        ),
         decoration: BoxDecoration(
           color: isMe
               ? cs.onSurface
@@ -311,10 +322,13 @@ class _ChatBubble extends StatelessWidget {
             bottomRight: Radius.circular(isMe ? 4 : 16),
           ),
         ),
-        child: Text(message.text,
-            style: GoogleFonts.inter(
-                fontSize: 14,
-                color: isMe ? cs.surface : cs.onSurface)),
+        child: Text(
+          message.text,
+          style: GoogleFonts.inter(
+            fontSize: 14,
+            color: isMe ? cs.surface : cs.onSurface,
+          ),
+        ),
       ),
     );
   }
