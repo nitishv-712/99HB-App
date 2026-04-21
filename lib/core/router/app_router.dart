@@ -5,7 +5,7 @@ import 'package:homebazaar/view/screen/analytics/property_analytics_screen.dart'
 import 'package:homebazaar/view/screen/comparisons/comparisons_screen.dart';
 import 'package:homebazaar/view/screen/dashboard/create_listing_screen.dart';
 import 'package:homebazaar/view/screen/dashboard/dashboard_screen.dart';
-import 'package:homebazaar/view/screen/dashboard/edit_profile_screen.dart';
+import 'package:homebazaar/view/screen/account/edit_profile_screen.dart';
 import 'package:homebazaar/view/screen/home/buy_screen.dart';
 import 'package:homebazaar/view/screen/home/home_screen.dart';
 import 'package:homebazaar/view/screen/home/property_detail_screen.dart';

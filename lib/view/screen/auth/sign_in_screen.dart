@@ -25,19 +25,21 @@ class _SignInScreenState extends State<SignInScreen> {
     setState(() => _loading = true);
 
     final ok = await context.read<AuthProvider>().login(
-          email: _emailCtrl.text.trim(),
-          password: _passwordCtrl.text,
-        );
+      email: _emailCtrl.text.trim(),
+      password: _passwordCtrl.text,
+    );
 
     setState(() => _loading = false);
     if (!mounted) return;
 
     if (ok) {
-      AppRouter.pushAndClearStack(context, AppRoutes.home);
+      AppRouter.pushAndClearStack(context, AppRoutes.onBoarding);
     } else {
       final error = context.read<AuthProvider>().error;
       AppErrorHandler.showError(
-          context, error ?? 'Login failed. Please try again.');
+        context,
+        error ?? 'Login failed. Please try again.',
+      );
     }
   }
 
@@ -141,11 +143,12 @@ class _FormCard extends StatelessWidget {
                   keyboardType: TextInputType.emailAddress,
                   validator: (v) =>
                       (v == null ||
-                              v.isEmpty ||
-                              !RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                                  .hasMatch(v))
-                          ? 'Please enter a valid email address'
-                          : null,
+                          v.isEmpty ||
+                          !RegExp(
+                            r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                          ).hasMatch(v))
+                      ? 'Please enter a valid email address'
+                      : null,
                 ),
                 const SizedBox(height: 24),
 
@@ -156,8 +159,10 @@ class _FormCard extends StatelessWidget {
                   child: TextButton(
                     onPressed: () =>
                         AppRouter.push(context, AppRoutes.forgotPassword),
-                    child: Text('Forgot Password?',
-                        style: TextStyle(color: cs.primary)),
+                    child: Text(
+                      'Forgot Password?',
+                      style: TextStyle(color: cs.primary),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -187,16 +192,23 @@ class _FormCard extends StatelessWidget {
                 Center(
                   child: TextButton(
                     onPressed: () =>
-                        AppRouter.replace(context, AppRoutes.home),
+                        AppRouter.replace(context, AppRoutes.onBoarding),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text('Skip',
-                            style: TextStyle(
-                                color: cs.onSurfaceVariant, fontSize: 14)),
+                        Text(
+                          'Skip',
+                          style: TextStyle(
+                            color: cs.onSurfaceVariant,
+                            fontSize: 14,
+                          ),
+                        ),
                         const SizedBox(width: 4),
-                        Icon(Icons.arrow_forward,
-                            size: 16, color: cs.onSurfaceVariant),
+                        Icon(
+                          Icons.arrow_forward,
+                          size: 16,
+                          color: cs.onSurfaceVariant,
+                        ),
                       ],
                     ),
                   ),
