@@ -99,7 +99,7 @@ class PropertyCardHorizontal extends StatelessWidget {
                       Text(
                         item.price,
                         style: GoogleFonts.inter(
-                          color: cs.primary,
+                          color: cs.onSurface,
                           fontWeight: FontWeight.w900,
                           fontSize: 14,
                         ),
@@ -206,7 +206,7 @@ class PropertyCardVertical extends StatelessWidget {
                         item.price,
                         style: GoogleFonts.notoSerif(
                           fontSize: 17,
-                          color: cs.primary,
+                          color: cs.onSurface,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -260,7 +260,7 @@ class _StatsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = Theme.of(context).colorScheme.outline;
+    final color = Theme.of(context).colorScheme.onSurfaceVariant;
     final labelStyle = Theme.of(
       context,
     ).textTheme.labelSmall?.copyWith(color: color, letterSpacing: 0.5);
@@ -298,13 +298,13 @@ class AppBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: backgroundColor ?? cs.tertiaryContainer,
+        color: backgroundColor ?? cs.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(999),
       ),
       child: Text(
         label,
         style: Theme.of(context).textTheme.labelSmall?.copyWith(
-          color: textColor ?? cs.onTertiaryContainer,
+          color: textColor ?? cs.onSurface,
           letterSpacing: 1.5,
         ),
       ),

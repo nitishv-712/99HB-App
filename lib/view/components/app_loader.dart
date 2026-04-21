@@ -1,14 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// Full-screen overlay loader. Wrap your scaffold body with a Stack and
-/// conditionally show this on top:
-///
-/// ```dart
-/// Stack(children: [
-///   _yourContent,
-///   if (_loading) const AppLoader(),
-/// ])
-/// ```
 class AppLoader extends StatelessWidget {
   const AppLoader({super.key});
 
