@@ -21,9 +21,7 @@ class _DashboardScreenState extends State<DashboardScreen>
     with TickerProviderStateMixin {
   late final TabController _tabCtrl;
   late final AnimationController _fadeCtrl;
-  late final Animation<double> _fadeAnim;
   late final AnimationController _slideCtrl;
-  late final Animation<Offset> _slideAnim;
 
   @override
   void initState() {
@@ -34,16 +32,10 @@ class _DashboardScreenState extends State<DashboardScreen>
       vsync: this,
       duration: const Duration(milliseconds: 600),
     )..forward();
-    _fadeAnim = CurvedAnimation(parent: _fadeCtrl, curve: Curves.easeOut);
-
     _slideCtrl = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 500),
     )..forward();
-    _slideAnim = Tween<Offset>(
-      begin: const Offset(0, 0.06),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(parent: _slideCtrl, curve: Curves.easeOutCubic));
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<UserProvider>().fetchSaved();
