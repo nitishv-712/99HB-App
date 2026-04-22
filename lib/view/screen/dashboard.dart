@@ -8,7 +8,6 @@ import 'package:homebazaar/view/screen/home/buy_screen.dart';
 import 'package:homebazaar/view/screen/dashboard/dashboard_screen.dart';
 import 'package:homebazaar/view/screen/account/settings_screen.dart';
 import 'package:homebazaar/view/screen/auth/sign_in_screen.dart';
-import 'package:homebazaar/view/screen/dashboard/create_listing_screen.dart';
 import 'package:provider/provider.dart';
 
 class Dash extends StatefulWidget {
@@ -24,18 +23,58 @@ class _DashState extends State<Dash> {
 
   // nav items excluding the centre FAB slot
   static const _unauthItems = [
-    (icon: Icons.home_rounded,      outline: Icons.home_outlined,           label: 'Home',      route: AppRoutes.home),
-    (icon: Icons.search_rounded,    outline: Icons.search_outlined,         label: 'Browse',    route: AppRoutes.buy),
-    (icon: Icons.login_rounded,     outline: Icons.login_outlined,          label: 'Sign In',   route: AppRoutes.signIn),
-    (icon: Icons.settings_rounded,  outline: Icons.settings_outlined,       label: 'Settings',  route: AppRoutes.settings),
+    (
+      icon: Icons.home_rounded,
+      outline: Icons.home_outlined,
+      label: 'Home',
+      route: AppRoutes.home,
+    ),
+    (
+      icon: Icons.search_rounded,
+      outline: Icons.search_outlined,
+      label: 'Browse',
+      route: AppRoutes.buy,
+    ),
+    (
+      icon: Icons.login_rounded,
+      outline: Icons.login_outlined,
+      label: 'Sign In',
+      route: AppRoutes.signIn,
+    ),
+    (
+      icon: Icons.settings_rounded,
+      outline: Icons.settings_outlined,
+      label: 'Settings',
+      route: AppRoutes.settings,
+    ),
   ];
 
   static const _authItems = [
-    (icon: Icons.home_rounded,      outline: Icons.home_outlined,           label: 'Home',      route: AppRoutes.home),
-    (icon: Icons.search_rounded,    outline: Icons.search_outlined,         label: 'Browse',    route: AppRoutes.buy),
+    (
+      icon: Icons.home_rounded,
+      outline: Icons.home_outlined,
+      label: 'Home',
+      route: AppRoutes.home,
+    ),
+    (
+      icon: Icons.search_rounded,
+      outline: Icons.search_outlined,
+      label: 'Browse',
+      route: AppRoutes.buy,
+    ),
     // index 2 is the FAB gap — no entry here
-    (icon: Icons.person_rounded,    outline: Icons.person_outline_rounded,  label: 'Dashboard', route: AppRoutes.dashboard),
-    (icon: Icons.settings_rounded,  outline: Icons.settings_outlined,       label: 'Settings',  route: AppRoutes.settings),
+    (
+      icon: Icons.person_rounded,
+      outline: Icons.person_outline_rounded,
+      label: 'Dashboard',
+      route: AppRoutes.dashboard,
+    ),
+    (
+      icon: Icons.settings_rounded,
+      outline: Icons.settings_outlined,
+      label: 'Settings',
+      route: AppRoutes.settings,
+    ),
   ];
 
   @override
@@ -56,17 +95,34 @@ class _DashState extends State<Dash> {
           context: context,
           builder: (_) => AlertDialog(
             backgroundColor: cs.surface,
-            title: Text('Exit App?', style: TextStyle(fontWeight: FontWeight.bold, color: cs.primary)),
+            title: Text(
+              'Exit App?',
+              style: TextStyle(fontWeight: FontWeight.bold, color: cs.primary),
+            ),
             content: const Text('Are you sure you want to exit the app?'),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(false),
-                child: Text('No', style: TextStyle(fontWeight: FontWeight.bold, color: cs.primary)),
+                child: Text(
+                  'No',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: cs.primary,
+                  ),
+                ),
               ),
               ElevatedButton(
-                style: ButtonStyle(backgroundColor: WidgetStatePropertyAll(cs.primary)),
+                style: ButtonStyle(
+                  backgroundColor: WidgetStatePropertyAll(cs.primary),
+                ),
                 onPressed: () => Navigator.of(context).pop(true),
-                child: Text('Yes', style: TextStyle(fontWeight: FontWeight.bold, color: cs.onPrimary)),
+                child: Text(
+                  'Yes',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: cs.onPrimary,
+                  ),
+                ),
               ),
             ],
           ),
@@ -78,14 +134,18 @@ class _DashState extends State<Dash> {
         body: PageView(
           controller: _pageController,
           physics: const NeverScrollableScrollPhysics(),
-          children: items.map((item) => switch (item.route) {
-            AppRoutes.home      => const HomeScreen(),
-            AppRoutes.buy       => const BuyScreen(),
-            AppRoutes.signIn    => const SignInScreen(),
-            AppRoutes.dashboard => const DashboardScreen(),
-            AppRoutes.settings  => const SettingsScreen(),
-            _                   => const HomeScreen(),
-          }).toList(),
+          children: items
+              .map(
+                (item) => switch (item.route) {
+                  AppRoutes.home => const HomeScreen(),
+                  AppRoutes.buy => const BuyScreen(),
+                  AppRoutes.signIn => const SignInScreen(),
+                  AppRoutes.dashboard => const DashboardScreen(),
+                  AppRoutes.settings => const SettingsScreen(),
+                  _ => const HomeScreen(),
+                },
+              )
+              .toList(),
         ),
         bottomNavigationBar: isAuthenticated
             ? _AuthBottomNav(
@@ -114,7 +174,8 @@ class _DashState extends State<Dash> {
 class _AuthBottomNav extends StatelessWidget {
   final int selectedIndex;
   final ValueChanged<int> onTap;
-  final List<({IconData icon, IconData outline, String label, String route})> items;
+  final List<({IconData icon, IconData outline, String label, String route})>
+  items;
 
   const _AuthBottomNav({
     required this.selectedIndex,
@@ -136,7 +197,9 @@ class _AuthBottomNav extends StatelessWidget {
             child: Container(
               decoration: BoxDecoration(
                 color: cs.surface,
-                border: Border(top: BorderSide(color: cs.outlineVariant.withOpacity(0.2))),
+                border: Border(
+                  top: BorderSide(color: cs.outlineVariant.withOpacity(0.2)),
+                ),
                 boxShadow: [
                   BoxShadow(
                     color: cs.onSurface.withOpacity(0.06),
@@ -153,27 +216,33 @@ class _AuthBottomNav extends StatelessWidget {
             child: Row(
               children: [
                 // Left 2 items
-                ...List.generate(2, (i) => Expanded(
-                  child: _NavItem(
-                    icon: items[i].outline,
-                    activeIcon: items[i].icon,
-                    label: items[i].label,
-                    active: selectedIndex == i,
-                    onTap: () => onTap(i),
+                ...List.generate(
+                  2,
+                  (i) => Expanded(
+                    child: _NavItem(
+                      icon: items[i].outline,
+                      activeIcon: items[i].icon,
+                      label: items[i].label,
+                      active: selectedIndex == i,
+                      onTap: () => onTap(i),
+                    ),
                   ),
-                )),
+                ),
                 // Centre gap for FAB
                 const SizedBox(width: 72),
                 // Right 2 items (logical index 2 & 3)
-                ...List.generate(2, (i) => Expanded(
-                  child: _NavItem(
-                    icon: items[i + 2].outline,
-                    activeIcon: items[i + 2].icon,
-                    label: items[i + 2].label,
-                    active: selectedIndex == i + 2,
-                    onTap: () => onTap(i + 2),
+                ...List.generate(
+                  2,
+                  (i) => Expanded(
+                    child: _NavItem(
+                      icon: items[i + 2].outline,
+                      activeIcon: items[i + 2].icon,
+                      label: items[i + 2].label,
+                      active: selectedIndex == i + 2,
+                      onTap: () => onTap(i + 2),
+                    ),
                   ),
-                )),
+                ),
               ],
             ),
           ),
@@ -183,9 +252,7 @@ class _AuthBottomNav extends StatelessWidget {
             top: -20,
             left: 0,
             right: 0,
-            child: Center(
-              child: _CreateFab(),
-            ),
+            child: Center(child: _CreateFab()),
           ),
         ],
       ),
@@ -211,8 +278,10 @@ class _CreateFabState extends State<_CreateFab>
       duration: const Duration(milliseconds: 100),
       reverseDuration: const Duration(milliseconds: 180),
     );
-    _scale = Tween(begin: 1.0, end: 0.88)
-        .animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut));
+    _scale = Tween(
+      begin: 1.0,
+      end: 0.88,
+    ).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut));
   }
 
   @override
@@ -259,7 +328,8 @@ class _CreateFabState extends State<_CreateFab>
 class _SimpleBottomNav extends StatelessWidget {
   final int selectedIndex;
   final ValueChanged<int> onTap;
-  final List<({IconData icon, IconData outline, String label, String route})> items;
+  final List<({IconData icon, IconData outline, String label, String route})>
+  items;
 
   const _SimpleBottomNav({
     required this.selectedIndex,
@@ -276,11 +346,15 @@ class _SimpleBottomNav extends StatelessWidget {
       backgroundColor: cs.surface,
       selectedIndex: selectedIndex,
       onDestinationSelected: onTap,
-      destinations: items.map((item) => NavigationDestination(
-        icon: Icon(item.outline),
-        selectedIcon: Icon(item.icon),
-        label: item.label,
-      )).toList(),
+      destinations: items
+          .map(
+            (item) => NavigationDestination(
+              icon: Icon(item.outline),
+              selectedIcon: Icon(item.icon),
+              label: item.label,
+            ),
+          )
+          .toList(),
     );
   }
 }
@@ -315,7 +389,9 @@ class _NavItem extends StatelessWidget {
             duration: const Duration(milliseconds: 200),
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
             decoration: BoxDecoration(
-              color: active ? cs.secondary.withOpacity(0.5) : Colors.transparent,
+              color: active
+                  ? cs.secondary.withOpacity(0.5)
+                  : Colors.transparent,
               borderRadius: BorderRadius.circular(999),
             ),
             child: Icon(
