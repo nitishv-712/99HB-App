@@ -103,6 +103,9 @@ class PropertiesProvider extends ChangeNotifier {
 
   void invalidateDetail(String id) => _detailCache.remove(id);
 
+  String? _createError;
+  String? get createError => _createError;
+
   Future<bool> create({
     required String title,
     required ListingType listingType,
@@ -118,6 +121,7 @@ class PropertiesProvider extends ChangeNotifier {
     bool? isFeatured,
     required List<Map<String, dynamic>> images,
   }) async {
+    _createError = null;
     try {
       final res = await PropertiesService.create(
         title: title,
@@ -138,7 +142,9 @@ class PropertiesProvider extends ChangeNotifier {
       _detailCache[res.data.id] = res.data;
       notifyListeners();
       return true;
-    } catch (_) {
+    } catch (e) {
+      _createError = e.toString().replaceFirst('ApiException(', '').replaceFirst(RegExp(r'\d+\): '), '');
+      notifyListeners();
       return false;
     }
   }
