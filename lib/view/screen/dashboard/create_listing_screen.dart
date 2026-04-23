@@ -1,13 +1,8 @@
-import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
-import 'package:mime/mime.dart';
 import 'package:provider/provider.dart';
-import 'package:homebazaar/core/config/env.dart';
-import 'package:homebazaar/model/misc.dart';
 import 'package:homebazaar/model/property.dart';
 import 'package:homebazaar/providers/analytics_provider.dart';
 import 'package:homebazaar/providers/properties_provider.dart';
@@ -61,58 +56,6 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
     super.dispose();
   }
 
-  Future<List<_PlacePrediction>> _fetchSuggestions(String input) async {
-    if (input.trim().length < 3) return [];
-    final uri = Uri.parse(
-      'https://maps.googleapis.com/maps/api/place/autocomplete/json'
-      '?input=${Uri.encodeComponent(input)}'
-      '&components=country:in'
-      '&language=en'
-      '&key=${Env.googlePlacesApiKey}',
-    );
-    final res = await http.get(uri);
-    final data = jsonDecode(res.body) as Map<String, dynamic>;
-    final predictions = (data['predictions'] as List? ?? []);
-    return predictions
-        .map((p) => _PlacePrediction(
-              placeId: p['place_id'] as String,
-              description: p['description'] as String,
-            ))
-        .toList();
-  }
-
-  Future<void> _fillFromPlaceId(String placeId) async {
-    final uri = Uri.parse(
-      'https://maps.googleapis.com/maps/api/place/details/json'
-      '?place_id=$placeId'
-      '&fields=address_components'
-      '&key=${Env.googlePlacesApiKey}',
-    );
-    final res = await http.get(uri);
-    final data = jsonDecode(res.body) as Map<String, dynamic>;
-    final components = (data['result']?['address_components'] as List?) ?? [];
-
-    String streetNumber = '', route = '', city = '', state = '', zip = '';
-    for (final c in components) {
-      final types = List<String>.from(c['types'] as List);
-      final long = c['long_name'] as String;
-      final short = c['short_name'] as String;
-      if (types.contains('street_number')) streetNumber = long;
-      if (types.contains('route')) route = long;
-      if (types.contains('sublocality_level_1') && city.isEmpty) city = long;
-      if (types.contains('locality')) city = long;
-      if (types.contains('administrative_area_level_1')) state = long;
-      if (types.contains('postal_code')) zip = short;
-    }
-
-    setState(() {
-      _streetCtrl.text = [streetNumber, route].where((s) => s.isNotEmpty).join(' ');
-      _cityCtrl.text = city;
-      _stateCtrl.text = state;
-      _zipCtrl.text = zip;
-    });
-  }
-
   Future<void> _pickImages(ImageSource source) async {
     if (source == ImageSource.gallery) {
       final files = await _picker.pickMultiImage(imageQuality: 85);
@@ -146,25 +89,6 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
     });
   }
 
-  Future<List<Map<String, dynamic>>?> _uploadImages() async {
-    final userProvider = context.read<UserProvider>();
-    final uploaded = <Map<String, dynamic>>[];
-    for (final img in _images) {
-      final link = await userProvider.getUploadUrl(UploadFolder.properties);
-      if (link == null) return null;
-      final bytes = await File(img.file.path).readAsBytes();
-      final mime = lookupMimeType(img.file.path) ?? 'image/jpeg';
-      final ok = await userProvider.uploadFile(
-        uploadUrl: Uri.parse(link.uploadUrl),
-        fileBytes: bytes,
-        contentType: mime,
-      );
-      if (!ok) return null;
-      uploaded.add({'url': link.viewUrl, 'isPrimary': img.isPrimary});
-    }
-    return uploaded;
-  }
-
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
     if (_images.isEmpty) {
@@ -175,17 +99,6 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
     }
 
     setState(() => _loading = true);
-
-    final uploadedImages = await _uploadImages();
-    if (!mounted) return;
-    if (uploadedImages == null) {
-      setState(() => _loading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Image upload failed. Please try again.')),
-      );
-      return;
-    }
-
     final ok = await context.read<PropertiesProvider>().create(
           title: _titleCtrl.text.trim(),
           listingType: _listingType,
@@ -203,7 +116,9 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
           sqft: double.tryParse(_sqftCtrl.text.trim()),
           yearBuilt: int.tryParse(_yearCtrl.text.trim()),
           badge: _badge,
-          images: uploadedImages,
+          images: _images
+              .map((e) => {'url': e.file.path, 'isPrimary': e.isPrimary})
+              .toList(),
         );
     setState(() => _loading = false);
     if (!mounted) return;
@@ -215,9 +130,8 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
       );
       Navigator.maybePop(context);
     } else {
-      final err = context.read<PropertiesProvider>().createError;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(err ?? 'Failed to create listing')),
+        const SnackBar(content: Text('Failed to create listing')),
       );
     }
   }
@@ -291,20 +205,13 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
                 const SizedBox(height: 24),
                 AppSectionLabel('ADDRESS'),
                 const SizedBox(height: 12),
-                _AddressAutocompleteField(
-                  onFillAddress: _fillFromPlaceId,
-                  fetchSuggestions: _fetchSuggestions,
-                ),
-                const SizedBox(height: 12),
                 AppInputField(
                   label: 'STREET',
                   controller: _streetCtrl,
                   hint: '14 Hill Road',
-                  icon: Icons.signpost_outlined,
-                  validator: (v) =>
-                      (v == null || v.trim().isEmpty) ? 'Required' : null,
+                  icon: Icons.location_on_outlined,
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 16),
                 Row(
                   children: [
                     Expanded(
@@ -324,24 +231,17 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
                         controller: _stateCtrl,
                         hint: 'Maharashtra',
                         icon: Icons.map_outlined,
-                        validator: (v) =>
-                            (v == null || v.trim().isEmpty) ? 'Required' : null,
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 16),
                 AppInputField(
                   label: 'ZIP CODE',
                   controller: _zipCtrl,
                   hint: '400050',
                   icon: Icons.pin_outlined,
                   keyboardType: TextInputType.number,
-                  validator: (v) {
-                    if (v == null || v.trim().isEmpty) return 'Required';
-                    if (!RegExp(r'^\d{6}$').hasMatch(v.trim())) return '6-digit ZIP';
-                    return null;
-                  },
                 ),
 
                 const SizedBox(height: 24),
@@ -356,12 +256,6 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
                         hint: '3',
                         icon: Icons.bed_outlined,
                         keyboardType: TextInputType.number,
-                        validator: (v) {
-                          if (v == null || v.trim().isEmpty) return 'Required';
-                          final n = int.tryParse(v.trim());
-                          if (n == null || n < 0) return 'Invalid';
-                          return null;
-                        },
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -372,12 +266,6 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
                         hint: '2',
                         icon: Icons.bathtub_outlined,
                         keyboardType: TextInputType.number,
-                        validator: (v) {
-                          if (v == null || v.trim().isEmpty) return 'Required';
-                          final n = int.tryParse(v.trim());
-                          if (n == null || n < 0) return 'Invalid';
-                          return null;
-                        },
                       ),
                     ),
                   ],
@@ -392,12 +280,6 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
                         hint: '1200',
                         icon: Icons.square_foot_outlined,
                         keyboardType: TextInputType.number,
-                        validator: (v) {
-                          if (v == null || v.trim().isEmpty) return 'Required';
-                          final n = double.tryParse(v.trim());
-                          if (n == null || n <= 0) return 'Invalid';
-                          return null;
-                        },
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -408,13 +290,6 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
                         hint: '2018',
                         icon: Icons.calendar_today_outlined,
                         keyboardType: TextInputType.number,
-                        validator: (v) {
-                          if (v == null || v.trim().isEmpty) return null;
-                          final n = int.tryParse(v.trim());
-                          final now = DateTime.now().year;
-                          if (n == null || n < 1800 || n > now) return 'Invalid year';
-                          return null;
-                        },
                       ),
                     ),
                   ],
@@ -456,131 +331,6 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
           if (_loading) const AppLoader(),
         ],
       ),
-    );
-  }
-}
-
-// ── Address Autocomplete Field ────────────────────────────────────────────────
-
-// ── Place prediction model ────────────────────────────────────────────────────
-
-class _PlacePrediction {
-  final String placeId;
-  final String description;
-  const _PlacePrediction({required this.placeId, required this.description});
-}
-
-// ── Address Autocomplete Field ────────────────────────────────────────────────
-
-class _AddressAutocompleteField extends StatelessWidget {
-  final Future<void> Function(String placeId) onFillAddress;
-  final Future<List<_PlacePrediction>> Function(String input) fetchSuggestions;
-
-  const _AddressAutocompleteField({
-    required this.onFillAddress,
-    required this.fetchSuggestions,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'SEARCH TO AUTO-FILL',
-          style: GoogleFonts.inter(
-            fontSize: 11,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1.2,
-            color: cs.onSurfaceVariant,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Autocomplete<_PlacePrediction>(
-          optionsBuilder: (value) async {
-            if (value.text.trim().length < 3) return [];
-            return fetchSuggestions(value.text);
-          },
-          displayStringForOption: (p) => p.description,
-          onSelected: (p) => onFillAddress(p.placeId),
-          fieldViewBuilder: (ctx, ctrl, focusNode, onSubmit) {
-            return TextField(
-              controller: ctrl,
-              focusNode: focusNode,
-              style: TextStyle(color: cs.onSurface, fontSize: 14),
-              decoration: InputDecoration(
-                hintText: 'Search address to auto-fill fields below',
-                hintStyle: TextStyle(
-                    color: cs.onSurfaceVariant.withValues(alpha: 0.5)),
-                prefixIcon: Icon(Icons.search_rounded,
-                    size: 20, color: cs.onSurfaceVariant),
-                filled: true,
-                fillColor: cs.surfaceContainerHighest.withValues(alpha: 0.3),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: cs.primary, width: 1),
-                ),
-                contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-              ),
-            );
-          },
-          optionsViewBuilder: (ctx, onSelected, options) {
-            return Align(
-              alignment: Alignment.topLeft,
-              child: Material(
-                elevation: 4,
-                borderRadius: BorderRadius.circular(12),
-                color: cs.surface,
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxHeight: 220),
-                  child: ListView.separated(
-                    padding: EdgeInsets.zero,
-                    shrinkWrap: true,
-                    itemCount: options.length,
-                    separatorBuilder: (_, __) => Divider(
-                        height: 1,
-                        color: cs.outlineVariant.withValues(alpha: 0.3)),
-                    itemBuilder: (_, i) {
-                      final p = options.elementAt(i);
-                      return InkWell(
-                        onTap: () => onSelected(p),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 14, vertical: 12),
-                          child: Row(
-                            children: [
-                              Icon(Icons.location_on_outlined,
-                                  size: 16, color: cs.onSurfaceVariant),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: Text(
-                                  p.description,
-                                  style: GoogleFonts.inter(
-                                      fontSize: 13, color: cs.onSurface),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ),
-            );
-          },
-        ),
-      ],
     );
   }
 }

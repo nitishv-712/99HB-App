@@ -5,7 +5,7 @@ import 'package:homebazaar/providers/comparisons_provider.dart';
 import 'package:homebazaar/providers/properties_provider.dart';
 import 'package:homebazaar/providers/reviews_provider.dart';
 import 'package:homebazaar/providers/saved_provider.dart';
-import 'package:homebazaar/view/components/skeleton_loader.dart';
+import 'package:homebazaar/view/components/app_loader.dart';
 import 'package:provider/provider.dart';
 import 'widgets/hero_gallery.dart';
 import 'widgets/primary_content.dart';
@@ -184,52 +184,10 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                   ),
               ],
             ),
-            if (prov.detailLoading) const _PropertyDetailSkeleton(),
+            if (prov.detailLoading) const AppLoader(),
           ],
         ),
       ),
-    );
-  }
-}
-
-class _PropertyDetailSkeleton extends StatelessWidget {
-  const _PropertyDetailSkeleton();
-
-  @override
-  Widget build(BuildContext context) {
-    return ListView(
-      padding: EdgeInsets.zero,
-      children: [
-        SkeletonLoader(
-          height: 280,
-          borderRadius: BorderRadius.zero,
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SkeletonLoader(width: 200, height: 24, borderRadius: BorderRadius.circular(6)),
-              const SizedBox(height: 12),
-              SkeletonLoader(width: 140, height: 14, borderRadius: BorderRadius.circular(4)),
-              const SizedBox(height: 20),
-              Row(children: [
-                Expanded(child: SkeletonLoader(height: 60, borderRadius: BorderRadius.circular(12))),
-                const SizedBox(width: 12),
-                Expanded(child: SkeletonLoader(height: 60, borderRadius: BorderRadius.circular(12))),
-                const SizedBox(width: 12),
-                Expanded(child: SkeletonLoader(height: 60, borderRadius: BorderRadius.circular(12))),
-              ]),
-              const SizedBox(height: 20),
-              SkeletonLoader(width: double.infinity, height: 14, borderRadius: BorderRadius.circular(4)),
-              const SizedBox(height: 8),
-              SkeletonLoader(width: double.infinity, height: 14, borderRadius: BorderRadius.circular(4)),
-              const SizedBox(height: 8),
-              SkeletonLoader(width: 200, height: 14, borderRadius: BorderRadius.circular(4)),
-            ],
-          ),
-        ),
-      ],
     );
   }
 }

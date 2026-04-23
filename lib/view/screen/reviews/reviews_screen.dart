@@ -5,7 +5,6 @@ import 'package:homebazaar/model/property.dart';
 import 'package:homebazaar/model/review.dart';
 import 'package:homebazaar/providers/reviews_provider.dart';
 import 'package:homebazaar/view/components/app_shared.dart';
-import 'package:homebazaar/view/components/skeleton_loader.dart';
 
 class ReviewsScreen extends StatefulWidget {
   const ReviewsScreen({super.key});
@@ -32,15 +31,7 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
       body: Consumer<ReviewsProvider>(
         builder: (_, prov, __) {
           if (prov.myLoading) {
-            return ListView.separated(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 100),
-              itemCount: 4,
-              separatorBuilder: (_, __) => const SizedBox(height: 12),
-              itemBuilder: (_, __) => SkeletonLoader(
-                height: 140,
-                borderRadius: BorderRadius.circular(16),
-              ),
-            );
+            return const Center(child: CircularProgressIndicator());
           }
           if (prov.myError != null) {
             return AppErrorRetry(

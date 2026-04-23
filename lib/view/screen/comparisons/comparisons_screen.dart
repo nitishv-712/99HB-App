@@ -5,7 +5,6 @@ import 'package:homebazaar/model/comparison.dart';
 import 'package:homebazaar/model/property.dart';
 import 'package:homebazaar/providers/comparisons_provider.dart';
 import 'package:homebazaar/view/components/app_shared.dart';
-import 'package:homebazaar/view/components/skeleton_loader.dart';
 
 // ── Comparisons List ──────────────────────────────────────────────────────────
 
@@ -34,15 +33,7 @@ class _ComparisonsScreenState extends State<ComparisonsScreen> {
       body: Consumer<ComparisonsProvider>(
         builder: (_, prov, __) {
           if (prov.loading) {
-            return ListView.separated(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 100),
-              itemCount: 4,
-              separatorBuilder: (_, __) => const SizedBox(height: 12),
-              itemBuilder: (_, __) => SkeletonLoader(
-                height: 72,
-                borderRadius: BorderRadius.circular(16),
-              ),
-            );
+            return const Center(child: CircularProgressIndicator());
           }
           if (prov.error != null) {
             return AppErrorRetry(message: prov.error!, onRetry: prov.fetchList);
@@ -179,19 +170,7 @@ class _ComparisonDetailScreenState extends State<ComparisonDetailScreen> {
       body: Consumer<ComparisonsProvider>(
         builder: (_, prov, __) {
           if (prov.detailLoading) {
-            return ListView(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 100),
-              children: [
-                SkeletonLoader(height: 100, borderRadius: BorderRadius.circular(16)),
-                const SizedBox(height: 24),
-                SkeletonLoader(width: 100, height: 10, borderRadius: BorderRadius.circular(4)),
-                const SizedBox(height: 12),
-                ...List.generate(3, (_) => Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: SkeletonLoader(height: 90, borderRadius: BorderRadius.circular(14)),
-                )),
-              ],
-            );
+            return const Center(child: CircularProgressIndicator());
           }
           if (prov.detailError != null) {
             return AppErrorRetry(

@@ -222,10 +222,8 @@ class ApiProperty {
         ? _propertyStatusFromString(j['status'] as String)
         : PropertyStatus.active,
     badge: _badgeFromString(j['badge'] as String?),
-    price: (j['price'] as num?)?.toDouble() ?? 0,
-    address: j['address'] is Map
-        ? PropertyAddress.fromJson(j['address'] as Map<String, dynamic>)
-        : PropertyAddress(city: j['address'] as String? ?? ''),
+    price: (j['price'] as num).toDouble(),
+    address: PropertyAddress.fromJson(j['address'] as Map<String, dynamic>),
     location: j['location'] == null
         ? null
         : PropertyLocation.fromJson(j['location'] as Map<String, dynamic>),
@@ -234,9 +232,7 @@ class ApiProperty {
     sqft: (j['sqft'] as num?)?.toDouble() ?? 0,
     yearBuilt: j['yearBuilt'] as int?,
     images: (j['images'] as List? ?? [])
-        .map((e) => e is Map
-            ? PropertyImage.fromJson(e as Map<String, dynamic>)
-            : PropertyImage(id: '', url: e as String, isPrimary: false))
+        .map((e) => PropertyImage.fromJson(e as Map<String, dynamic>))
         .toList(),
     owner: j['owner'] == null
         ? null

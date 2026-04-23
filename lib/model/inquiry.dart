@@ -14,7 +14,7 @@ MessageRole _messageRoleFromString(String v) =>
 class ApiMessage {
   final String id;
   final String inquiry;
-  final dynamic sender; // populated ApiUser or raw ID string
+  final String sender;
   final MessageRole role;
   final String text;
   final bool visibleToUser;
@@ -36,16 +36,10 @@ class ApiMessage {
     required this.updatedAt,
   });
 
-  String get senderId => sender is ApiUser
-      ? (sender as ApiUser).id
-      : sender as String;
-
   factory ApiMessage.fromJson(Map<String, dynamic> j) => ApiMessage(
         id: j['_id'] as String,
         inquiry: j['inquiry'] as String,
-        sender: j['sender'] is Map
-            ? ApiUser.fromJson(j['sender'] as Map<String, dynamic>)
-            : j['sender'] as String,
+        sender: j['sender'] as String,
         role: _messageRoleFromString(j['role'] as String),
         text: j['text'] as String,
         visibleToUser: j['visibleToUser'] as bool,
@@ -58,7 +52,7 @@ class ApiMessage {
   Map<String, dynamic> toJson() => {
         '_id': id,
         'inquiry': inquiry,
-        'sender': sender is ApiUser ? (sender as ApiUser).toJson() : sender,
+        'sender': sender,
         'role': role.name,
         'text': text,
         'visibleToUser': visibleToUser,
