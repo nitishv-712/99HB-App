@@ -7,9 +7,8 @@ import 'package:homebazaar/model/property.dart';
 import 'package:homebazaar/providers/properties_provider.dart';
 import 'buy/buy_filter_config.dart';
 import 'buy/buy_listing_toggle.dart';
-import 'buy/buy_filter_bar.dart';
 import 'buy/buy_all_filters_sheet.dart';
-import 'buy/buy_results_sliver.dart';
+import 'buy/buy_results_grid.dart';
 
 class BuyScreen extends StatefulWidget {
   final ListingType initialListingType;
@@ -40,6 +39,10 @@ class _BuyScreenState extends State<BuyScreen> {
     super.dispose();
   }
 
+  int get _activeFilterCount =>
+      (_typeIndex != 0 ? 1 : 0) + (_sortIndex != 0 ? 1 : 0) +
+      (_priceIndex != 0 ? 1 : 0) + (_bedIndex != 0 ? 1 : 0);
+
   void _fetch() {
     context.read<PropertiesProvider>().fetchListForced(
       PropertyFilters(
@@ -53,8 +56,6 @@ class _BuyScreenState extends State<BuyScreen> {
       ),
     );
   }
-
-  void _applyFilter() => setState(() => _fetch());
 
   void _showAllFilters() {
     showModalBottomSheet(
@@ -78,92 +79,91 @@ class _BuyScreenState extends State<BuyScreen> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final hasFilters = _activeFilterCount > 0;
+
     return Scaffold(
       backgroundColor: cs.surface,
-      appBar: BrandAppBar(),
-      body: CustomScrollView(slivers: [
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text('BROWSE', style: GoogleFonts.inter(
-                  fontSize: 10, fontWeight: FontWeight.bold,
-                  letterSpacing: 2.5, color: cs.onSurfaceVariant)),
-              const SizedBox(height: 4),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    _listingType == ListingType.sale ? 'For Sale' : 'For Rent',
-                    style: GoogleFonts.notoSerif(fontSize: 36, fontWeight: FontWeight.w900,
-                        color: cs.onSurface, height: 1.1),
-                  ),
-                  BuyListingToggle(
-                    value: _listingType,
-                    onChanged: (t) => setState(() { _listingType = t; _fetch(); }),
-                  ),
-                ],
+      appBar: BrandAppBar(
+        searchBar: Row(children: [
+          Expanded(
+            child: Container(
+              height: 40,
+              decoration: BoxDecoration(
+                color: cs.surfaceContainerHighest.withOpacity(0.4),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: cs.outlineVariant.withOpacity(0.3)),
               ),
-              const SizedBox(height: 16),
-              Container(
-                decoration: BoxDecoration(
-                  color: cs.surfaceContainerHighest.withOpacity(0.4),
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: cs.outlineVariant.withOpacity(0.3)),
+              child: Row(children: [
+                const SizedBox(width: 10),
+                Icon(Icons.search_rounded, color: cs.onSurfaceVariant, size: 18),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: TextField(
+                    controller: _searchCtrl,
+                    onSubmitted: (_) => setState(() => _fetch()),
+                    style: TextStyle(color: cs.onSurface, fontSize: 14),
+                    decoration: InputDecoration(
+                      hintText: 'Search city, project...',
+                      hintStyle: TextStyle(color: cs.onSurfaceVariant, fontSize: 14),
+                      border: InputBorder.none,
+                      isDense: true,
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                  ),
                 ),
-                child: Row(children: [
-                  const SizedBox(width: 14),
-                  Icon(Icons.search_rounded, color: cs.onSurfaceVariant, size: 20),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: TextField(
-                      controller: _searchCtrl,
-                      onSubmitted: (_) => _applyFilter(),
-                      style: TextStyle(color: cs.onSurface, fontSize: 14),
-                      decoration: InputDecoration(
-                        hintText: 'Search city, project or builder...',
-                        hintStyle: TextStyle(color: cs.onSurfaceVariant, fontSize: 14),
-                        border: InputBorder.none,
-                        filled: false,
-                        isDense: true,
-                        contentPadding: const EdgeInsets.symmetric(vertical: 14),
-                      ),
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: _applyFilter,
-                    child: Container(
-                      margin: const EdgeInsets.all(5),
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
-                      decoration: BoxDecoration(color: cs.onSurface, borderRadius: BorderRadius.circular(10)),
-                      child: Text('Search', style: GoogleFonts.inter(
-                          color: cs.surface, fontWeight: FontWeight.bold, fontSize: 12)),
-                    ),
-                  ),
-                ]),
+              ]),
+            ),
+          ),
+          const SizedBox(width: 8),
+          GestureDetector(
+            onTap: _showAllFilters,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 180),
+              height: 40,
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              decoration: BoxDecoration(
+                color: hasFilters ? cs.onSurface : cs.surfaceContainerHighest.withOpacity(0.4),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                    color: hasFilters ? cs.onSurface : cs.outlineVariant.withOpacity(0.3)),
               ),
-              const SizedBox(height: 16),
-            ]),
+              child: Row(mainAxisSize: MainAxisSize.min, children: [
+                Icon(Icons.tune_rounded, size: 16,
+                    color: hasFilters ? cs.surface : cs.onSurfaceVariant),
+                const SizedBox(width: 5),
+                Text(
+                  hasFilters ? 'Filters ($_activeFilterCount)' : 'Filters',
+                  style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600,
+                      color: hasFilters ? cs.surface : cs.onSurface),
+                ),
+              ]),
+            ),
           ),
-        ),
-        SliverPersistentHeader(
-          pinned: true,
-          delegate: BuyFilterDelegate(
-            typeIndex: _typeIndex,
-            sortIndex: _sortIndex,
-            priceIndex: _priceIndex,
-            bedIndex: _bedIndex,
-            onTypeChanged: (i) { setState(() => _typeIndex = i); _fetch(); },
-            onSortChanged: (i) { setState(() => _sortIndex = i); _fetch(); },
-            onPriceChanged: (i) { setState(() => _priceIndex = i); _fetch(); },
-            onBedChanged: (i) { setState(() => _bedIndex = i); _fetch(); },
-            onShowAllFilters: _showAllFilters,
+        ]),
+      ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  _listingType == ListingType.sale ? 'For Sale' : 'For Rent',
+                  style: GoogleFonts.notoSerif(fontSize: 28, fontWeight: FontWeight.w900,
+                      color: cs.onSurface, height: 1.1),
+                ),
+                BuyListingToggle(
+                  value: _listingType,
+                  onChanged: (t) => setState(() { _listingType = t; _fetch(); }),
+                ),
+              ],
+            ),
           ),
-        ),
-        const SliverToBoxAdapter(child: SizedBox(height: 20)),
-        BuyResultsSliver(onRetry: _fetch),
-        const SliverToBoxAdapter(child: SizedBox(height: 32)),
-      ]),
+          Expanded(child: BuyResultsGrid(onRetry: _fetch)),
+        ],
+      ),
     );
   }
 }
