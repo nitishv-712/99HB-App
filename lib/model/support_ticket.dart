@@ -1,49 +1,39 @@
+import 'package:json_annotation/json_annotation.dart';
 import 'package:homebazaar/model/admin_user.dart';
 import 'package:homebazaar/model/user.dart';
 
+part 'support_ticket.g.dart';
+
 enum TicketCategory { technical, billing, account, listing, other }
 enum TicketPriority { low, medium, high }
-enum TicketStatus { open, inProgress, resolved, closed }
 
-TicketCategory _categoryFromString(String v) =>
-    TicketCategory.values.firstWhere((e) => e.name == v);
-
-TicketPriority _priorityFromString(String v) =>
-    TicketPriority.values.firstWhere((e) => e.name == v);
-
-TicketStatus _statusFromString(String v) {
-  const map = {
-    'open': TicketStatus.open,
-    'in-progress': TicketStatus.inProgress,
-    'resolved': TicketStatus.resolved,
-    'closed': TicketStatus.closed,
-  };
-  return map[v] ?? TicketStatus.open;
+enum TicketStatus {
+  @JsonValue('open') open,
+  @JsonValue('in-progress') inProgress,
+  @JsonValue('resolved') resolved,
+  @JsonValue('closed') closed,
 }
 
-String _statusToString(TicketStatus s) {
-  const map = {
-    TicketStatus.open: 'open',
-    TicketStatus.inProgress: 'in-progress',
-    TicketStatus.resolved: 'resolved',
-    TicketStatus.closed: 'closed',
-  };
-  return map[s] ?? 'open';
-}
+// ── Ticket message ────────────────────────────────────────────────────────────
 
-class ApiTicketMessage {
+@JsonSerializable(explicitToJson: true)
+class TicketMessage {
+  @JsonKey(name: '_id')
   final String id;
+  @JsonKey(defaultValue: '')
   final String ticket;
-
-  /// Populated [ApiUser] or raw ID string
+  @JsonKey(fromJson: _userFromJson, toJson: _userToJson)
   final dynamic sender;
-
+  @JsonKey(defaultValue: '')
   final String text;
+  @JsonKey(defaultValue: false)
   final bool isAdmin;
+  @JsonKey(defaultValue: '')
   final String createdAt;
+  @JsonKey(defaultValue: '')
   final String updatedAt;
 
-  const ApiTicketMessage({
+  const TicketMessage({
     required this.id,
     required this.ticket,
     required this.sender,
@@ -53,50 +43,43 @@ class ApiTicketMessage {
     required this.updatedAt,
   });
 
-  factory ApiTicketMessage.fromJson(Map<String, dynamic> j) => ApiTicketMessage(
-        id: j['_id'] as String,
-        ticket: j['ticket'] as String,
-        sender: j['sender'] is Map
-            ? ApiUser.fromJson(j['sender'] as Map<String, dynamic>)
-            : j['sender'] as String,
-        text: j['text'] as String,
-        isAdmin: j['isAdmin'] as bool,
-        createdAt: j['createdAt'] as String,
-        updatedAt: j['updatedAt'] as String,
-      );
+  factory TicketMessage.fromJson(Map<String, dynamic> json) =>
+      _$TicketMessageFromJson(json);
 
-  Map<String, dynamic> toJson() => {
-        '_id': id,
-        'ticket': ticket,
-        'sender': sender is ApiUser ? (sender as ApiUser).toJson() : sender,
-        'text': text,
-        'isAdmin': isAdmin,
-        'createdAt': createdAt,
-        'updatedAt': updatedAt,
-      };
+  Map<String, dynamic> toJson() => _$TicketMessageToJson(this);
 }
 
-class ApiSupportTicket {
+typedef ApiTicketMessage = TicketMessage;
+
+// ── Support ticket ────────────────────────────────────────────────────────────
+
+@JsonSerializable(explicitToJson: true)
+class SupportTicket {
+  @JsonKey(name: '_id')
   final String id;
-
-  /// Populated [ApiUser] or raw ID string
+  @JsonKey(fromJson: _userFromJson, toJson: _userToJson)
   final dynamic user;
-
+  @JsonKey(defaultValue: '')
   final String subject;
+  @JsonKey(unknownEnumValue: TicketCategory.other)
   final TicketCategory category;
+  @JsonKey(unknownEnumValue: TicketPriority.medium)
   final TicketPriority priority;
+  @JsonKey(unknownEnumValue: TicketStatus.open)
   final TicketStatus status;
-
-  /// Populated [ApiAdminUser], raw ID string, or null
+  @JsonKey(fromJson: _adminFromJson, toJson: _adminToJson)
   final dynamic assignedTo;
-
+  @JsonKey(defaultValue: '')
   final String lastMessageAt;
+  @JsonKey(defaultValue: 0)
   final int messageCount;
   final String? resolvedAt;
+  @JsonKey(defaultValue: '')
   final String createdAt;
+  @JsonKey(defaultValue: '')
   final String updatedAt;
 
-  const ApiSupportTicket({
+  const SupportTicket({
     required this.id,
     required this.user,
     required this.subject,
@@ -111,84 +94,36 @@ class ApiSupportTicket {
     required this.updatedAt,
   });
 
-  factory ApiSupportTicket.fromJson(Map<String, dynamic> j) => ApiSupportTicket(
-        id: j['_id'] as String,
-        user: j['user'] is Map
-            ? ApiUser.fromJson(j['user'] as Map<String, dynamic>)
-            : j['user'] as String,
-        subject: j['subject'] as String,
-        category: _categoryFromString(j['category'] as String),
-        priority: _priorityFromString(j['priority'] as String),
-        status: _statusFromString(j['status'] as String),
-        assignedTo: j['assignedTo'] is Map
-            ? ApiAdminUser.fromJson(j['assignedTo'] as Map<String, dynamic>)
-            : j['assignedTo'] as String?,
-        lastMessageAt: j['lastMessageAt'] as String,
-        messageCount: j['messageCount'] as int,
-        resolvedAt: j['resolvedAt'] as String?,
-        createdAt: j['createdAt'] as String,
-        updatedAt: j['updatedAt'] as String,
-      );
+  factory SupportTicket.fromJson(Map<String, dynamic> json) =>
+      _$SupportTicketFromJson(json);
 
-  Map<String, dynamic> toJson() => {
-        '_id': id,
-        'user': user is ApiUser ? (user as ApiUser).toJson() : user,
-        'subject': subject,
-        'category': category.name,
-        'priority': priority.name,
-        'status': _statusToString(status),
-        'assignedTo': assignedTo is ApiAdminUser
-            ? (assignedTo as ApiAdminUser).toJson()
-            : assignedTo,
-        'lastMessageAt': lastMessageAt,
-        'messageCount': messageCount,
-        'resolvedAt': resolvedAt,
-        'createdAt': createdAt,
-        'updatedAt': updatedAt,
-      };
+  Map<String, dynamic> toJson() => _$SupportTicketToJson(this);
 }
 
+typedef ApiSupportTicket = SupportTicket;
+
+// ── Ticket detail response ────────────────────────────────────────────────────
+
+@JsonSerializable(explicitToJson: true)
 class TicketDetailResponse {
-  final ApiSupportTicket ticket;
-  final List<ApiTicketMessage> messages;
+  final SupportTicket ticket;
+  @JsonKey(defaultValue: [])
+  final List<TicketMessage> messages;
 
   const TicketDetailResponse({required this.ticket, required this.messages});
 
-  factory TicketDetailResponse.fromJson(Map<String, dynamic> j) => TicketDetailResponse(
-        ticket: ApiSupportTicket.fromJson(j['ticket'] as Map<String, dynamic>),
-        messages: (j['messages'] as List)
-            .map((e) => ApiTicketMessage.fromJson(e as Map<String, dynamic>))
-            .toList(),
-      );
+  factory TicketDetailResponse.fromJson(Map<String, dynamic> json) =>
+      _$TicketDetailResponseFromJson(json);
+
+  Map<String, dynamic> toJson() => _$TicketDetailResponseToJson(this);
 }
 
-class SupportTicketStats {
-  final int totalTickets;
-  final int openTickets;
-  final int inProgressTickets;
-  final int resolvedTickets;
-  final int closedTickets;
-  final int highPriorityTickets;
-  final double averageResolutionTimeHours;
+// ── Converters ────────────────────────────────────────────────────────────────
 
-  const SupportTicketStats({
-    required this.totalTickets,
-    required this.openTickets,
-    required this.inProgressTickets,
-    required this.resolvedTickets,
-    required this.closedTickets,
-    required this.highPriorityTickets,
-    required this.averageResolutionTimeHours,
-  });
+dynamic _userFromJson(dynamic v) =>
+    v is Map<String, dynamic> ? User.fromJson(v) : v;
+dynamic _userToJson(dynamic v) => v is User ? v.toJson() : v;
 
-  factory SupportTicketStats.fromJson(Map<String, dynamic> j) => SupportTicketStats(
-        totalTickets: j['totalTickets'] as int,
-        openTickets: j['openTickets'] as int,
-        inProgressTickets: j['inProgressTickets'] as int,
-        resolvedTickets: j['resolvedTickets'] as int,
-        closedTickets: j['closedTickets'] as int,
-        highPriorityTickets: j['highPriorityTickets'] as int,
-        averageResolutionTimeHours:
-            (j['averageResolutionTimeHours'] as num).toDouble(),
-      );
-}
+dynamic _adminFromJson(dynamic v) =>
+    v is Map<String, dynamic> ? AdminUser.fromJson(v) : v;
+dynamic _adminToJson(dynamic v) => v is AdminUser ? v.toJson() : v;

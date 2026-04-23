@@ -1,47 +1,55 @@
+import 'package:json_annotation/json_annotation.dart';
+
+part 'user.g.dart';
+
 enum UserRole { buyer, seller, agent }
 
-class Card {
+@JsonSerializable()
+class KycCard {
   final String? number;
   final String? image;
+  @JsonKey(defaultValue: false)
   final bool isVerified;
 
-  const Card({this.number, this.image, required this.isVerified});
+  const KycCard({this.number, this.image, required this.isVerified});
 
-  factory Card.fromJson(Map<String, dynamic> j) => Card(
-    number: j['number'] as String?,
-    image: j['image'] as String?,
-    isVerified: j['isVerified'] as bool,
-  );
+  factory KycCard.fromJson(Map<String, dynamic> json) =>
+      _$KycCardFromJson(json);
 
-  Map<String, dynamic> toJson() => {
-    'number': number,
-    'image': image,
-    'isVerified': isVerified,
-  };
+  Map<String, dynamic> toJson() => _$KycCardToJson(this);
 }
 
-class ApiUser {
+@JsonSerializable(explicitToJson: true)
+class User {
+  @JsonKey(name: '_id')
   final String id;
+  @JsonKey(defaultValue: '')
   final String firstName;
+  @JsonKey(defaultValue: '')
   final String lastName;
-  // final String fullName;
+  @JsonKey(defaultValue: '')
   final String email;
+  @JsonKey(defaultValue: false)
   final bool isGmailVerified;
   final String? phone;
+  @JsonKey(defaultValue: false)
   final bool isPhoneVerified;
+  @JsonKey(defaultValue: 'buyer')
   final String role;
   final String? avatar;
+  @JsonKey(defaultValue: false)
   final bool isVerified;
-  final Card? panCard;
-  final Card? aadharCard;
+  final KycCard? panCard;
+  final KycCard? aadharCard;
+  @JsonKey(defaultValue: '')
   final String createdAt;
+  @JsonKey(defaultValue: '')
   final String updatedAt;
 
-  const ApiUser({
+  const User({
     required this.id,
     required this.firstName,
     required this.lastName,
-    // required this.fullName,
     required this.email,
     required this.isGmailVerified,
     this.phone,
@@ -49,48 +57,18 @@ class ApiUser {
     required this.role,
     this.avatar,
     required this.isVerified,
-    required this.panCard,
-    required this.aadharCard,
+    this.panCard,
+    this.aadharCard,
     required this.createdAt,
     required this.updatedAt,
   });
 
-  factory ApiUser.fromJson(Map<String, dynamic> j) => ApiUser(
-    id: (j['_id'] ?? j['id']) as String,
-    firstName: j['firstName'] as String,
-    lastName: j['lastName'] as String,
-    email: j['email'] as String,
-    isGmailVerified: j['isGmailVerified'] as bool? ?? false,
-    phone: j['phone'] as String?,
-    isPhoneVerified: j['isPhoneVerified'] as bool? ?? false,
-    role: j['role'] as String? ?? 'buyer',
-    avatar: j['avatar'] as String?,
-    isVerified: j['isVerified'] as bool? ?? false,
-    panCard: j['panCard'] != null
-        ? Card.fromJson(j['panCard'] as Map<String, dynamic>)
-        : null,
-    aadharCard: j['aadharCard'] != null
-        ? Card.fromJson(j['aadharCard'] as Map<String, dynamic>)
-        : null,
-    createdAt: j['createdAt'] as String? ?? '',
-    updatedAt: j['updatedAt'] as String? ?? '',
-  );
+  String get fullName => '$firstName $lastName'.trim();
 
-  Map<String, dynamic> toJson() => {
-    '_id': id,
-    'firstName': firstName,
-    'lastName': lastName,
-    // 'fullName': fullName,
-    'email': email,
-    'isGmailVerified': isGmailVerified,
-    'phone': phone,
-    'isPhoneVerified': isPhoneVerified,
-    'role': role,
-    'avatar': avatar,
-    'isVerified': isVerified,
-    'panCard': panCard?.toJson(),
-    'aadharCard': aadharCard?.toJson(),
-    'createdAt': createdAt,
-    'updatedAt': updatedAt,
-  };
+  factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
+
+  Map<String, dynamic> toJson() => _$UserToJson(this);
 }
+
+// Alias so existing code keeps compiling without changes
+typedef ApiUser = User;

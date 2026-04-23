@@ -1,53 +1,54 @@
+import 'package:json_annotation/json_annotation.dart';
 import 'package:homebazaar/model/property.dart';
 
-// ─── Saved Property ───────────────────────────────────────────────────────────
+part 'misc.g.dart';
 
-class ApiSavedProperty {
+// ── Saved property ────────────────────────────────────────────────────────────
+
+@JsonSerializable(explicitToJson: true)
+class SavedProperty {
+  @JsonKey(name: '_id')
   final String id;
+  @JsonKey(defaultValue: '')
   final String user;
-
-  /// Populated [ApiProperty] or raw ID string
+  @JsonKey(fromJson: _propertyFromJson, toJson: _propertyToJson)
   final dynamic property;
-
+  @JsonKey(defaultValue: '')
   final String savedAt;
 
-  const ApiSavedProperty({
+  const SavedProperty({
     required this.id,
     required this.user,
     required this.property,
     required this.savedAt,
   });
 
-  factory ApiSavedProperty.fromJson(Map<String, dynamic> j) => ApiSavedProperty(
-    id: j['_id'] as String,
-    user: j['user'] as String,
-    property: j['property'] is Map
-        ? ApiProperty.fromJson(j['property'] as Map<String, dynamic>)
-        : j['property'] as String,
-    savedAt: j['savedAt'] as String,
-  );
+  factory SavedProperty.fromJson(Map<String, dynamic> json) =>
+      _$SavedPropertyFromJson(json);
 
-  Map<String, dynamic> toJson() => {
-    '_id': id,
-    'user': user,
-    'property': property is ApiProperty
-        ? (property as ApiProperty).toJson()
-        : property,
-    'savedAt': savedAt,
-  };
+  Map<String, dynamic> toJson() => _$SavedPropertyToJson(this);
 }
 
-// ─── Search History ───────────────────────────────────────────────────────────
+typedef ApiSavedProperty = SavedProperty;
 
-class ApiSearchHistory {
+// ── Search history ────────────────────────────────────────────────────────────
+
+@JsonSerializable()
+class SearchHistory {
+  @JsonKey(name: '_id')
   final String id;
+  @JsonKey(defaultValue: '')
   final String user;
+  @JsonKey(defaultValue: '')
   final String query;
+  @JsonKey(defaultValue: {})
   final Map<String, dynamic> filters;
+  @JsonKey(defaultValue: '')
   final String createdAt;
+  @JsonKey(defaultValue: '')
   final String updatedAt;
 
-  const ApiSearchHistory({
+  const SearchHistory({
     required this.id,
     required this.user,
     required this.query,
@@ -56,108 +57,25 @@ class ApiSearchHistory {
     required this.updatedAt,
   });
 
-  factory ApiSearchHistory.fromJson(Map<String, dynamic> j) => ApiSearchHistory(
-    id: j['_id'] as String,
-    user: j['user'] as String,
-    query: j['query'] as String,
-    filters: Map<String, dynamic>.from(j['filters'] as Map),
-    createdAt: j['createdAt'] as String,
-    updatedAt: j['updatedAt'] as String,
-  );
+  factory SearchHistory.fromJson(Map<String, dynamic> json) =>
+      _$SearchHistoryFromJson(json);
 
-  Map<String, dynamic> toJson() => {
-    '_id': id,
-    'user': user,
-    'query': query,
-    'filters': filters,
-    'createdAt': createdAt,
-    'updatedAt': updatedAt,
-  };
+  Map<String, dynamic> toJson() => _$SearchHistoryToJson(this);
 }
 
-// ─── Newsletter ───────────────────────────────────────────────────────────────
+typedef ApiSearchHistory = SearchHistory;
 
-class ApiNewsletter {
-  final String id;
-  final String email;
-  final bool isActive;
-  final String createdAt;
-  final String updatedAt;
-
-  const ApiNewsletter({
-    required this.id,
-    required this.email,
-    required this.isActive,
-    required this.createdAt,
-    required this.updatedAt,
-  });
-
-  factory ApiNewsletter.fromJson(Map<String, dynamic> j) => ApiNewsletter(
-    id: j['_id'] as String,
-    email: j['email'] as String,
-    isActive: j['isActive'] as bool,
-    createdAt: j['createdAt'] as String,
-    updatedAt: j['updatedAt'] as String,
-  );
-
-  Map<String, dynamic> toJson() => {
-    '_id': id,
-    'email': email,
-    'isActive': isActive,
-    'createdAt': createdAt,
-    'updatedAt': updatedAt,
-  };
-}
-
-// ─── OTP ──────────────────────────────────────────────────────────────────────
-
-class ApiOtp {
-  final String id;
-  final String? email;
-  final String? phone;
-  final bool isVerified;
-  final int attempts;
-  final String expiresAt;
-  final String createdAt;
-
-  const ApiOtp({
-    required this.id,
-    this.email,
-    this.phone,
-    required this.isVerified,
-    required this.attempts,
-    required this.expiresAt,
-    required this.createdAt,
-  });
-
-  factory ApiOtp.fromJson(Map<String, dynamic> j) => ApiOtp(
-    id: j['_id'] as String,
-    email: j['email'] as String?,
-    phone: j['phone'] as String?,
-    isVerified: j['isVerified'] as bool,
-    attempts: j['attempts'] as int,
-    expiresAt: j['expiresAt'] as String,
-    createdAt: j['createdAt'] as String,
-  );
-
-  Map<String, dynamic> toJson() => {
-    '_id': id,
-    'email': email,
-    'phone': phone,
-    'isVerified': isVerified,
-    'attempts': attempts,
-    'expiresAt': expiresAt,
-    'createdAt': createdAt,
-  };
-}
-
-// ─── Upload ───────────────────────────────────────────────────────────────────
+// ── Upload ────────────────────────────────────────────────────────────────────
 
 enum UploadFolder { avatar, aadhar, pancards, properties }
 
+@JsonSerializable()
 class UploadLinkResponse {
+  @JsonKey(defaultValue: '')
   final String uploadUrl;
+  @JsonKey(defaultValue: '')
   final String viewUrl;
+  @JsonKey(defaultValue: '')
   final String filePath;
 
   const UploadLinkResponse({
@@ -166,16 +84,14 @@ class UploadLinkResponse {
     required this.filePath,
   });
 
-  factory UploadLinkResponse.fromJson(Map<String, dynamic> j) =>
-      UploadLinkResponse(
-        uploadUrl: j['uploadUrl'] as String,
-        viewUrl: j['viewUrl'] as String,
-        filePath: j['filePath'] as String,
-      );
+  factory UploadLinkResponse.fromJson(Map<String, dynamic> json) =>
+      _$UploadLinkResponseFromJson(json);
 
-  Map<String, dynamic> toJson() => {
-    'uploadUrl': uploadUrl,
-    'viewUrl': viewUrl,
-    'filePath': filePath,
-  };
+  Map<String, dynamic> toJson() => _$UploadLinkResponseToJson(this);
 }
+
+// ── Converters ────────────────────────────────────────────────────────────────
+
+dynamic _propertyFromJson(dynamic v) =>
+    v is Map<String, dynamic> ? Property.fromJson(v) : v;
+dynamic _propertyToJson(dynamic v) => v is Property ? v.toJson() : v;

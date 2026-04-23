@@ -1,33 +1,11 @@
-class Pagination {
-  final int total;
-  final int page;
-  final int limit;
-  final int pages;
+import 'package:json_annotation/json_annotation.dart';
 
-  const Pagination({
-    required this.total,
-    required this.page,
-    required this.limit,
-    required this.pages,
-  });
+part 'api_response.g.dart';
 
-  factory Pagination.fromJson(Map<String, dynamic> j) => Pagination(
-        total: j['total'] as int,
-        page: j['page'] as int,
-        limit: j['limit'] as int,
-        pages: j['pages'] as int,
-      );
-
-  Map<String, dynamic> toJson() => {
-        'total': total,
-        'page': page,
-        'limit': limit,
-        'pages': pages,
-      };
-}
-
+@JsonSerializable(genericArgumentFactories: true)
 class ApiResponse<T> {
   final bool success;
+  @JsonKey(defaultValue: '')
   final String message;
   final T data;
   final Pagination? pagination;
@@ -40,40 +18,39 @@ class ApiResponse<T> {
   });
 
   factory ApiResponse.fromJson(
-    Map<String, dynamic> j,
-    T Function(dynamic) fromData,
-  ) =>
-      ApiResponse(
-        success: j['success'] as bool,
-        message: j['message'] as String,
-        data: fromData(j['data']),
-        pagination: j['pagination'] != null
-            ? Pagination.fromJson(j['pagination'] as Map<String, dynamic>)
-            : null,
-      );
+    Map<String, dynamic> json,
+    T Function(Object?) fromJsonT,
+  ) => _$ApiResponseFromJson(json, fromJsonT);
+
+  Map<String, dynamic> toJson(Object? Function(T) toJsonT) =>
+      _$ApiResponseToJson(this, toJsonT);
 }
 
-class PaginatedResponse<T> {
-  final bool success;
-  final String message;
-  final List<T> data;
-  final Pagination pagination;
+@JsonSerializable()
+class Pagination {
+  @JsonKey(defaultValue: 0)
+  final int total;
+  @JsonKey(defaultValue: 1)
+  final int page;
+  @JsonKey(defaultValue: 20)
+  final int limit;
+  // API returns either 'pages' or 'totalPages'
+  @JsonKey(name: 'pages', defaultValue: 0)
+  final int pages;
 
-  const PaginatedResponse({
-    required this.success,
-    required this.message,
-    required this.data,
-    required this.pagination,
+  const Pagination({
+    required this.total,
+    required this.page,
+    required this.limit,
+    required this.pages,
   });
 
-  factory PaginatedResponse.fromJson(
-    Map<String, dynamic> j,
-    T Function(Map<String, dynamic>) fromItem,
-  ) =>
-      PaginatedResponse(
-        success: j['success'] as bool,
-        message: j['message'] as String,
-        data: (j['data'] as List).map((e) => fromItem(e as Map<String, dynamic>)).toList(),
-        pagination: Pagination.fromJson(j['pagination'] as Map<String, dynamic>),
-      );
+  factory Pagination.fromJson(Map<String, dynamic> json) {
+    // handle both 'pages' and 'totalPages' keys
+    final j = Map<String, dynamic>.from(json);
+    j['pages'] ??= j['totalPages'] ?? 0;
+    return _$PaginationFromJson(j);
+  }
+
+  Map<String, dynamic> toJson() => _$PaginationToJson(this);
 }

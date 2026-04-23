@@ -1,29 +1,37 @@
+import 'package:json_annotation/json_annotation.dart';
 import 'package:homebazaar/model/property.dart';
 import 'package:homebazaar/model/user.dart';
 
+part 'inquiry.g.dart';
+
 enum InquiryStatus { active, closed }
-
-InquiryStatus _inquiryStatusFromString(String v) =>
-    v == 'active' ? InquiryStatus.active : InquiryStatus.closed;
-
 enum MessageRole { user, owner, admin }
 
-MessageRole _messageRoleFromString(String v) =>
-    MessageRole.values.firstWhere((e) => e.name == v);
+// ── Message ───────────────────────────────────────────────────────────────────
 
-class ApiMessage {
+@JsonSerializable(explicitToJson: true)
+class Message {
+  @JsonKey(name: '_id')
   final String id;
   final String inquiry;
-  final String sender;
+  @JsonKey(fromJson: _userFromJson, toJson: _userToJson)
+  final dynamic sender;
+  @JsonKey(unknownEnumValue: MessageRole.user)
   final MessageRole role;
+  @JsonKey(defaultValue: '')
   final String text;
+  @JsonKey(defaultValue: false)
   final bool visibleToUser;
+  @JsonKey(defaultValue: false)
   final bool visibleToOwner;
+  @JsonKey(defaultValue: false)
   final bool isEditedByAdmin;
+  @JsonKey(defaultValue: '')
   final String createdAt;
+  @JsonKey(defaultValue: '')
   final String updatedAt;
 
-  const ApiMessage({
+  const Message({
     required this.id,
     required this.inquiry,
     required this.sender,
@@ -36,51 +44,39 @@ class ApiMessage {
     required this.updatedAt,
   });
 
-  factory ApiMessage.fromJson(Map<String, dynamic> j) => ApiMessage(
-        id: j['_id'] as String,
-        inquiry: j['inquiry'] as String,
-        sender: j['sender'] as String,
-        role: _messageRoleFromString(j['role'] as String),
-        text: j['text'] as String,
-        visibleToUser: j['visibleToUser'] as bool,
-        visibleToOwner: j['visibleToOwner'] as bool,
-        isEditedByAdmin: j['isEditedByAdmin'] as bool,
-        createdAt: j['createdAt'] as String,
-        updatedAt: j['updatedAt'] as String,
-      );
+  String get senderId =>
+      sender is User ? (sender as User).id : sender as String;
 
-  Map<String, dynamic> toJson() => {
-        '_id': id,
-        'inquiry': inquiry,
-        'sender': sender,
-        'role': role.name,
-        'text': text,
-        'visibleToUser': visibleToUser,
-        'visibleToOwner': visibleToOwner,
-        'isEditedByAdmin': isEditedByAdmin,
-        'createdAt': createdAt,
-        'updatedAt': updatedAt,
-      };
+  factory Message.fromJson(Map<String, dynamic> json) =>
+      _$MessageFromJson(json);
+
+  Map<String, dynamic> toJson() => _$MessageToJson(this);
 }
 
-class ApiInquiry {
+typedef ApiMessage = Message;
+
+// ── Inquiry ───────────────────────────────────────────────────────────────────
+
+@JsonSerializable(explicitToJson: true)
+class Inquiry {
+  @JsonKey(name: '_id')
   final String id;
-
-  /// Populated [ApiProperty] or raw ID string
+  @JsonKey(fromJson: _propertyFromJson, toJson: _propertyToJson)
   final dynamic property;
-
-  /// Populated [ApiUser] or raw ID string
+  @JsonKey(fromJson: _userFromJson, toJson: _userToJson)
   final dynamic user;
-
-  /// Populated [ApiUser] or raw ID string
+  @JsonKey(fromJson: _userFromJson, toJson: _userToJson)
   final dynamic owner;
-
+  @JsonKey(unknownEnumValue: InquiryStatus.active)
   final InquiryStatus status;
+  @JsonKey(defaultValue: '')
   final String lastMessageAt;
+  @JsonKey(defaultValue: '')
   final String createdAt;
+  @JsonKey(defaultValue: '')
   final String updatedAt;
 
-  const ApiInquiry({
+  const Inquiry({
     required this.id,
     required this.property,
     required this.user,
@@ -91,45 +87,38 @@ class ApiInquiry {
     required this.updatedAt,
   });
 
-  factory ApiInquiry.fromJson(Map<String, dynamic> j) => ApiInquiry(
-        id: j['_id'] as String,
-        property: j['property'] is Map
-            ? ApiProperty.fromJson(j['property'] as Map<String, dynamic>)
-            : j['property'] as String,
-        user: j['user'] is Map
-            ? ApiUser.fromJson(j['user'] as Map<String, dynamic>)
-            : j['user'] as String,
-        owner: j['owner'] is Map
-            ? ApiUser.fromJson(j['owner'] as Map<String, dynamic>)
-            : j['owner'] as String,
-        status: _inquiryStatusFromString(j['status'] as String),
-        lastMessageAt: j['lastMessageAt'] as String,
-        createdAt: j['createdAt'] as String,
-        updatedAt: j['updatedAt'] as String,
-      );
+  factory Inquiry.fromJson(Map<String, dynamic> json) =>
+      _$InquiryFromJson(json);
 
-  Map<String, dynamic> toJson() => {
-        '_id': id,
-        'property': property is ApiProperty ? (property as ApiProperty).toJson() : property,
-        'user': user is ApiUser ? (user as ApiUser).toJson() : user,
-        'owner': owner is ApiUser ? (owner as ApiUser).toJson() : owner,
-        'status': status.name,
-        'lastMessageAt': lastMessageAt,
-        'createdAt': createdAt,
-        'updatedAt': updatedAt,
-      };
+  Map<String, dynamic> toJson() => _$InquiryToJson(this);
 }
 
-class SingleInquiryData {
-  final ApiInquiry inquiry;
-  final List<ApiMessage> messages;
+typedef ApiInquiry = Inquiry;
 
-  const SingleInquiryData({required this.inquiry, required this.messages});
+// ── Single inquiry detail ─────────────────────────────────────────────────────
 
-  factory SingleInquiryData.fromJson(Map<String, dynamic> j) => SingleInquiryData(
-        inquiry: ApiInquiry.fromJson(j['inquiry'] as Map<String, dynamic>),
-        messages: (j['messages'] as List)
-            .map((e) => ApiMessage.fromJson(e as Map<String, dynamic>))
-            .toList(),
-      );
+@JsonSerializable(explicitToJson: true)
+class InquiryDetail {
+  final Inquiry inquiry;
+  @JsonKey(defaultValue: [])
+  final List<Message> messages;
+
+  const InquiryDetail({required this.inquiry, required this.messages});
+
+  factory InquiryDetail.fromJson(Map<String, dynamic> json) =>
+      _$InquiryDetailFromJson(json);
+
+  Map<String, dynamic> toJson() => _$InquiryDetailToJson(this);
 }
+
+typedef SingleInquiryData = InquiryDetail;
+
+// ── Converters ────────────────────────────────────────────────────────────────
+
+dynamic _userFromJson(dynamic v) =>
+    v is Map<String, dynamic> ? User.fromJson(v) : v;
+dynamic _userToJson(dynamic v) => v is User ? v.toJson() : v;
+
+dynamic _propertyFromJson(dynamic v) =>
+    v is Map<String, dynamic> ? Property.fromJson(v) : v;
+dynamic _propertyToJson(dynamic v) => v is Property ? v.toJson() : v;

@@ -1,9 +1,27 @@
+import 'package:json_annotation/json_annotation.dart';
 import 'package:homebazaar/model/property.dart';
 
+part 'comparison.g.dart';
+
+@JsonSerializable()
+class RangeStats {
+  @JsonKey(fromJson: _toDouble) final double min;
+  @JsonKey(fromJson: _toDouble) final double max;
+  @JsonKey(fromJson: _toDoubleNullable) final double? average;
+
+  const RangeStats({required this.min, required this.max, this.average});
+
+  factory RangeStats.fromJson(Map<String, dynamic> json) =>
+      _$RangeStatsFromJson(json);
+
+  Map<String, dynamic> toJson() => _$RangeStatsToJson(this);
+}
+
+@JsonSerializable()
 class PricePerSqftEntry {
-  final String propertyId;
-  final String title;
-  final double pricePerSqft;
+  @JsonKey(defaultValue: '') final String propertyId;
+  @JsonKey(defaultValue: '') final String title;
+  @JsonKey(fromJson: _toDouble) final double pricePerSqft;
 
   const PricePerSqftEntry({
     required this.propertyId,
@@ -11,47 +29,20 @@ class PricePerSqftEntry {
     required this.pricePerSqft,
   });
 
-  factory PricePerSqftEntry.fromJson(Map<String, dynamic> j) =>
-      PricePerSqftEntry(
-        propertyId: j['propertyId'] as String,
-        title: j['title'] as String,
-        pricePerSqft: (j['pricePerSqft'] as num).toDouble(),
-      );
+  factory PricePerSqftEntry.fromJson(Map<String, dynamic> json) =>
+      _$PricePerSqftEntryFromJson(json);
 
-  Map<String, dynamic> toJson() => {
-    'propertyId': propertyId,
-    'title': title,
-    'pricePerSqft': pricePerSqft,
-  };
+  Map<String, dynamic> toJson() => _$PricePerSqftEntryToJson(this);
 }
 
-class _RangeStats {
-  final double min;
-  final double max;
-  final double? average;
-
-  const _RangeStats({required this.min, required this.max, this.average});
-
-  factory _RangeStats.fromJson(Map<String, dynamic> j) => _RangeStats(
-    min: (j['min'] as num).toDouble(),
-    max: (j['max'] as num).toDouble(),
-    average: j['average'] != null ? (j['average'] as num).toDouble() : null,
-  );
-
-  Map<String, dynamic> toJson() => {
-    'min': min,
-    'max': max,
-    if (average != null) 'average': average,
-  };
-}
-
+@JsonSerializable(explicitToJson: true)
 class ComparisonAnalysis {
-  final int totalProperties;
-  final _RangeStats priceRange;
-  final _RangeStats bedroomRange;
-  final _RangeStats bathroomRange;
-  final _RangeStats sqftRange;
-  final List<PricePerSqftEntry> pricePerSqft;
+  @JsonKey(defaultValue: 0) final int totalProperties;
+  final RangeStats priceRange;
+  final RangeStats bedroomRange;
+  final RangeStats bathroomRange;
+  final RangeStats sqftRange;
+  @JsonKey(defaultValue: []) final List<PricePerSqftEntry> pricePerSqft;
 
   const ComparisonAnalysis({
     required this.totalProperties,
@@ -62,41 +53,27 @@ class ComparisonAnalysis {
     required this.pricePerSqft,
   });
 
-  factory ComparisonAnalysis.fromJson(Map<String, dynamic> j) =>
-      ComparisonAnalysis(
-        totalProperties: j['totalProperties'] as int,
-        priceRange: _RangeStats.fromJson(
-          j['priceRange'] as Map<String, dynamic>,
-        ),
-        bedroomRange: _RangeStats.fromJson(
-          j['bedroomRange'] as Map<String, dynamic>,
-        ),
-        bathroomRange: _RangeStats.fromJson(
-          j['bathroomRange'] as Map<String, dynamic>,
-        ),
-        sqftRange: _RangeStats.fromJson(j['sqftRange'] as Map<String, dynamic>),
-        pricePerSqft: (j['pricePerSqft'] as List)
-            .map((e) => PricePerSqftEntry.fromJson(e as Map<String, dynamic>))
-            .toList(),
-      );
+  factory ComparisonAnalysis.fromJson(Map<String, dynamic> json) =>
+      _$ComparisonAnalysisFromJson(json);
+
+  Map<String, dynamic> toJson() => _$ComparisonAnalysisToJson(this);
 }
 
-class ApiComparison {
-  final String id;
-  final String user;
-  final String name;
+@JsonSerializable(explicitToJson: true)
+class Comparison {
+  @JsonKey(name: '_id') final String id;
+  @JsonKey(defaultValue: '') final String user;
+  @JsonKey(defaultValue: '') final String name;
   final String? description;
-
-  /// Populated [ApiProperty] list or raw ID strings
+  @JsonKey(fromJson: _propertyIdsFromJson, toJson: _propertyIdsToJson)
   final List<dynamic> propertyIds;
-
-  final List<String> tags;
+  @JsonKey(defaultValue: []) final List<String> tags;
   final String? notes;
-  final bool isPublic;
-  final String createdAt;
-  final String updatedAt;
+  @JsonKey(defaultValue: false) final bool isPublic;
+  @JsonKey(defaultValue: '') final String createdAt;
+  @JsonKey(defaultValue: '') final String updatedAt;
 
-  const ApiComparison({
+  const Comparison({
     required this.id,
     required this.user,
     required this.name,
@@ -109,34 +86,26 @@ class ApiComparison {
     required this.updatedAt,
   });
 
-  factory ApiComparison.fromJson(Map<String, dynamic> j) => ApiComparison(
-    id: j['_id'] as String,
-    user: j['user'] as String,
-    name: j['name'] as String,
-    description: j['description'] as String?,
-    propertyIds: (j['propertyIds'] as List).map((e) {
-      if (e is Map<String, dynamic>) return ApiProperty.fromJson(e);
-      return e as String;
-    }).toList(),
-    tags: List<String>.from((j['tags'] as List? ?? [])),
-    notes: j['notes'] as String?,
-    isPublic: j['isPublic'] as bool,
-    createdAt: j['createdAt'] as String,
-    updatedAt: j['updatedAt'] as String,
-  );
+  factory Comparison.fromJson(Map<String, dynamic> json) =>
+      _$ComparisonFromJson(json);
 
-  Map<String, dynamic> toJson() => {
-    '_id': id,
-    'user': user,
-    'name': name,
-    'description': description,
-    'propertyIds': propertyIds
-        .map((e) => e is ApiProperty ? e.toJson() : e)
-        .toList(),
-    'tags': tags,
-    'notes': notes,
-    'isPublic': isPublic,
-    'createdAt': createdAt,
-    'updatedAt': updatedAt,
-  };
+  Map<String, dynamic> toJson() => _$ComparisonToJson(this);
 }
+
+typedef ApiComparison = Comparison;
+
+// ── Converters ────────────────────────────────────────────────────────────────
+
+double _toDouble(dynamic v) => (v as num?)?.toDouble() ?? 0.0;
+double? _toDoubleNullable(dynamic v) => (v as num?)?.toDouble();
+
+List<dynamic> _propertyIdsFromJson(dynamic v) {
+  final list = v as List? ?? [];
+  return list.map((e) {
+    if (e is Map<String, dynamic>) return Property.fromJson(e);
+    return e as String;
+  }).toList();
+}
+
+List<dynamic> _propertyIdsToJson(List<dynamic> v) =>
+    v.map((e) => e is Property ? e.toJson() : e).toList();

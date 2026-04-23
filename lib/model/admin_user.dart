@@ -1,24 +1,35 @@
+import 'package:json_annotation/json_annotation.dart';
+
+part 'admin_user.g.dart';
+
 enum AdminRole { admin, superadmin }
 
-AdminRole _adminRoleFromString(String v) =>
-    AdminRole.values.firstWhere((e) => e.name == v);
-
-class ApiAdminUser {
+@JsonSerializable()
+class AdminUser {
+  @JsonKey(name: '_id')
   final String id;
+  @JsonKey(defaultValue: '')
   final String firstName;
+  @JsonKey(defaultValue: '')
   final String lastName;
+  @JsonKey(defaultValue: '')
   final String fullName;
+  @JsonKey(defaultValue: '')
   final String email;
   final String? phone;
+  @JsonKey(unknownEnumValue: AdminRole.admin)
   final AdminRole role;
   final String? avatar;
+  @JsonKey(defaultValue: true)
   final bool isActive;
   final String? createdBy;
   final String? lastLoginAt;
+  @JsonKey(defaultValue: '')
   final String createdAt;
+  @JsonKey(defaultValue: '')
   final String updatedAt;
 
-  const ApiAdminUser({
+  const AdminUser({
     required this.id,
     required this.firstName,
     required this.lastName,
@@ -34,35 +45,10 @@ class ApiAdminUser {
     required this.updatedAt,
   });
 
-  factory ApiAdminUser.fromJson(Map<String, dynamic> j) => ApiAdminUser(
-    id: j['_id'] as String,
-    firstName: j['firstName'] as String,
-    lastName: j['lastName'] as String,
-    fullName: j['fullName'] as String,
-    email: j['email'] as String,
-    phone: j['phone'] as String?,
-    role: _adminRoleFromString(j['role'] as String),
-    avatar: j['avatar'] as String?,
-    isActive: j['isActive'] as bool,
-    createdBy: j['createdBy'] as String?,
-    lastLoginAt: j['lastLoginAt'] as String?,
-    createdAt: j['createdAt'] as String,
-    updatedAt: j['updatedAt'] as String,
-  );
+  factory AdminUser.fromJson(Map<String, dynamic> json) =>
+      _$AdminUserFromJson(json);
 
-  Map<String, dynamic> toJson() => {
-    '_id': id,
-    'firstName': firstName,
-    'lastName': lastName,
-    'fullName': fullName,
-    'email': email,
-    'phone': phone,
-    'role': role.name,
-    'avatar': avatar,
-    'isActive': isActive,
-    'createdBy': createdBy,
-    'lastLoginAt': lastLoginAt,
-    'createdAt': createdAt,
-    'updatedAt': updatedAt,
-  };
+  Map<String, dynamic> toJson() => _$AdminUserToJson(this);
 }
+
+typedef ApiAdminUser = AdminUser;

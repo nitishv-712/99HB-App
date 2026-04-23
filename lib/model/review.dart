@@ -1,28 +1,33 @@
+import 'package:json_annotation/json_annotation.dart';
 import 'package:homebazaar/model/property.dart';
 import 'package:homebazaar/model/user.dart';
 
+part 'review.g.dart';
+
 enum ReviewStatus { published, pending, rejected }
 
-ReviewStatus _reviewStatusFromString(String v) =>
-    ReviewStatus.values.firstWhere((e) => e.name == v);
-
-class ApiReview {
+@JsonSerializable(explicitToJson: true)
+class Review {
+  @JsonKey(name: '_id')
   final String id;
-
-  /// Populated [ApiUser] or raw ID string
+  @JsonKey(fromJson: _userFromJson, toJson: _userToJson)
   final dynamic user;
-
-  /// Populated [ApiProperty] or raw ID string
+  @JsonKey(fromJson: _propertyFromJson, toJson: _propertyToJson)
   final dynamic property;
-
-  final int rating; // 1–5
+  @JsonKey(defaultValue: 1)
+  final int rating;
+  @JsonKey(defaultValue: '')
   final String title;
+  @JsonKey(defaultValue: '')
   final String comment;
+  @JsonKey(unknownEnumValue: ReviewStatus.pending)
   final ReviewStatus status;
+  @JsonKey(defaultValue: '')
   final String createdAt;
+  @JsonKey(defaultValue: '')
   final String updatedAt;
 
-  const ApiReview({
+  const Review({
     required this.id,
     required this.user,
     required this.property,
@@ -34,40 +39,26 @@ class ApiReview {
     required this.updatedAt,
   });
 
-  factory ApiReview.fromJson(Map<String, dynamic> j) => ApiReview(
-        id: j['_id'] as String,
-        user: j['user'] is Map
-            ? ApiUser.fromJson(j['user'] as Map<String, dynamic>)
-            : j['user'] as String,
-        property: j['property'] is Map
-            ? ApiProperty.fromJson(j['property'] as Map<String, dynamic>)
-            : j['property'] as String,
-        rating: j['rating'] as int,
-        title: j['title'] as String,
-        comment: j['comment'] as String,
-        status: _reviewStatusFromString(j['status'] as String),
-        createdAt: j['createdAt'] as String,
-        updatedAt: j['updatedAt'] as String,
-      );
+  factory Review.fromJson(Map<String, dynamic> json) => _$ReviewFromJson(json);
 
-  Map<String, dynamic> toJson() => {
-        '_id': id,
-        'user': user is ApiUser ? (user as ApiUser).toJson() : user,
-        'property': property is ApiProperty ? (property as ApiProperty).toJson() : property,
-        'rating': rating,
-        'title': title,
-        'comment': comment,
-        'status': status.name,
-        'createdAt': createdAt,
-        'updatedAt': updatedAt,
-      };
+  Map<String, dynamic> toJson() => _$ReviewToJson(this);
 }
 
+typedef ApiReview = Review;
+
+// ── Rating breakdown ──────────────────────────────────────────────────────────
+
+@JsonSerializable()
 class RatingBreakdown {
+  @JsonKey(name: '5', defaultValue: 0)
   final int five;
+  @JsonKey(name: '4', defaultValue: 0)
   final int four;
+  @JsonKey(name: '3', defaultValue: 0)
   final int three;
+  @JsonKey(name: '2', defaultValue: 0)
   final int two;
+  @JsonKey(name: '1', defaultValue: 0)
   final int one;
 
   const RatingBreakdown({
@@ -78,25 +69,17 @@ class RatingBreakdown {
     required this.one,
   });
 
-  factory RatingBreakdown.fromJson(Map<String, dynamic> j) => RatingBreakdown(
-        five: j['5'] as int,
-        four: j['4'] as int,
-        three: j['3'] as int,
-        two: j['2'] as int,
-        one: j['1'] as int,
-      );
+  factory RatingBreakdown.fromJson(Map<String, dynamic> json) =>
+      _$RatingBreakdownFromJson(json);
 
-  Map<String, dynamic> toJson() => {
-        '5': five,
-        '4': four,
-        '3': three,
-        '2': two,
-        '1': one,
-      };
+  Map<String, dynamic> toJson() => _$RatingBreakdownToJson(this);
 }
 
+@JsonSerializable(explicitToJson: true)
 class ReviewStats {
+  @JsonKey(fromJson: _toDouble)
   final double averageRating;
+  @JsonKey(defaultValue: 0)
   final int totalReviews;
   final RatingBreakdown ratingBreakdown;
 
@@ -106,10 +89,20 @@ class ReviewStats {
     required this.ratingBreakdown,
   });
 
-  factory ReviewStats.fromJson(Map<String, dynamic> j) => ReviewStats(
-        averageRating: (j['averageRating'] as num).toDouble(),
-        totalReviews: j['totalReviews'] as int,
-        ratingBreakdown: RatingBreakdown.fromJson(
-            j['ratingBreakdown'] as Map<String, dynamic>),
-      );
+  factory ReviewStats.fromJson(Map<String, dynamic> json) =>
+      _$ReviewStatsFromJson(json);
+
+  Map<String, dynamic> toJson() => _$ReviewStatsToJson(this);
 }
+
+// ── Converters ────────────────────────────────────────────────────────────────
+
+double _toDouble(dynamic v) => (v as num?)?.toDouble() ?? 0.0;
+
+dynamic _userFromJson(dynamic v) =>
+    v is Map<String, dynamic> ? User.fromJson(v) : v;
+dynamic _userToJson(dynamic v) => v is User ? v.toJson() : v;
+
+dynamic _propertyFromJson(dynamic v) =>
+    v is Map<String, dynamic> ? Property.fromJson(v) : v;
+dynamic _propertyToJson(dynamic v) => v is Property ? v.toJson() : v;

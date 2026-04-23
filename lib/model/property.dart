@@ -1,78 +1,43 @@
+import 'package:json_annotation/json_annotation.dart';
 import 'package:homebazaar/model/user.dart';
 
-enum ListingType { sale, rent }
+part 'property.g.dart';
+
+// ── Enums ─────────────────────────────────────────────────────────────────────
+
+enum ListingType {
+  @JsonValue('sale') sale,
+  @JsonValue('rent') rent,
+}
 
 enum PropertyType {
-  house,
-  apartment,
-  villa,
-  penthouse,
-  townhouse,
-  land,
-  office,
+  @JsonValue('House') house,
+  @JsonValue('Apartment') apartment,
+  @JsonValue('Villa') villa,
+  @JsonValue('Penthouse') penthouse,
+  @JsonValue('Townhouse') townhouse,
+  @JsonValue('Land') land,
+  @JsonValue('Office') office,
 }
 
 enum PropertyStatus { pending, active, sold, rented, archived }
 
-enum PropertyBadge { premium, newBadge, featured }
-
-ListingType _listingTypeFromString(String v) =>
-    v == 'sale' ? ListingType.sale : ListingType.rent;
-
-PropertyType _propertyTypeFromString(String v) {
-  const map = {
-    'House': PropertyType.house,
-    'Apartment': PropertyType.apartment,
-    'Villa': PropertyType.villa,
-    'Penthouse': PropertyType.penthouse,
-    'Townhouse': PropertyType.townhouse,
-    'Land': PropertyType.land,
-    'Office': PropertyType.office,
-  };
-  return map[v] ?? PropertyType.house;
+enum PropertyBadge {
+  @JsonValue('Premium') premium,
+  @JsonValue('New') newBadge,
+  @JsonValue('Featured') featured,
 }
 
-PropertyStatus _propertyStatusFromString(String v) =>
-    PropertyStatus.values.firstWhere((e) => e.name == v);
+// ── Address ───────────────────────────────────────────────────────────────────
 
-PropertyBadge? _badgeFromString(String? v) {
-  if (v == null) return null;
-  const map = {
-    'Premium': PropertyBadge.premium,
-    'New': PropertyBadge.newBadge,
-    'Featured': PropertyBadge.featured,
-  };
-  return map[v];
-}
-
-String _badgeToString(PropertyBadge? b) {
-  if (b == null) return '';
-  const map = {
-    PropertyBadge.premium: 'Premium',
-    PropertyBadge.newBadge: 'New',
-    PropertyBadge.featured: 'Featured',
-  };
-  return map[b] ?? '';
-}
-
-String _propertyTypeToString(PropertyType t) {
-  const map = {
-    PropertyType.house: 'House',
-    PropertyType.apartment: 'Apartment',
-    PropertyType.villa: 'Villa',
-    PropertyType.penthouse: 'Penthouse',
-    PropertyType.townhouse: 'Townhouse',
-    PropertyType.land: 'Land',
-    PropertyType.office: 'Office',
-  };
-  return map[t] ?? 'House';
-}
-
+@JsonSerializable()
 class PropertyAddress {
   final String? street;
+  @JsonKey(defaultValue: '')
   final String city;
   final String? state;
   final String? zip;
+  @JsonKey(defaultValue: 'IN')
   final String country;
 
   const PropertyAddress({
@@ -83,46 +48,37 @@ class PropertyAddress {
     this.country = 'IN',
   });
 
-  factory PropertyAddress.fromJson(Map<String, dynamic> j) => PropertyAddress(
-    street: j['street'] as String?,
-    city: j['city'] as String,
-    state: j['state'] as String?,
-    zip: j['zip'] as String?,
-    country: (j['country'] as String?) ?? 'IN',
-  );
+  factory PropertyAddress.fromJson(Map<String, dynamic> json) =>
+      _$PropertyAddressFromJson(json);
 
-  Map<String, dynamic> toJson() => {
-    'street': street,
-    'city': city,
-    'state': state,
-    'zip': zip,
-    'country': country,
-  };
+  Map<String, dynamic> toJson() => _$PropertyAddressToJson(this);
 }
 
-class PropertyLocation {
-  /// Always "Point"
-  final String type;
+// ── Location ──────────────────────────────────────────────────────────────────
 
-  /// [longitude, latitude]
+@JsonSerializable()
+class PropertyLocation {
+  final String type;
   final List<double> coordinates;
 
   const PropertyLocation({required this.type, required this.coordinates});
 
-  factory PropertyLocation.fromJson(Map<String, dynamic> j) => PropertyLocation(
-    type: j['type'] as String,
-    coordinates: (j['coordinates'] as List)
-        .map((e) => (e as num).toDouble())
-        .toList(),
-  );
+  factory PropertyLocation.fromJson(Map<String, dynamic> json) =>
+      _$PropertyLocationFromJson(json);
 
-  Map<String, dynamic> toJson() => {'type': type, 'coordinates': coordinates};
+  Map<String, dynamic> toJson() => _$PropertyLocationToJson(this);
 }
 
+// ── Image ─────────────────────────────────────────────────────────────────────
+
+@JsonSerializable()
 class PropertyImage {
+  @JsonKey(name: '_id', defaultValue: '')
   final String id;
+  @JsonKey(defaultValue: '')
   final String url;
   final String? filename;
+  @JsonKey(defaultValue: false)
   final bool isPrimary;
 
   const PropertyImage({
@@ -132,59 +88,61 @@ class PropertyImage {
     required this.isPrimary,
   });
 
-  factory PropertyImage.fromJson(Map<String, dynamic> j) => PropertyImage(
-    id: (j['_id'] ?? j['id'] ?? '') as String,
-    url: j['url'] as String,
-    filename: j['filename'] as String?,
-    isPrimary: (j['isPrimary'] as bool?) ?? false,
-  );
+  factory PropertyImage.fromJson(Map<String, dynamic> json) =>
+      _$PropertyImageFromJson(json);
 
-  Map<String, dynamic> toJson() => {
-    '_id': id,
-    'url': url,
-    'filename': filename,
-    'isPrimary': isPrimary,
-  };
+  Map<String, dynamic> toJson() => _$PropertyImageToJson(this);
 }
 
-class ApiProperty {
+// ── Property ──────────────────────────────────────────────────────────────────
+
+@JsonSerializable(explicitToJson: true)
+class Property {
+  @JsonKey(name: '_id')
   final String id;
+  @JsonKey(defaultValue: '')
   final String title;
   final String? description;
+  @JsonKey(defaultValue: ListingType.sale, unknownEnumValue: ListingType.sale)
   final ListingType listingType;
+  @JsonKey(defaultValue: PropertyType.apartment, unknownEnumValue: PropertyType.apartment)
   final PropertyType propertyType;
+  @JsonKey(defaultValue: PropertyStatus.active, unknownEnumValue: PropertyStatus.active)
   final PropertyStatus status;
   final PropertyBadge? badge;
+  @JsonKey(fromJson: _toDouble)
   final double price;
+  @JsonKey(fromJson: _addressFromJson)
   final PropertyAddress address;
   final PropertyLocation? location;
+  @JsonKey(defaultValue: 0)
   final int bedrooms;
   final int? bathrooms;
+  @JsonKey(fromJson: _toDouble)
   final double sqft;
   final int? yearBuilt;
+  @JsonKey(fromJson: _imagesFromJson)
   final List<PropertyImage> images;
-
-  /// Either a populated [ApiUser] or a raw ID string
+  @JsonKey(fromJson: _ownerFromJson, toJson: _ownerToJson)
   final dynamic owner;
-
+  @JsonKey(defaultValue: 0)
   final int views;
+  @JsonKey(defaultValue: 0)
   final int saves;
+  @JsonKey(defaultValue: 0)
   final int inquiries;
+  @JsonKey(defaultValue: false)
   final bool isFeatured;
-
-  /// Virtual — e.g. "₹45,00,000" or "₹25,000/mo"
+  @JsonKey(defaultValue: '')
   final String priceLabel;
-
-  /// Virtual — "For Sale" | "For Rent"
+  @JsonKey(defaultValue: '')
   final String tag;
-
-  /// Virtual — "City, State"
+  @JsonKey(defaultValue: '')
   final String locationString;
-
   final String? createdAt;
   final String? updatedAt;
 
-  const ApiProperty({
+  const Property({
     required this.id,
     required this.title,
     this.description,
@@ -194,7 +152,7 @@ class ApiProperty {
     this.badge,
     required this.price,
     required this.address,
-    required this.location,
+    this.location,
     required this.bedrooms,
     this.bathrooms,
     required this.sqft,
@@ -212,78 +170,41 @@ class ApiProperty {
     this.updatedAt,
   });
 
-  factory ApiProperty.fromJson(Map<String, dynamic> j) => ApiProperty(
-    id: (j['_id'] ?? j['id']) as String,
-    title: j['title'] as String,
-    description: j['description'] as String?,
-    listingType: _listingTypeFromString((j['listingType'] as String?) ?? 'sale'),
-    propertyType: _propertyTypeFromString((j['propertyType'] as String?) ?? 'Apartment'),
-    status: j['status'] != null
-        ? _propertyStatusFromString(j['status'] as String)
-        : PropertyStatus.active,
-    badge: _badgeFromString(j['badge'] as String?),
-    price: (j['price'] as num).toDouble(),
-    address: PropertyAddress.fromJson(j['address'] as Map<String, dynamic>),
-    location: j['location'] == null
-        ? null
-        : PropertyLocation.fromJson(j['location'] as Map<String, dynamic>),
-    bedrooms: (j['bedrooms'] as int?) ?? 0,
-    bathrooms: j['bathrooms'] as int?,
-    sqft: (j['sqft'] as num?)?.toDouble() ?? 0,
-    yearBuilt: j['yearBuilt'] as int?,
-    images: (j['images'] as List? ?? [])
-        .map((e) => PropertyImage.fromJson(e as Map<String, dynamic>))
-        .toList(),
-    owner: j['owner'] == null
-        ? null
-        : j['owner'] is Map<String, dynamic>
-        ? ApiUser.fromJson(j['owner'] as Map<String, dynamic>)
-        : j['owner'] as String,
-    views: (j['views'] as int?) ?? 0,
-    saves: (j['saves'] as int?) ?? 0,
-    inquiries: (j['inquiries'] as int?) ?? 0,
-    isFeatured: (j['isFeatured'] as bool?) ?? false,
-    priceLabel: (j['priceLabel'] as String?) ?? '',
-    tag: (j['tag'] as String?) ?? '',
-    locationString: (j['locationString'] as String?) ?? '',
-    createdAt: j['createdAt'] as String?,
-    updatedAt: j['updatedAt'] as String?,
-  );
-
-  Map<String, dynamic> toJson() => {
-    '_id': id,
-    'title': title,
-    'description': description,
-    'listingType': listingType.name,
-    'propertyType': _propertyTypeToString(propertyType),
-    'status': status.name,
-    'badge': _badgeToString(badge),
-    'price': price,
-    'address': address.toJson(),
-    'location': location?.toJson(),
-    'bedrooms': bedrooms,
-    'bathrooms': bathrooms,
-    'sqft': sqft,
-    'yearBuilt': yearBuilt,
-    'images': images.map((e) => e.toJson()).toList(),
-    'owner': owner is ApiUser ? (owner as ApiUser).toJson() : owner,
-    'views': views,
-    'saves': saves,
-    'inquiries': inquiries,
-    'isFeatured': isFeatured,
-    'priceLabel': priceLabel,
-    'tag': tag,
-    'locationString': locationString,
-    'createdAt': createdAt,
-    'updatedAt': updatedAt,
-  };
-
-  /// Convenience: primary image URL or null
   String? get primaryImageUrl {
+    if (images.isEmpty) return null;
     try {
       return images.firstWhere((i) => i.isPrimary).url;
     } catch (_) {
-      return images.isNotEmpty ? images.first.url : null;
+      return images.first.url;
     }
   }
+
+  factory Property.fromJson(Map<String, dynamic> json) =>
+      _$PropertyFromJson(json);
+
+  Map<String, dynamic> toJson() => _$PropertyToJson(this);
 }
+
+typedef ApiProperty = Property;
+
+// ── Converters ────────────────────────────────────────────────────────────────
+
+double _toDouble(dynamic v) => (v as num?)?.toDouble() ?? 0.0;
+
+PropertyAddress _addressFromJson(dynamic v) {
+  if (v is Map<String, dynamic>) return PropertyAddress.fromJson(v);
+  return PropertyAddress(city: v as String? ?? '');
+}
+
+List<PropertyImage> _imagesFromJson(dynamic v) {
+  final list = v as List? ?? [];
+  return list.map((e) {
+    if (e is Map<String, dynamic>) return PropertyImage.fromJson(e);
+    return PropertyImage(id: '', url: e as String, isPrimary: false);
+  }).toList();
+}
+
+dynamic _ownerFromJson(dynamic v) =>
+    v is Map<String, dynamic> ? User.fromJson(v) : v;
+
+dynamic _ownerToJson(dynamic v) => v is User ? v.toJson() : v;
