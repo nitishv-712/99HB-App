@@ -88,6 +88,31 @@ class _BuyScreenState extends State<BuyScreen> {
 
   void _applyFilter() => setState(() => _fetch());
 
+  void _showAllFilters() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (_) => _AllFiltersSheet(
+        typeIndex: _typeIndex,
+        sortIndex: _sortIndex,
+        priceIndex: _priceIndex,
+        bedIndex: _bedIndex,
+        onApply: (t, s, p, b) {
+          setState(() {
+            _typeIndex = t;
+            _sortIndex = s;
+            _priceIndex = p;
+            _bedIndex = b;
+          });
+          _fetch();
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
@@ -232,6 +257,7 @@ class _BuyScreenState extends State<BuyScreen> {
                 setState(() => _bedIndex = i);
                 _fetch();
               },
+              onShowAllFilters: _showAllFilters,
             ),
           ),
 
@@ -332,10 +358,19 @@ class _ResultsSliver extends StatelessWidget {
     final provider = context.watch<PropertiesProvider>();
 
     if (provider.listLoading) {
-      return const SliverToBoxAdapter(
-        child: SizedBox(
-          height: 300,
-          child: Center(child: CircularProgressIndicator()),
+      return SliverPadding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        sliver: SliverGrid(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            mainAxisSpacing: 16,
+            crossAxisSpacing: 12,
+            childAspectRatio: 0.62,
+          ),
+          delegate: SliverChildBuilderDelegate(
+            (_, __) => const _SkeletonCard(),
+            childCount: 6,
+          ),
         ),
       );
     }
@@ -454,19 +489,16 @@ class _ResultsSliver extends StatelessWidget {
           ),
         ),
         SliverPadding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
           sliver: SliverGrid(
-            gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-              maxCrossAxisExtent: 500,
-              mainAxisSpacing: 28,
-              crossAxisSpacing: 14,
-              childAspectRatio: 0.68,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              mainAxisSpacing: 16,
+              crossAxisSpacing: 12,
+              childAspectRatio: 0.62,
             ),
             delegate: SliverChildBuilderDelegate(
-              (context, i) => _PropertyCard(
-                property: provider.properties[i],
-                staggered: i.isOdd,
-              ),
+              (context, i) => _PropertyCard(property: provider.properties[i]),
               childCount: provider.properties.length,
             ),
           ),
@@ -484,6 +516,7 @@ class _FilterDelegate extends SliverPersistentHeaderDelegate {
       onSortChanged,
       onPriceChanged,
       onBedChanged;
+  final VoidCallback onShowAllFilters;
 
   const _FilterDelegate({
     required this.typeIndex,
@@ -494,6 +527,7 @@ class _FilterDelegate extends SliverPersistentHeaderDelegate {
     required this.onSortChanged,
     required this.onPriceChanged,
     required this.onBedChanged,
+    required this.onShowAllFilters,
   });
 
   @override
@@ -617,6 +651,15 @@ class _FilterDelegate extends SliverPersistentHeaderDelegate {
                   active: sortIndex != 0,
                 ),
               ),
+              const SizedBox(width: 6),
+              _AllFiltersButton(
+                activeCount:
+                    (priceIndex != 0 ? 1 : 0) +
+                    (bedIndex != 0 ? 1 : 0) +
+                    (sortIndex != 0 ? 1 : 0) +
+                    (typeIndex != 0 ? 1 : 0),
+                onTap: onShowAllFilters,
+              ),
             ],
           ),
         ],
@@ -629,7 +672,8 @@ class _FilterDelegate extends SliverPersistentHeaderDelegate {
       typeIndex != old.typeIndex ||
       sortIndex != old.sortIndex ||
       priceIndex != old.priceIndex ||
-      bedIndex != old.bedIndex;
+      bedIndex != old.bedIndex ||
+      onShowAllFilters != old.onShowAllFilters;
 }
 
 class _FilterChip extends StatelessWidget {
@@ -755,180 +799,566 @@ class _PickerSheet extends StatelessWidget {
   }
 }
 
+// ── All Filters Button ───────────────────────────────────────────────────────
+
+class _AllFiltersButton extends StatelessWidget {
+  final int activeCount;
+  final VoidCallback onTap;
+  const _AllFiltersButton({required this.activeCount, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final hasActive = activeCount > 0;
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        decoration: BoxDecoration(
+          color: hasActive
+              ? cs.primary
+              : cs.surfaceContainerHighest.withOpacity(0.35),
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(
+            color: hasActive ? cs.primary : cs.outlineVariant.withOpacity(0.3),
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.tune_rounded,
+              size: 13,
+              color: hasActive ? cs.onPrimary : cs.onSurfaceVariant,
+            ),
+            const SizedBox(width: 4),
+            Text(
+              hasActive ? 'Filters ($activeCount)' : 'Filters',
+              style: GoogleFonts.inter(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: hasActive ? cs.onPrimary : cs.onSurface,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── All Filters Sheet ─────────────────────────────────────────────────────────
+
+class _AllFiltersSheet extends StatefulWidget {
+  final int typeIndex, sortIndex, priceIndex, bedIndex;
+  final void Function(int type, int sort, int price, int bed) onApply;
+  const _AllFiltersSheet({
+    required this.typeIndex,
+    required this.sortIndex,
+    required this.priceIndex,
+    required this.bedIndex,
+    required this.onApply,
+  });
+
+  @override
+  State<_AllFiltersSheet> createState() => _AllFiltersSheetState();
+}
+
+class _AllFiltersSheetState extends State<_AllFiltersSheet> {
+  late int _type, _sort, _price, _bed;
+
+  @override
+  void initState() {
+    super.initState();
+    _type = widget.typeIndex;
+    _sort = widget.sortIndex;
+    _price = widget.priceIndex;
+    _bed = widget.bedIndex;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Padding(
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+      ),
+      child: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Center(
+                child: Container(
+                  width: 36,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: cs.outlineVariant,
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'All Filters',
+                    style: GoogleFonts.notoSerif(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () => setState(() {
+                      _type = 0;
+                      _sort = 0;
+                      _price = 0;
+                      _bed = 0;
+                    }),
+                    child: Text(
+                      'Reset',
+                      style: GoogleFonts.inter(
+                        color: cs.onSurfaceVariant,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              _FilterSection(
+                title: 'Property Type',
+                options: _propTypes.map((e) => e.label).toList(),
+                selected: _type,
+                onChanged: (i) => setState(() => _type = i),
+              ),
+              const SizedBox(height: 16),
+              _FilterSection(
+                title: 'Price Range',
+                options: _priceRanges.map((e) => e.label).toList(),
+                selected: _price,
+                onChanged: (i) => setState(() => _price = i),
+              ),
+              const SizedBox(height: 16),
+              _FilterSection(
+                title: 'Bedrooms',
+                options: _bedOptions.map((e) => e.label).toList(),
+                selected: _bed,
+                onChanged: (i) => setState(() => _bed = i),
+              ),
+              const SizedBox(height: 16),
+              _FilterSection(
+                title: 'Sort By',
+                options: _sortOptions.map((e) => e.label).toList(),
+                selected: _sort,
+                onChanged: (i) => setState(() => _sort = i),
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.pop(context);
+                    widget.onApply(_type, _sort, _price, _bed);
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    decoration: BoxDecoration(
+                      color: cs.onSurface,
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Center(
+                      child: Text(
+                        'Apply Filters',
+                        style: GoogleFonts.inter(
+                          color: cs.surface,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _FilterSection extends StatelessWidget {
+  final String title;
+  final List<String> options;
+  final int selected;
+  final ValueChanged<int> onChanged;
+  const _FilterSection({
+    required this.title,
+    required this.options,
+    required this.selected,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: GoogleFonts.inter(
+            fontSize: 13,
+            fontWeight: FontWeight.bold,
+            color: cs.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: 10),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: List.generate(options.length, (i) {
+            final active = i == selected;
+            return GestureDetector(
+              onTap: () => onChanged(i),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 150),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  color: active ? cs.onSurface : Colors.transparent,
+                  borderRadius: BorderRadius.circular(999),
+                  border: Border.all(
+                    color: active
+                        ? cs.onSurface
+                        : cs.outlineVariant.withOpacity(0.5),
+                  ),
+                ),
+                child: Text(
+                  options[i],
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    fontWeight: active ? FontWeight.bold : FontWeight.w500,
+                    color: active ? cs.surface : cs.onSurfaceVariant,
+                  ),
+                ),
+              ),
+            );
+          }),
+        ),
+      ],
+    );
+  }
+}
+
+// ── Skeleton Card ───────────────────────────────────────────────────────────────
+
+class _SkeletonCard extends StatefulWidget {
+  const _SkeletonCard();
+
+  @override
+  State<_SkeletonCard> createState() => _SkeletonCardState();
+}
+
+class _SkeletonCardState extends State<_SkeletonCard>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(18),
+                  gradient: LinearGradient(
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                    colors: [
+                      cs.surfaceContainerHighest,
+                      cs.surfaceContainerHigh,
+                      cs.surfaceContainerHighest,
+                    ],
+                    stops: [
+                      _controller.value - 0.3,
+                      _controller.value,
+                      _controller.value + 0.3,
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            _ShimmerBox(
+              cs: cs,
+              width: double.infinity,
+              height: 14,
+              controller: _controller,
+            ),
+            const SizedBox(height: 6),
+            _ShimmerBox(
+              cs: cs,
+              width: 100,
+              height: 10,
+              controller: _controller,
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                _ShimmerBox(
+                  cs: cs,
+                  width: 60,
+                  height: 10,
+                  controller: _controller,
+                ),
+                const SizedBox(width: 8),
+                _ShimmerBox(
+                  cs: cs,
+                  width: 60,
+                  height: 10,
+                  controller: _controller,
+                ),
+              ],
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _ShimmerBox extends StatelessWidget {
+  final ColorScheme cs;
+  final double width;
+  final double height;
+  final AnimationController controller;
+  const _ShimmerBox({
+    required this.cs,
+    required this.width,
+    required this.height,
+    required this.controller,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(6),
+        gradient: LinearGradient(
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+          colors: [
+            cs.surfaceContainerHighest,
+            cs.surfaceContainerHigh,
+            cs.surfaceContainerHighest,
+          ],
+          stops: [
+            controller.value - 0.3,
+            controller.value,
+            controller.value + 0.3,
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 // ── Property Card ─────────────────────────────────────────────────────────────
 
 class _PropertyCard extends StatelessWidget {
   final ApiProperty property;
-  final bool staggered;
-  const _PropertyCard({required this.property, required this.staggered});
+  const _PropertyCard({required this.property});
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
 
-    return Padding(
-      padding: EdgeInsets.only(top: staggered ? 40 : 0),
-      child: GestureDetector(
-        onTap: () => AppRouter.push(
-          context,
-          AppRoutes.propertyDetail,
-          args: property.id,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Image
-            Expanded(
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(18),
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    property.primaryImageUrl != null
-                        ? Image.network(
-                            property.primaryImageUrl!,
-                            fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => _Placeholder(cs: cs),
-                          )
-                        : _Placeholder(cs: cs),
+    return GestureDetector(
+      onTap: () =>
+          AppRouter.push(context, AppRoutes.propertyDetail, args: property.id),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Image
+          Expanded(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(18),
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  property.primaryImageUrl != null
+                      ? Image.network(
+                          property.primaryImageUrl!,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => _Placeholder(cs: cs),
+                        )
+                      : _Placeholder(cs: cs),
 
-                    // Gradient overlay
-                    Positioned.fill(
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              Colors.transparent,
-                              Colors.black.withOpacity(0.45),
-                            ],
-                            stops: const [0.5, 1.0],
-                          ),
+                  // Gradient overlay
+                  Positioned.fill(
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.transparent,
+                            Colors.black.withOpacity(0.45),
+                          ],
+                          stops: const [0.5, 1.0],
                         ),
                       ),
                     ),
+                  ),
 
-                    // Badge
-                    if (property.badge != null)
-                      Positioned(
-                        top: 12,
-                        left: 12,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.9),
-                            borderRadius: BorderRadius.circular(999),
-                          ),
-                          child: Text(
-                            property.tag,
-                            style: GoogleFonts.inter(
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                              color: cs.onSurface,
-                              letterSpacing: 0.5,
-                            ),
-                          ),
-                        ),
-                      ),
-
-                    // Price on image
+                  // Badge
+                  if (property.badge != null)
                     Positioned(
-                      bottom: 12,
+                      top: 12,
                       left: 12,
-                      child: Text(
-                        property.priceLabel,
-                        style: GoogleFonts.notoSerif(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w900,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-
-                    // Save button
-                    Positioned(
-                      top: 10,
-                      right: 10,
                       child: Container(
-                        width: 32,
-                        height: 32,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.white.withOpacity(0.9),
-                          shape: BoxShape.circle,
+                          borderRadius: BorderRadius.circular(999),
                         ),
-                        child: Icon(
-                          Icons.favorite_border_rounded,
-                          size: 16,
-                          color: cs.onSurface,
+                        child: Text(
+                          property.tag,
+                          style: GoogleFonts.inter(
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            color: cs.onSurface,
+                            letterSpacing: 0.5,
+                          ),
                         ),
                       ),
                     ),
-                  ],
-                ),
-              ),
-            ),
 
-            // Info
-            const SizedBox(height: 12),
-            Text(
-              property.title,
-              style: GoogleFonts.notoSerif(
-                fontSize: 15,
-                fontWeight: FontWeight.bold,
-                color: cs.onSurface,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            const SizedBox(height: 4),
-            Row(
-              children: [
-                Icon(
-                  Icons.location_on_outlined,
-                  size: 12,
-                  color: cs.onSurfaceVariant,
-                ),
-                const SizedBox(width: 2),
-                Expanded(
-                  child: Text(
-                    property.locationString,
-                    style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                  // Price on image
+                  Positioned(
+                    bottom: 12,
+                    left: 12,
+                    child: Text(
+                      property.priceLabel,
+                      style: GoogleFonts.notoSerif(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w900,
+                        color: Colors.white,
+                      ),
+                    ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                _Stat(
-                  icon: Icons.bed_outlined,
-                  label: '${property.bedrooms} BHK',
-                  cs: cs,
-                ),
-                const SizedBox(width: 12),
-                _Stat(
-                  icon: Icons.straighten_outlined,
-                  label: '${property.sqft.toInt()} sqft',
-                  cs: cs,
-                ),
-                if (property.bathrooms != null) ...[
-                  const SizedBox(width: 12),
-                  _Stat(
-                    icon: Icons.bathtub_outlined,
-                    label: '${property.bathrooms} Bath',
-                    cs: cs,
+
+                  // Save button
+                  Positioned(
+                    top: 10,
+                    right: 10,
+                    child: Container(
+                      width: 32,
+                      height: 32,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.9),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.favorite_border_rounded,
+                        size: 16,
+                        color: cs.onSurface,
+                      ),
+                    ),
                   ),
                 ],
-              ],
+              ),
             ),
-          ],
-        ),
+          ),
+
+          // Info
+          const SizedBox(height: 12),
+          Text(
+            property.title,
+            style: GoogleFonts.notoSerif(
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
+              color: cs.onSurface,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 4),
+          Row(
+            children: [
+              Icon(
+                Icons.location_on_outlined,
+                size: 12,
+                color: cs.onSurfaceVariant,
+              ),
+              const SizedBox(width: 2),
+              Expanded(
+                child: Text(
+                  property.locationString,
+                  style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 4,
+            children: [
+              _Stat(
+                icon: Icons.bed_outlined,
+                label: '${property.bedrooms} BHK',
+                cs: cs,
+              ),
+              _Stat(
+                icon: Icons.straighten_outlined,
+                label: '${property.sqft.toInt()} sqft',
+                cs: cs,
+              ),
+              if (property.bathrooms != null)
+                _Stat(
+                  icon: Icons.bathtub_outlined,
+                  label: '${property.bathrooms} Bath',
+                  cs: cs,
+                ),
+            ],
+          ),
+        ],
       ),
     );
   }

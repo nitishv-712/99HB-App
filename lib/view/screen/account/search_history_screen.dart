@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:homebazaar/providers/search_history_provider.dart';
 import 'package:homebazaar/view/components/app_shared.dart';
+import 'package:homebazaar/view/components/skeletons.dart';
 
 class SearchHistoryScreen extends StatefulWidget {
   const SearchHistoryScreen({super.key});
@@ -48,7 +49,7 @@ class _SearchHistoryScreenState extends State<SearchHistoryScreen> {
       body: Consumer<SearchHistoryProvider>(
         builder: (_, prov, __) {
           if (prov.loading) {
-            return const Center(child: CircularProgressIndicator());
+            return SkeletonList(itemBuilder: () => const SkeletonTile());
           }
           if (prov.error != null) {
             return AppErrorRetry(message: prov.error!, onRetry: prov.fetchList);

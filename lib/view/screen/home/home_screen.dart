@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:homebazaar/view/components/app_bar.dart';
 import 'package:homebazaar/view/components/service_tile.dart';
+import 'package:homebazaar/view/components/skeletons.dart';
 import 'package:provider/provider.dart';
 import 'package:homebazaar/core/router/app_router.dart';
 import 'package:homebazaar/providers/properties_provider.dart';
@@ -315,10 +316,7 @@ class _FeaturedListings extends StatelessWidget {
         const SizedBox(height: 16),
 
         if (provider.featuredLoading)
-          const SizedBox(
-            height: 260,
-            child: Center(child: CircularProgressIndicator()),
-          )
+          const SkeletonFeaturedListings()
         else if (provider.featuredError != null)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),

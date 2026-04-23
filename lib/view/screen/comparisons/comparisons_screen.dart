@@ -5,6 +5,7 @@ import 'package:homebazaar/model/comparison.dart';
 import 'package:homebazaar/model/property.dart';
 import 'package:homebazaar/providers/comparisons_provider.dart';
 import 'package:homebazaar/view/components/app_shared.dart';
+import 'package:homebazaar/view/components/skeletons.dart';
 
 // ── Comparisons List ──────────────────────────────────────────────────────────
 
@@ -33,7 +34,7 @@ class _ComparisonsScreenState extends State<ComparisonsScreen> {
       body: Consumer<ComparisonsProvider>(
         builder: (_, prov, __) {
           if (prov.loading) {
-            return const Center(child: CircularProgressIndicator());
+            return SkeletonList(itemBuilder: () => const SkeletonTile());
           }
           if (prov.error != null) {
             return AppErrorRetry(message: prov.error!, onRetry: prov.fetchList);
@@ -170,7 +171,7 @@ class _ComparisonDetailScreenState extends State<ComparisonDetailScreen> {
       body: Consumer<ComparisonsProvider>(
         builder: (_, prov, __) {
           if (prov.detailLoading) {
-            return const Center(child: CircularProgressIndicator());
+            return const SkeletonAnalytics();
           }
           if (prov.detailError != null) {
             return AppErrorRetry(

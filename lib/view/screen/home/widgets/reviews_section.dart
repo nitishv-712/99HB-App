@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:homebazaar/model/review.dart';
 import 'package:homebazaar/model/user.dart';
 import 'package:homebazaar/providers/reviews_provider.dart';
+import 'package:homebazaar/view/components/skeletons.dart';
 
 class DetailReviewsSection extends StatelessWidget {
   final String propertyId;
@@ -34,7 +35,7 @@ class DetailReviewsSection extends StatelessWidget {
           const SizedBox(height: 16),
           if (prov.stats != null) ReviewRatingSummary(stats: prov.stats!),
           if (prov.loading)
-            const Padding(padding: EdgeInsets.symmetric(vertical: 24), child: Center(child: CircularProgressIndicator()))
+            const _SkeletonReviews()
           else if (prov.reviews.isEmpty)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 24),
@@ -278,4 +279,76 @@ class _SubmitReviewSheetState extends State<SubmitReviewSheet> {
       ),
     );
   }
+}
+
+class _SkeletonReviews extends StatelessWidget {
+  const _SkeletonReviews();
+
+  @override
+  Widget build(BuildContext context) {
+    return _Shimmer(
+      child: Column(
+        children: List.generate(3, (_) => Container(
+          margin: const EdgeInsets.only(bottom: 14),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(children: [
+                SkeletonBox(width: 36, height: 36, radius: 18),
+                const SizedBox(width: 10),
+                Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  SkeletonBox(width: 120, height: 12),
+                  const SizedBox(height: 4),
+                  SkeletonBox(width: 80, height: 10),
+                ])),
+              ]),
+              const SizedBox(height: 10),
+              SkeletonBox(width: double.infinity, height: 12),
+              const SizedBox(height: 6),
+              SkeletonBox(width: double.infinity, height: 10),
+              const SizedBox(height: 4),
+              SkeletonBox(width: 200, height: 10),
+            ],
+          ),
+        )),
+      ),
+    );
+  }
+}
+
+class _Shimmer extends StatefulWidget {
+  final Widget child;
+  const _Shimmer({required this.child});
+  @override
+  State<_Shimmer> createState() => _ShimmerState();
+}
+
+class _ShimmerState extends State<_Shimmer> with SingleTickerProviderStateMixin {
+  late AnimationController _ctrl;
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 1200))..repeat();
+  }
+  @override
+  void dispose() { _ctrl.dispose(); super.dispose(); }
+  @override
+  Widget build(BuildContext context) => AnimatedBuilder(
+    animation: _ctrl,
+    builder: (_, __) => _ShimmerScope(progress: _ctrl.value, child: widget.child),
+  );
+}
+
+class _ShimmerScope extends InheritedWidget {
+  final double progress;
+  const _ShimmerScope({required this.progress, required super.child});
+  static double of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<_ShimmerScope>()!.progress;
+  @override
+  bool updateShouldNotify(_ShimmerScope old) => progress != old.progress;
 }

@@ -5,6 +5,7 @@ import 'package:homebazaar/model/support_ticket.dart';
 import 'package:homebazaar/providers/auth_provider.dart';
 import 'package:homebazaar/providers/support_provider.dart';
 import 'package:homebazaar/view/components/app_shared.dart';
+import 'package:homebazaar/view/components/skeletons.dart';
 
 // ── Support List ──────────────────────────────────────────────────────────────
 
@@ -39,9 +40,9 @@ class _SupportScreenState extends State<SupportScreen> {
         ],
       ),
       body: Consumer<SupportProvider>(
-        builder: (_, prov, __) {
+        builder: (_, prov, child) {
           if (prov.loading) {
-            return const Center(child: CircularProgressIndicator());
+            return SkeletonList(itemBuilder: () => const SkeletonTile());
           }
           if (prov.error != null) {
             return AppErrorRetry(message: prov.error!, onRetry: prov.fetchList);
@@ -58,7 +59,7 @@ class _SupportScreenState extends State<SupportScreen> {
           return ListView.separated(
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 100),
             itemCount: prov.tickets.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 12),
+            separatorBuilder: (_, i) => const SizedBox(height: 12),
             itemBuilder: (_, i) => _TicketTile(ticket: prov.tickets[i]),
           );
         },
@@ -73,7 +74,7 @@ class _SupportScreenState extends State<SupportScreen> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      builder: (_) => ChangeNotifierProvider.value(
+      builder: (ctx) => ChangeNotifierProvider.value(
         value: context.read<SupportProvider>(),
         child: const _CreateTicketSheet(),
       ),
@@ -126,9 +127,9 @@ class _TicketTile extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: cs.surfaceContainerHighest.withOpacity(0.3),
+          color: cs.surfaceContainerHighest.withValues(alpha: 0.3),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: cs.outlineVariant.withOpacity(0.25)),
+          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.25)),
         ),
         child: Row(
           children: [
@@ -136,7 +137,7 @@ class _TicketTile extends StatelessWidget {
               width: 44,
               height: 44,
               decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
+                color: color.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(Icons.support_agent_outlined, size: 20, color: color),
@@ -171,7 +172,7 @@ class _TicketTile extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
+                color: color.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(999),
               ),
               child: Text(
@@ -257,7 +258,7 @@ class _CreateTicketSheetState extends State<_CreateTicketSheet> {
           ),
           const SizedBox(height: 16),
           DropdownButtonFormField<TicketCategory>(
-            value: _category,
+            initialValue: _category,
             decoration: InputDecoration(
               labelText: 'Category',
               labelStyle: TextStyle(color: cs.onSurfaceVariant),
@@ -405,7 +406,7 @@ class _TicketDetailScreenState extends State<TicketDetailScreen> {
     return Scaffold(
       backgroundColor: cs.surface,
       body: Consumer<SupportProvider>(
-        builder: (_, prov, __) {
+        builder: (_, prov, child) {
           if (prov.detailLoading && prov.detail == null) {
             return const Center(child: CircularProgressIndicator());
           }
@@ -571,9 +572,9 @@ class _TicketHeader extends StatelessWidget {
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                         decoration: BoxDecoration(
-                          color: cs.surfaceContainerHighest.withOpacity(0.4),
+                          color: cs.surfaceContainerHighest.withValues(alpha: 0.4),
                           borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: cs.outlineVariant.withOpacity(0.3)),
+                          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.3)),
                         ),
                         child: closing
                             ? SizedBox(
@@ -637,7 +638,7 @@ class _TicketHeader extends StatelessWidget {
               ],
             ),
           ),
-          Divider(height: 1, color: cs.outlineVariant.withOpacity(0.2)),
+          Divider(height: 1, color: cs.outlineVariant.withValues(alpha: 0.2)),
         ],
       ),
     );
@@ -735,15 +736,15 @@ class _SupportBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final bubbleBg = isAdmin
-        ? const Color(0xFFFBBF24).withOpacity(0.08)
+        ? const Color(0xFFFBBF24).withValues(alpha: 0.08)
         : isMe
             ? cs.onSurface
-            : cs.surfaceContainerHighest.withOpacity(0.5);
+            : cs.surfaceContainerHighest.withValues(alpha: 0.5);
     final bubbleBorder = isAdmin
-        ? const Color(0xFFFBBF24).withOpacity(0.2)
+        ? const Color(0xFFFBBF24).withValues(alpha: 0.2)
         : isMe
             ? Colors.transparent
-            : cs.outlineVariant.withOpacity(0.25);
+            : cs.outlineVariant.withValues(alpha: 0.25);
     final textColor = isMe && !isAdmin ? cs.surface : cs.onSurface;
     final nameColor = isAdmin ? const Color(0xFFF59E0B) : cs.onSurfaceVariant;
     final nameLabel = isAdmin ? 'SUPPORT' : (senderName ?? 'YOU');
@@ -787,8 +788,8 @@ class _SupportBubble extends StatelessWidget {
                   style: GoogleFonts.inter(
                     fontSize: 9,
                     color: isMe && !isAdmin
-                        ? cs.surface.withOpacity(0.5)
-                        : cs.onSurfaceVariant.withOpacity(0.6),
+                        ? cs.surface.withValues(alpha: 0.5)
+                        : cs.onSurfaceVariant.withValues(alpha: 0.6),
                   ),
                 ),
               ],
@@ -830,7 +831,7 @@ class _ReplyInput extends StatelessWidget {
       return Container(
         padding: EdgeInsets.fromLTRB(
             20, 12, 20, 12 + MediaQuery.paddingOf(context).bottom),
-        color: cs.surfaceContainerHighest.withOpacity(0.2),
+        color: cs.surfaceContainerHighest.withValues(alpha: 0.2),
         child: Text(
           disabledHint,
           textAlign: TextAlign.center,
@@ -844,7 +845,7 @@ class _ReplyInput extends StatelessWidget {
           16, 10, 16, 10 + MediaQuery.paddingOf(context).bottom),
       decoration: BoxDecoration(
         color: cs.surface,
-        border: Border(top: BorderSide(color: cs.outlineVariant.withOpacity(0.2))),
+        border: Border(top: BorderSide(color: cs.outlineVariant.withValues(alpha: 0.2))),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -864,9 +865,9 @@ class _ReplyInput extends StatelessWidget {
                     hintText: 'Type your reply...',
                     hintStyle: GoogleFonts.inter(
                         fontSize: 14,
-                        color: cs.onSurfaceVariant.withOpacity(0.5)),
+                        color: cs.onSurfaceVariant.withValues(alpha: 0.5)),
                     filled: true,
-                    fillColor: cs.surfaceContainerHighest.withOpacity(0.3),
+                    fillColor: cs.surfaceContainerHighest.withValues(alpha: 0.3),
                     contentPadding: const EdgeInsets.symmetric(
                         horizontal: 14, vertical: 10),
                     border: OutlineInputBorder(
@@ -876,7 +877,7 @@ class _ReplyInput extends StatelessWidget {
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide:
-                          BorderSide(color: cs.outlineVariant.withOpacity(0.4)),
+                          BorderSide(color: cs.outlineVariant.withValues(alpha: 0.4)),
                     ),
                   ),
                 ),
@@ -890,7 +891,7 @@ class _ReplyInput extends StatelessWidget {
                   height: 44,
                   decoration: BoxDecoration(
                     color: controller.text.trim().isEmpty
-                        ? cs.surfaceContainerHighest.withOpacity(0.4)
+                        ? cs.surfaceContainerHighest.withValues(alpha: 0.4)
                         : cs.onSurface,
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -915,7 +916,7 @@ class _ReplyInput extends StatelessWidget {
           Text(
             '${controller.text.length}/5000',
             style: GoogleFonts.inter(
-                fontSize: 10, color: cs.onSurfaceVariant.withOpacity(0.5)),
+                fontSize: 10, color: cs.onSurfaceVariant.withValues(alpha: 0.5)),
           ),
         ],
       ),

@@ -7,6 +7,7 @@ import 'package:homebazaar/model/user.dart';
 import 'package:homebazaar/providers/auth_provider.dart';
 import 'package:homebazaar/providers/inquiries_provider.dart';
 import 'package:homebazaar/view/components/app_shared.dart';
+import 'package:homebazaar/view/components/skeletons.dart';
 
 // ── Inquiries List ────────────────────────────────────────────────────────────
 
@@ -53,7 +54,7 @@ class _InquiriesScreenState extends State<InquiriesScreen> {
       body: Consumer<InquiriesProvider>(
         builder: (_, prov, __) {
           if (prov.loading) {
-            return const Center(child: CircularProgressIndicator());
+            return SkeletonList(itemBuilder: () => const SkeletonTile());
           }
           if (prov.error != null) {
             return AppErrorRetry(

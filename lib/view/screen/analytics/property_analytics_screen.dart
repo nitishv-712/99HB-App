@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:homebazaar/model/analytics.dart';
 import 'package:homebazaar/providers/analytics_provider.dart';
 import 'package:homebazaar/view/components/app_shared.dart';
+import 'package:homebazaar/view/components/skeletons.dart';
 
 class PropertyAnalyticsScreen extends StatefulWidget {
   final String propertyId;
@@ -41,7 +42,7 @@ class _PropertyAnalyticsScreenState extends State<PropertyAnalyticsScreen> {
       body: Consumer<AnalyticsProvider>(
         builder: (_, prov, __) {
           if (prov.propertyLoading) {
-            return const Center(child: CircularProgressIndicator());
+            return const SkeletonAnalytics();
           }
           if (prov.propertyError != null) {
             return AppErrorRetry(

@@ -5,6 +5,7 @@ import 'package:homebazaar/core/router/app_router.dart';
 import 'package:homebazaar/model/analytics.dart';
 import 'package:homebazaar/providers/analytics_provider.dart';
 import 'package:homebazaar/view/components/app_shared.dart';
+import 'package:homebazaar/view/components/skeletons.dart';
 
 class AnalyticsScreen extends StatefulWidget {
   const AnalyticsScreen({super.key});
@@ -31,7 +32,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
       body: Consumer<AnalyticsProvider>(
         builder: (_, prov, __) {
           if (prov.overviewLoading) {
-            return const Center(child: CircularProgressIndicator());
+            return const SkeletonAnalytics();
           }
           if (prov.overviewError != null) {
             return AppErrorRetry(

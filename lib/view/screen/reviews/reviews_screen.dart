@@ -5,6 +5,7 @@ import 'package:homebazaar/model/property.dart';
 import 'package:homebazaar/model/review.dart';
 import 'package:homebazaar/providers/reviews_provider.dart';
 import 'package:homebazaar/view/components/app_shared.dart';
+import 'package:homebazaar/view/components/skeletons.dart';
 
 class ReviewsScreen extends StatefulWidget {
   const ReviewsScreen({super.key});
@@ -31,7 +32,7 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
       body: Consumer<ReviewsProvider>(
         builder: (_, prov, __) {
           if (prov.myLoading) {
-            return const Center(child: CircularProgressIndicator());
+            return SkeletonList(itemBuilder: () => const SkeletonTile());
           }
           if (prov.myError != null) {
             return AppErrorRetry(

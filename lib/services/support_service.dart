@@ -1,3 +1,4 @@
+// ignore_for_file: use_null_aware_elements
 import 'package:homebazaar/core/network/api_client.dart';
 import 'package:homebazaar/model/api_response.dart';
 import 'package:homebazaar/model/support_ticket.dart';
