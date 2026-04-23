@@ -20,14 +20,32 @@ class DetailReviewsSection extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Reviews', style: GoogleFonts.notoSerif(fontSize: 22, fontWeight: FontWeight.bold)),
+              Text(
+                'Reviews',
+                style: GoogleFonts.notoSerif(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               GestureDetector(
                 onTap: () => _showSubmitSheet(context, prov, propertyId),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                  decoration: BoxDecoration(color: cs.onSurface, borderRadius: BorderRadius.circular(10)),
-                  child: Text(prov.userReview != null ? 'Edit Review' : 'Write Review',
-                      style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.bold, color: cs.surface)),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: cs.onSurface,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text(
+                    prov.userReview != null ? 'Edit Review' : 'Write Review',
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: cs.surface,
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -39,7 +57,12 @@ class DetailReviewsSection extends StatelessWidget {
           else if (prov.reviews.isEmpty)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 24),
-              child: Center(child: Text('No reviews yet. Be the first!', style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13))),
+              child: Center(
+                child: Text(
+                  'No reviews yet. Be the first!',
+                  style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13),
+                ),
+              ),
             )
           else
             ...prov.reviews.map((r) => ReviewItemCard(review: r)),
@@ -49,13 +72,23 @@ class DetailReviewsSection extends StatelessWidget {
     );
   }
 
-  void _showSubmitSheet(BuildContext context, ReviewsProvider prov, String propertyId) {
+  void _showSubmitSheet(
+    BuildContext context,
+    ReviewsProvider prov,
+    String propertyId,
+  ) {
     showModalBottomSheet(
-      context: context, isScrollControlled: true,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
       builder: (_) => ChangeNotifierProvider.value(
         value: prov,
-        child: SubmitReviewSheet(propertyId: propertyId, existing: prov.userReview),
+        child: SubmitReviewSheet(
+          propertyId: propertyId,
+          existing: prov.userReview,
+        ),
       ),
     );
   }
@@ -80,11 +113,20 @@ class ReviewRatingSummary extends StatelessWidget {
         children: [
           Column(
             children: [
-              Text(stats.averageRating.toStringAsFixed(1),
-                  style: GoogleFonts.notoSerif(fontSize: 40, fontWeight: FontWeight.w900, color: cs.onSurface)),
+              Text(
+                stats.averageRating.toStringAsFixed(1),
+                style: GoogleFonts.notoSerif(
+                  fontSize: 40,
+                  fontWeight: FontWeight.w900,
+                  color: cs.onSurface,
+                ),
+              ),
               ReviewStarRow(rating: stats.averageRating.round()),
               const SizedBox(height: 4),
-              Text('${stats.totalReviews} reviews', style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant)),
+              Text(
+                '${stats.totalReviews} reviews',
+                style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant),
+              ),
             ],
           ),
           const SizedBox(width: 20),
@@ -92,23 +134,48 @@ class ReviewRatingSummary extends StatelessWidget {
             child: Column(
               children: [5, 4, 3, 2, 1].map((star) {
                 final count = _countForStar(star, stats.ratingBreakdown);
-                final pct = stats.totalReviews > 0 ? count / stats.totalReviews : 0.0;
+                final pct = stats.totalReviews > 0
+                    ? count / stats.totalReviews
+                    : 0.0;
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 4),
                   child: Row(
                     children: [
-                      Text('$star', style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant)),
+                      Text(
+                        '$star',
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: cs.onSurfaceVariant,
+                        ),
+                      ),
                       const SizedBox(width: 6),
-                      const Icon(Icons.star_rounded, size: 10, color: Colors.amber),
+                      const Icon(
+                        Icons.star_rounded,
+                        size: 10,
+                        color: Colors.amber,
+                      ),
                       const SizedBox(width: 6),
-                      Expanded(child: ClipRRect(
-                        borderRadius: BorderRadius.circular(4),
-                        child: LinearProgressIndicator(value: pct, minHeight: 5,
+                      Expanded(
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(4),
+                          child: LinearProgressIndicator(
+                            value: pct,
+                            minHeight: 5,
                             backgroundColor: cs.surfaceContainerHighest,
-                            valueColor: const AlwaysStoppedAnimation(Colors.amber)),
-                      )),
+                            valueColor: const AlwaysStoppedAnimation(
+                              Colors.amber,
+                            ),
+                          ),
+                        ),
+                      ),
                       const SizedBox(width: 6),
-                      Text('$count', style: TextStyle(fontSize: 10, color: cs.onSurfaceVariant)),
+                      Text(
+                        '$count',
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: cs.onSurfaceVariant,
+                        ),
+                      ),
                     ],
                   ),
                 );
@@ -120,8 +187,13 @@ class ReviewRatingSummary extends StatelessWidget {
     );
   }
 
-  int _countForStar(int star, RatingBreakdown b) =>
-      switch (star) { 5 => b.five, 4 => b.four, 3 => b.three, 2 => b.two, _ => b.one };
+  int _countForStar(int star, RatingBreakdown b) => switch (star) {
+    5 => b.five,
+    4 => b.four,
+    3 => b.three,
+    2 => b.two,
+    _ => b.one,
+  };
 }
 
 class ReviewItemCard extends StatelessWidget {
@@ -132,7 +204,9 @@ class ReviewItemCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final user = review.user is ApiUser ? review.user as ApiUser : null;
-    final name = user != null ? '${user.firstName} ${user.lastName}' : 'Anonymous';
+    final name = user != null
+        ? '${user.firstName} ${user.lastName}'
+        : 'Anonymous';
     final avatar = user?.avatar;
 
     return Container(
@@ -149,29 +223,64 @@ class ReviewItemCard extends StatelessWidget {
           Row(
             children: [
               CircleAvatar(
-                radius: 18, backgroundColor: cs.surfaceContainerHighest,
+                radius: 18,
+                backgroundColor: cs.surfaceContainerHighest,
                 backgroundImage: avatar != null ? NetworkImage(avatar) : null,
                 child: avatar == null
-                    ? Text(name.isNotEmpty ? name[0].toUpperCase() : '?',
-                        style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 14, color: cs.onSurface))
+                    ? Text(
+                        name.isNotEmpty ? name[0].toUpperCase() : '?',
+                        style: GoogleFonts.inter(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                          color: cs.onSurface,
+                        ),
+                      )
                     : null,
               ),
               const SizedBox(width: 10),
-              Expanded(child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(name, style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600, color: cs.onSurface)),
-                  Text(review.createdAt.substring(0, 10),
-                      style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant.withOpacity(0.6))),
-                ],
-              )),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      name,
+                      style: GoogleFonts.inter(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: cs.onSurface,
+                      ),
+                    ),
+                    Text(
+                      review.createdAt.substring(0, 10),
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: cs.onSurfaceVariant.withOpacity(0.6),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
               ReviewStarRow(rating: review.rating),
             ],
           ),
           const SizedBox(height: 10),
-          Text(review.title, style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.bold, color: cs.onSurface)),
+          Text(
+            review.title,
+            style: GoogleFonts.inter(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+              color: cs.onSurface,
+            ),
+          ),
           const SizedBox(height: 4),
-          Text(review.comment, style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant, height: 1.5)),
+          Text(
+            review.comment,
+            style: TextStyle(
+              fontSize: 13,
+              color: cs.onSurfaceVariant,
+              height: 1.5,
+            ),
+          ),
         ],
       ),
     );
@@ -185,17 +294,25 @@ class ReviewStarRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Row(
     mainAxisSize: MainAxisSize.min,
-    children: List.generate(5, (i) => Icon(
-      i < rating ? Icons.star_rounded : Icons.star_border_rounded,
-      size: 14, color: Colors.amber,
-    )),
+    children: List.generate(
+      5,
+      (i) => Icon(
+        i < rating ? Icons.star_rounded : Icons.star_border_rounded,
+        size: 14,
+        color: Colors.amber,
+      ),
+    ),
   );
 }
 
 class SubmitReviewSheet extends StatefulWidget {
   final String propertyId;
   final ApiReview? existing;
-  const SubmitReviewSheet({super.key, required this.propertyId, required this.existing});
+  const SubmitReviewSheet({
+    super.key,
+    required this.propertyId,
+    required this.existing,
+  });
 
   @override
   State<SubmitReviewSheet> createState() => _SubmitReviewSheetState();
@@ -216,7 +333,11 @@ class _SubmitReviewSheetState extends State<SubmitReviewSheet> {
   }
 
   @override
-  void dispose() { _titleCtrl.dispose(); _commentCtrl.dispose(); super.dispose(); }
+  void dispose() {
+    _titleCtrl.dispose();
+    _commentCtrl.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -224,53 +345,136 @@ class _SubmitReviewSheetState extends State<SubmitReviewSheet> {
     final isEdit = widget.existing != null;
 
     return Padding(
-      padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom, left: 20, right: 20, top: 20),
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.viewInsetsOf(context).bottom,
+        left: 20,
+        right: 20,
+        top: 20,
+      ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Center(child: Container(width: 36, height: 4, decoration: BoxDecoration(color: cs.outlineVariant, borderRadius: BorderRadius.circular(999)))),
+          Center(
+            child: Container(
+              width: 36,
+              height: 4,
+              decoration: BoxDecoration(
+                color: cs.outlineVariant,
+                borderRadius: BorderRadius.circular(999),
+              ),
+            ),
+          ),
           const SizedBox(height: 20),
-          Text(isEdit ? 'Edit Review' : 'Write a Review',
-              style: GoogleFonts.notoSerif(fontSize: 20, fontWeight: FontWeight.w900, color: cs.onSurface)),
+          Text(
+            isEdit ? 'Edit Review' : 'Write a Review',
+            style: GoogleFonts.notoSerif(
+              fontSize: 20,
+              fontWeight: FontWeight.w900,
+              color: cs.onSurface,
+            ),
+          ),
           const SizedBox(height: 20),
-          Text('RATING', style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 2, color: cs.onSurfaceVariant.withOpacity(0.6))),
+          Text(
+            'RATING',
+            style: GoogleFonts.inter(
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 2,
+              color: cs.onSurfaceVariant.withOpacity(0.6),
+            ),
+          ),
           const SizedBox(height: 8),
           Row(
-            children: List.generate(5, (i) => GestureDetector(
-              onTap: () => setState(() => _rating = i + 1),
-              child: Padding(padding: const EdgeInsets.only(right: 4),
-                  child: Icon(i < _rating ? Icons.star_rounded : Icons.star_border_rounded, size: 36, color: Colors.amber)),
-            )),
+            children: List.generate(
+              5,
+              (i) => GestureDetector(
+                onTap: () => setState(() => _rating = i + 1),
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 4),
+                  child: Icon(
+                    i < _rating
+                        ? Icons.star_rounded
+                        : Icons.star_border_rounded,
+                    size: 36,
+                    color: Colors.amber,
+                  ),
+                ),
+              ),
+            ),
           ),
           const SizedBox(height: 16),
-          TextField(controller: _titleCtrl, style: TextStyle(color: cs.onSurface),
-              decoration: InputDecoration(labelText: 'Title', labelStyle: TextStyle(color: cs.onSurfaceVariant))),
+          TextField(
+            controller: _titleCtrl,
+            style: TextStyle(color: cs.onSurface),
+            decoration: InputDecoration(
+              labelText: 'Title',
+              labelStyle: TextStyle(color: cs.onSurfaceVariant),
+            ),
+          ),
           const SizedBox(height: 12),
-          TextField(controller: _commentCtrl, maxLines: 4, style: TextStyle(color: cs.onSurface),
-              decoration: InputDecoration(labelText: 'Comment', labelStyle: TextStyle(color: cs.onSurfaceVariant), alignLabelWithHint: true)),
+          TextField(
+            controller: _commentCtrl,
+            maxLines: 4,
+            style: TextStyle(color: cs.onSurface),
+            decoration: InputDecoration(
+              labelText: 'Comment',
+              labelStyle: TextStyle(color: cs.onSurfaceVariant),
+              alignLabelWithHint: true,
+            ),
+          ),
           const SizedBox(height: 20),
           SizedBox(
             width: double.infinity,
             child: GestureDetector(
-              onTap: _loading ? null : () async {
-                if (_titleCtrl.text.trim().isEmpty || _commentCtrl.text.trim().isEmpty) return;
-                setState(() => _loading = true);
-                final ok = isEdit
-                    ? await context.read<ReviewsProvider>().update(widget.existing!.id,
-                        rating: _rating, title: _titleCtrl.text.trim(), comment: _commentCtrl.text.trim())
-                    : await context.read<ReviewsProvider>().submit(propertyId: widget.propertyId,
-                        rating: _rating, title: _titleCtrl.text.trim(), comment: _commentCtrl.text.trim());
-                setState(() => _loading = false);
-                if (ok && context.mounted) Navigator.pop(context);
-              },
+              onTap: _loading
+                  ? null
+                  : () async {
+                      if (_titleCtrl.text.trim().isEmpty ||
+                          _commentCtrl.text.trim().isEmpty)
+                        return;
+                      setState(() => _loading = true);
+                      final ok = isEdit
+                          ? await context.read<ReviewsProvider>().update(
+                              widget.existing!.id,
+                              rating: _rating,
+                              title: _titleCtrl.text.trim(),
+                              comment: _commentCtrl.text.trim(),
+                            )
+                          : await context.read<ReviewsProvider>().submit(
+                              propertyId: widget.propertyId,
+                              rating: _rating,
+                              title: _titleCtrl.text.trim(),
+                              comment: _commentCtrl.text.trim(),
+                            );
+                      setState(() => _loading = false);
+                      if (ok && context.mounted) Navigator.pop(context);
+                    },
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 16),
-                decoration: BoxDecoration(color: cs.onSurface, borderRadius: BorderRadius.circular(14)),
-                child: Center(child: _loading
-                    ? SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: cs.surface))
-                    : Text(isEdit ? 'Update Review' : 'Submit Review',
-                        style: GoogleFonts.inter(color: cs.surface, fontWeight: FontWeight.bold, fontSize: 14))),
+                decoration: BoxDecoration(
+                  color: cs.onSurface,
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Center(
+                  child: _loading
+                      ? SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: cs.surface,
+                          ),
+                        )
+                      : Text(
+                          isEdit ? 'Update Review' : 'Submit Review',
+                          style: GoogleFonts.inter(
+                            color: cs.surface,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
+                        ),
+                ),
               ),
             ),
           ),
@@ -288,34 +492,46 @@ class _SkeletonReviews extends StatelessWidget {
   Widget build(BuildContext context) {
     return _Shimmer(
       child: Column(
-        children: List.generate(3, (_) => Container(
-          margin: const EdgeInsets.only(bottom: 14),
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-            borderRadius: BorderRadius.circular(16),
+        children: List.generate(
+          3,
+          (_) => Container(
+            margin: const EdgeInsets.only(bottom: 14),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Theme.of(
+                context,
+              ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    SkeletonBox(width: 36, height: 36, radius: 18),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SkeletonBox(width: 120, height: 12),
+                          const SizedBox(height: 4),
+                          SkeletonBox(width: 80, height: 10),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                SkeletonBox(width: double.infinity, height: 12),
+                const SizedBox(height: 6),
+                SkeletonBox(width: double.infinity, height: 10),
+                const SizedBox(height: 4),
+                SkeletonBox(width: 200, height: 10),
+              ],
+            ),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(children: [
-                SkeletonBox(width: 36, height: 36, radius: 18),
-                const SizedBox(width: 10),
-                Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  SkeletonBox(width: 120, height: 12),
-                  const SizedBox(height: 4),
-                  SkeletonBox(width: 80, height: 10),
-                ])),
-              ]),
-              const SizedBox(height: 10),
-              SkeletonBox(width: double.infinity, height: 12),
-              const SizedBox(height: 6),
-              SkeletonBox(width: double.infinity, height: 10),
-              const SizedBox(height: 4),
-              SkeletonBox(width: 200, height: 10),
-            ],
-          ),
-        )),
+        ),
       ),
     );
   }
@@ -328,19 +544,29 @@ class _Shimmer extends StatefulWidget {
   State<_Shimmer> createState() => _ShimmerState();
 }
 
-class _ShimmerState extends State<_Shimmer> with SingleTickerProviderStateMixin {
+class _ShimmerState extends State<_Shimmer>
+    with SingleTickerProviderStateMixin {
   late AnimationController _ctrl;
   @override
   void initState() {
     super.initState();
-    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 1200))..repeat();
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    )..repeat();
   }
+
   @override
-  void dispose() { _ctrl.dispose(); super.dispose(); }
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) => AnimatedBuilder(
     animation: _ctrl,
-    builder: (_, __) => _ShimmerScope(progress: _ctrl.value, child: widget.child),
+    builder: (_, __) =>
+        _ShimmerScope(progress: _ctrl.value, child: widget.child),
   );
 }
 
