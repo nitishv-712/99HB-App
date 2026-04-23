@@ -5,6 +5,7 @@ import 'package:homebazaar/model/support_ticket.dart';
 import 'package:homebazaar/providers/auth_provider.dart';
 import 'package:homebazaar/providers/support_provider.dart';
 import 'package:homebazaar/view/components/app_shared.dart';
+import 'package:homebazaar/view/components/skeleton_loader.dart';
 
 // ── Support List ──────────────────────────────────────────────────────────────
 
@@ -41,7 +42,15 @@ class _SupportScreenState extends State<SupportScreen> {
       body: Consumer<SupportProvider>(
         builder: (_, prov, __) {
           if (prov.loading) {
-            return const Center(child: CircularProgressIndicator());
+            return ListView.separated(
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 100),
+              itemCount: 5,
+              separatorBuilder: (_, __) => const SizedBox(height: 12),
+              itemBuilder: (_, __) => SkeletonLoader(
+                height: 72,
+                borderRadius: BorderRadius.circular(16),
+              ),
+            );
           }
           if (prov.error != null) {
             return AppErrorRetry(message: prov.error!, onRetry: prov.fetchList);
@@ -407,7 +416,24 @@ class _TicketDetailScreenState extends State<TicketDetailScreen> {
       body: Consumer<SupportProvider>(
         builder: (_, prov, __) {
           if (prov.detailLoading && prov.detail == null) {
-            return const Center(child: CircularProgressIndicator());
+            return Scaffold(
+              appBar: AppStandardBar(title: 'Ticket'),
+              body: ListView.builder(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                itemCount: 6,
+                itemBuilder: (_, i) => Align(
+                  alignment: i.isEven ? Alignment.centerLeft : Alignment.centerRight,
+                  child: Container(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    child: SkeletonLoader(
+                      width: 200,
+                      height: 60,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                ),
+              ),
+            );
           }
           if (prov.detailError != null) {
             return Scaffold(

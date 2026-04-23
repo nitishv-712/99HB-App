@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:homebazaar/view/components/app_bar.dart';
+import 'package:homebazaar/view/components/skeleton_loader.dart';
 import 'package:provider/provider.dart';
 import 'package:homebazaar/core/router/app_router.dart';
 import 'package:homebazaar/model/filters.dart';
 import 'package:homebazaar/model/property.dart';
 import 'package:homebazaar/providers/properties_provider.dart';
+import 'package:homebazaar/providers/saved_provider.dart';
 
 // ── Filter config ─────────────────────────────────────────────────────────────
 
@@ -61,7 +63,10 @@ class _BuyScreenState extends State<BuyScreen> {
   void initState() {
     super.initState();
     _listingType = widget.initialListingType;
-    WidgetsBinding.instance.addPostFrameCallback((_) => _fetch());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _fetch();
+      context.read<SavedProvider>().fetchList();
+    });
   }
 
   @override
@@ -332,10 +337,22 @@ class _ResultsSliver extends StatelessWidget {
     final provider = context.watch<PropertiesProvider>();
 
     if (provider.listLoading) {
-      return const SliverToBoxAdapter(
-        child: SizedBox(
-          height: 300,
-          child: Center(child: CircularProgressIndicator()),
+      return SliverPadding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        sliver: SliverGrid(
+          gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+            maxCrossAxisExtent: 500,
+            mainAxisSpacing: 28,
+            crossAxisSpacing: 14,
+            childAspectRatio: 0.68,
+          ),
+          delegate: SliverChildBuilderDelegate(
+            (_, i) => Padding(
+              padding: EdgeInsets.only(top: i.isOdd ? 40 : 0),
+              child: const PropertyCardSkeleton(),
+            ),
+            childCount: 6,
+          ),
         ),
       );
     }
@@ -853,18 +870,28 @@ class _PropertyCard extends StatelessWidget {
                     Positioned(
                       top: 10,
                       right: 10,
-                      child: Container(
-                        width: 32,
-                        height: 32,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.9),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          Icons.favorite_border_rounded,
-                          size: 16,
-                          color: cs.onSurface,
-                        ),
+                      child: Consumer<SavedProvider>(
+                        builder: (context, saved, _) {
+                          final isSaved = saved.isSaved(property.id);
+                          return GestureDetector(
+                            onTap: () => context.read<SavedProvider>().toggle(property.id),
+                            child: Container(
+                              width: 32,
+                              height: 32,
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.9),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                isSaved
+                                    ? Icons.favorite_rounded
+                                    : Icons.favorite_border_rounded,
+                                size: 16,
+                                color: isSaved ? Colors.red : cs.onSurface,
+                              ),
+                            ),
+                          );
+                        },
                       ),
                     ),
                   ],

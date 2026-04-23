@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:homebazaar/core/router/app_router.dart';
 import 'package:homebazaar/model/property.dart';
 import 'package:homebazaar/providers/user_provider.dart';
+import 'package:homebazaar/view/components/skeleton_loader.dart';
 import 'dash_states.dart';
 
 class DashSavedTab extends StatelessWidget {
@@ -12,7 +13,18 @@ class DashSavedTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<UserProvider>();
-    if (provider.savedLoading) return const Center(child: CircularProgressIndicator());
+    if (provider.savedLoading) {
+      return GridView.builder(
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 100),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2, mainAxisSpacing: 28, crossAxisSpacing: 12, childAspectRatio: 0.62),
+        itemCount: 6,
+        itemBuilder: (_, i) => Padding(
+          padding: EdgeInsets.only(top: i.isOdd ? 36 : 0),
+          child: const PropertyCardSkeleton(),
+        ),
+      );
+    }
     if (provider.savedError != null) {
       return DashErrorState(message: provider.savedError!,
           onRetry: () => context.read<UserProvider>().fetchSaved());

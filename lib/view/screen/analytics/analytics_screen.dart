@@ -5,6 +5,7 @@ import 'package:homebazaar/core/router/app_router.dart';
 import 'package:homebazaar/model/analytics.dart';
 import 'package:homebazaar/providers/analytics_provider.dart';
 import 'package:homebazaar/view/components/app_shared.dart';
+import 'package:homebazaar/view/components/skeleton_loader.dart';
 
 class AnalyticsScreen extends StatefulWidget {
   const AnalyticsScreen({super.key});
@@ -31,7 +32,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
       body: Consumer<AnalyticsProvider>(
         builder: (_, prov, __) {
           if (prov.overviewLoading) {
-            return const Center(child: CircularProgressIndicator());
+            return _AnalyticsSkeleton();
           }
           if (prov.overviewError != null) {
             return AppErrorRetry(
@@ -376,6 +377,38 @@ class _TopRow extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _AnalyticsSkeleton extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 100),
+      children: [
+        SkeletonLoader(width: 80, height: 10, borderRadius: BorderRadius.circular(4)),
+        const SizedBox(height: 12),
+        Row(children: [
+          Expanded(child: SkeletonLoader(height: 90, borderRadius: BorderRadius.circular(16))),
+          const SizedBox(width: 12),
+          Expanded(child: SkeletonLoader(height: 90, borderRadius: BorderRadius.circular(16))),
+        ]),
+        const SizedBox(height: 12),
+        Row(children: [
+          Expanded(child: SkeletonLoader(height: 90, borderRadius: BorderRadius.circular(16))),
+          const SizedBox(width: 12),
+          Expanded(child: SkeletonLoader(height: 90, borderRadius: BorderRadius.circular(16))),
+        ]),
+        const SizedBox(height: 24),
+        SkeletonLoader(width: 100, height: 10, borderRadius: BorderRadius.circular(4)),
+        const SizedBox(height: 12),
+        SkeletonLoader(height: 120, borderRadius: BorderRadius.circular(16)),
+        const SizedBox(height: 24),
+        SkeletonLoader(width: 140, height: 10, borderRadius: BorderRadius.circular(4)),
+        const SizedBox(height: 12),
+        SkeletonLoader(height: 100, borderRadius: BorderRadius.circular(16)),
+      ],
     );
   }
 }

@@ -7,6 +7,7 @@ import 'package:homebazaar/model/user.dart';
 import 'package:homebazaar/providers/auth_provider.dart';
 import 'package:homebazaar/providers/inquiries_provider.dart';
 import 'package:homebazaar/view/components/app_shared.dart';
+import 'package:homebazaar/view/components/skeleton_loader.dart';
 
 // ── Inquiries List ────────────────────────────────────────────────────────────
 
@@ -53,7 +54,15 @@ class _InquiriesScreenState extends State<InquiriesScreen> {
       body: Consumer<InquiriesProvider>(
         builder: (_, prov, __) {
           if (prov.loading) {
-            return const Center(child: CircularProgressIndicator());
+            return ListView.separated(
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 100),
+              itemCount: 5,
+              separatorBuilder: (_, __) => const SizedBox(height: 10),
+              itemBuilder: (_, __) => SkeletonLoader(
+                height: 80,
+                borderRadius: BorderRadius.circular(16),
+              ),
+            );
           }
           if (prov.error != null) {
             return AppErrorRetry(
@@ -112,12 +121,22 @@ class _InquiryTile extends StatelessWidget {
         : inquiry.lastMessageAt;
 
     return GestureDetector(
-      onTap: () => Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => InquiryChatScreen(inquiryId: inquiry.id),
-        ),
-      ),
+      onTap: () {
+        final provider = context.read<InquiriesProvider>();
+        final auth = context.read<AuthProvider>();
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => MultiProvider(
+              providers: [
+                ChangeNotifierProvider.value(value: provider),
+                ChangeNotifierProvider.value(value: auth),
+              ],
+              child: InquiryChatScreen(inquiryId: inquiry.id),
+            ),
+          ),
+        );
+      },
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
@@ -227,7 +246,6 @@ class InquiryChatScreen extends StatefulWidget {
 
 class _InquiryChatScreenState extends State<InquiryChatScreen> {
   final _msgCtrl = TextEditingController();
-  final _scrollCtrl = ScrollController();
   bool _sending = false;
   bool _updatingStatus = false;
 
@@ -243,20 +261,7 @@ class _InquiryChatScreenState extends State<InquiryChatScreen> {
   @override
   void dispose() {
     _msgCtrl.dispose();
-    _scrollCtrl.dispose();
     super.dispose();
-  }
-
-  void _scrollToBottom() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_scrollCtrl.hasClients) {
-        _scrollCtrl.animateTo(
-          _scrollCtrl.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOut,
-        );
-      }
-    });
   }
 
   Future<void> _send() async {
@@ -266,7 +271,6 @@ class _InquiryChatScreenState extends State<InquiryChatScreen> {
     _msgCtrl.clear();
     await context.read<InquiriesProvider>().sendMessage(widget.inquiryId, text);
     setState(() => _sending = false);
-    _scrollToBottom();
   }
 
   Future<void> _toggleStatus(InquiryStatus current) async {
@@ -288,7 +292,9 @@ class _InquiryChatScreenState extends State<InquiryChatScreen> {
       body: Consumer<InquiriesProvider>(
         builder: (_, prov, __) {
           if (prov.detailLoading && prov.detail == null) {
-            return const Center(child: CircularProgressIndicator());
+            return const Scaffold(
+              body: Center(child: _ChatLoadingSkeleton()),
+            );
           }
           if (prov.detailError != null) {
             return Scaffold(
@@ -321,8 +327,6 @@ class _InquiryChatScreenState extends State<InquiryChatScreen> {
               ? inquiry.owner == myId
               : (inquiry.owner as ApiUser).id == myId;
 
-          _scrollToBottom();
-
           return Column(
             children: [
               // ── Header ──────────────────────────────────────────────────
@@ -349,14 +353,14 @@ class _InquiryChatScreenState extends State<InquiryChatScreen> {
                         ),
                       )
                     : ListView.builder(
-                        controller: _scrollCtrl,
+                        reverse: true,
                         padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
                         itemCount: messages.length,
                         itemBuilder: (_, i) {
-                          final msg = messages[i];
+                          final msg = messages[messages.length - 1 - i];
                           return _ChatBubble(
                             message: msg,
-                            isMe: msg.sender == myId,
+                            isMe: msg.senderId == myId,
                           );
                         },
                       ),
@@ -840,6 +844,37 @@ class _ReplyInput extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _ChatLoadingSkeleton extends StatelessWidget {
+  const _ChatLoadingSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        SkeletonLoader(height: 120, borderRadius: BorderRadius.zero),
+        const SizedBox(height: 16),
+        Expanded(
+          child: ListView.builder(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            itemCount: 6,
+            itemBuilder: (_, i) => Align(
+              alignment: i.isEven ? Alignment.centerLeft : Alignment.centerRight,
+              child: Container(
+                margin: const EdgeInsets.only(bottom: 12),
+                child: SkeletonLoader(
+                  width: 200,
+                  height: 60,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

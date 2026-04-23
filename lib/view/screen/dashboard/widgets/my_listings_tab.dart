@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:homebazaar/core/router/app_router.dart';
 import 'package:homebazaar/model/property.dart';
 import 'package:homebazaar/providers/user_provider.dart';
+import 'package:homebazaar/view/components/skeleton_loader.dart';
 import 'dash_states.dart';
 
 class DashMyListingsTab extends StatelessWidget {
@@ -12,7 +13,14 @@ class DashMyListingsTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<UserProvider>();
-    if (provider.listingsLoading) return const Center(child: CircularProgressIndicator());
+    if (provider.listingsLoading) {
+      return ListView.separated(
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 100),
+        itemCount: 5,
+        separatorBuilder: (_, __) => const SizedBox(height: 12),
+        itemBuilder: (_, __) => const ListingRowSkeleton(),
+      );
+    }
     if (provider.listingsError != null) {
       return DashErrorState(message: provider.listingsError!,
           onRetry: () => context.read<UserProvider>().fetchMyListings());

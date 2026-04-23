@@ -57,9 +57,9 @@ class ApiUser {
 
   factory ApiUser.fromJson(Map<String, dynamic> j) => ApiUser(
     id: (j['_id'] ?? j['id']) as String,
-    firstName: j['firstName'] as String,
-    lastName: j['lastName'] as String,
-    email: j['email'] as String,
+    firstName: j['firstName'] as String? ?? '',
+    lastName: j['lastName'] as String? ?? '',
+    email: j['email'] as String? ?? '',
     isGmailVerified: j['isGmailVerified'] as bool? ?? false,
     phone: j['phone'] as String?,
     isPhoneVerified: j['isPhoneVerified'] as bool? ?? false,
