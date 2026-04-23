@@ -5,7 +5,7 @@ import 'package:homebazaar/providers/comparisons_provider.dart';
 import 'package:homebazaar/providers/properties_provider.dart';
 import 'package:homebazaar/providers/reviews_provider.dart';
 import 'package:homebazaar/providers/saved_provider.dart';
-import 'package:homebazaar/view/components/app_loader.dart';
+import 'package:homebazaar/view/components/skeletons.dart';
 import 'package:provider/provider.dart';
 import 'widgets/hero_gallery.dart';
 import 'widgets/primary_content.dart';
@@ -97,11 +97,13 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
         ],
       ),
       body: Consumer<PropertiesProvider>(
-        builder: (context, prov, _) => Stack(
-          children: [
-            CustomScrollView(
-              slivers: [
-                if (prov.detail != null) ...[
+        builder: (context, prov, _) {
+          if (prov.detailLoading) return const SkeletonPropertyDetail();
+          return Stack(
+            children: [
+              CustomScrollView(
+                slivers: [
+                  if (prov.detail != null) ...[
                   SliverToBoxAdapter(
                     child: DetailHeroGallery(
                       property: prov.detail!,
@@ -184,9 +186,9 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                   ),
               ],
             ),
-            if (prov.detailLoading) const AppLoader(),
           ],
-        ),
+          );
+        },
       ),
     );
   }

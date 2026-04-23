@@ -254,6 +254,53 @@ class SkeletonAnalytics extends StatelessWidget {
   }
 }
 
+// ── Property detail skeleton ─────────────────────────────────────────────────
+
+class SkeletonPropertyDetail extends StatelessWidget {
+  const SkeletonPropertyDetail({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return _Shimmer(
+      child: CustomScrollView(
+        slivers: [
+          SliverToBoxAdapter(
+            child: SkeletonBox(width: double.infinity, height: 280, radius: 0),
+          ),
+          SliverPadding(
+            padding: const EdgeInsets.all(16),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate([
+                SkeletonBox(width: 200, height: 22),
+                const SizedBox(height: 10),
+                SkeletonBox(width: 140, height: 14),
+                const SizedBox(height: 16),
+                Row(children: [
+                  SkeletonBox(width: 80, height: 12),
+                  const SizedBox(width: 12),
+                  SkeletonBox(width: 80, height: 12),
+                  const SizedBox(width: 12),
+                  SkeletonBox(width: 80, height: 12),
+                ]),
+                const SizedBox(height: 24),
+                SkeletonBox(width: double.infinity, height: 12),
+                const SizedBox(height: 8),
+                SkeletonBox(width: double.infinity, height: 12),
+                const SizedBox(height: 8),
+                SkeletonBox(width: 220, height: 12),
+                const SizedBox(height: 24),
+                SkeletonBox(width: double.infinity, height: 120, radius: 16),
+                const SizedBox(height: 24),
+                SkeletonBox(width: double.infinity, height: 80, radius: 16),
+              ]),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 // ── Featured listings horizontal skeleton ────────────────────────────────────
 
 class SkeletonFeaturedListings extends StatelessWidget {
