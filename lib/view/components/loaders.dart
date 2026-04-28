@@ -89,6 +89,14 @@ class AppSpinner extends StatelessWidget {
 
 // ── Shimmer base ──────────────────────────────────────────────────────────────
 
+/// Public wrapper — use this when you need [SkeletonBox] children to animate.
+class SkeletonShimmer extends StatelessWidget {
+  final Widget child;
+  const SkeletonShimmer({super.key, required this.child});
+  @override
+  Widget build(BuildContext context) => _Shimmer(child: child);
+}
+
 class _Shimmer extends StatefulWidget {
   final Widget child;
   const _Shimmer({required this.child});

@@ -37,7 +37,6 @@ abstract final class AuthService {
       method: 'POST',
       body: {'email': email, 'password': password},
     );
-    print(json);
     return ApiResponse.fromJson(json, (d) => d as Map<String, dynamic>);
   }
 
@@ -76,10 +75,7 @@ abstract final class AuthService {
     await ApiClient.fetch<Map<String, dynamic>>(
       '/auth/otp/generate',
       method: 'POST',
-      body: {
-        'email': ?email,
-        'phone': ?phone,
-      },
+      body: {'email': ?email, 'phone': ?phone},
     );
   }
 
@@ -92,11 +88,7 @@ abstract final class AuthService {
     await ApiClient.fetch<Map<String, dynamic>>(
       '/auth/otp/verify',
       method: 'POST',
-      body: {
-        'otp': otp,
-        'email': ?email,
-        'phone': ?phone,
-      },
+      body: {'otp': otp, 'email': ?email, 'phone': ?phone},
     );
   }
 

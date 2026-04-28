@@ -13,8 +13,9 @@ class DashMyListingsTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<UserProvider>();
-    if (provider.listingsLoading)
+    if (provider.listingsLoading) {
       return SkeletonList(itemBuilder: () => const SkeletonListRow());
+    }
     if (provider.listingsError != null) {
       return DashErrorState(
         message: provider.listingsError!,

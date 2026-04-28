@@ -435,21 +435,23 @@ class _SubmitReviewSheetState extends State<SubmitReviewSheet> {
                         return;
                       }
                       setState(() => _loading = true);
+                      final provider = context.read<ReviewsProvider>();
                       final ok = isEdit
-                          ? await context.read<ReviewsProvider>().update(
+                          ? await provider.update(
                               widget.existing!.id,
                               rating: _rating,
                               title: _titleCtrl.text.trim(),
                               comment: _commentCtrl.text.trim(),
                             )
-                          : await context.read<ReviewsProvider>().submit(
+                          : await provider.submit(
                               propertyId: widget.propertyId,
                               rating: _rating,
                               title: _titleCtrl.text.trim(),
                               comment: _commentCtrl.text.trim(),
                             );
                       setState(() => _loading = false);
-                      if (ok && context.mounted) Navigator.pop(context);
+                      if (!context.mounted) return;
+                      if (ok) Navigator.pop(context);
                     },
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 16),
@@ -459,10 +461,7 @@ class _SubmitReviewSheetState extends State<SubmitReviewSheet> {
                 ),
                 child: Center(
                   child: _loading
-                      ? const AppLoaderInline(
-                          size: 20,
-                          strokeWidth: 2,
-                        )
+                      ? const AppLoaderInline(size: 20, strokeWidth: 2)
                       : Text(
                           isEdit ? 'Update Review' : 'Submit Review',
                           style: GoogleFonts.inter(
@@ -487,7 +486,7 @@ class _SkeletonReviews extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _Shimmer(
+    return SkeletonShimmer(
       child: Column(
         children: List.generate(
           3,
@@ -532,46 +531,4 @@ class _SkeletonReviews extends StatelessWidget {
       ),
     );
   }
-}
-
-class _Shimmer extends StatefulWidget {
-  final Widget child;
-  const _Shimmer({required this.child});
-  @override
-  State<_Shimmer> createState() => _ShimmerState();
-}
-
-class _ShimmerState extends State<_Shimmer>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _ctrl;
-  @override
-  void initState() {
-    super.initState();
-    _ctrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1200),
-    )..repeat();
-  }
-
-  @override
-  void dispose() {
-    _ctrl.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) => AnimatedBuilder(
-    animation: _ctrl,
-    builder: (_, _) =>
-        _ShimmerScope(progress: _ctrl.value, child: widget.child),
-  );
-}
-
-class _ShimmerScope extends InheritedWidget {
-  final double progress;
-  const _ShimmerScope({required this.progress, required super.child});
-  static double of(BuildContext context) =>
-      context.dependOnInheritedWidgetOfExactType<_ShimmerScope>()!.progress;
-  @override
-  bool updateShouldNotify(_ShimmerScope old) => progress != old.progress;
 }

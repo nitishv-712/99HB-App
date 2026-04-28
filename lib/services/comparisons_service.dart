@@ -22,7 +22,6 @@ abstract final class ComparisonsService {
         'tags': ?tags,
       },
     );
-    print(json); // --- IGNORE ---
     return ApiResponse.fromJson(
       json,
       (d) => ApiComparison.fromJson(
@@ -36,10 +35,7 @@ abstract final class ComparisonsService {
     int? page,
     int? limit,
   }) async {
-    final qs = ApiClient.buildQuery({
-      'page': ?page,
-      'limit': ?limit,
-    });
+    final qs = ApiClient.buildQuery({'page': ?page, 'limit': ?limit});
     final json = await ApiClient.fetch<Map<String, dynamic>>('/comparisons$qs');
     return ApiResponse.fromJson(json, (d) {
       final list = d as List;

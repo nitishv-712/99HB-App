@@ -160,7 +160,6 @@ class _ComparisonDetailScreenState extends State<ComparisonDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print('Building ComparisonDetailScreen for ${widget.comparisonId}');
     final cs = Theme.of(context).colorScheme;
     return Scaffold(
       backgroundColor: cs.surface,
