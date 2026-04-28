@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:homebazaar/core/theme/app_theme.dart';
 import 'package:homebazaar/model/property.dart';
 
 class DetailPrimaryContent extends StatelessWidget {
@@ -32,13 +31,13 @@ class DetailPrimaryContent extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
-                color: AppColors.surfaceContainerLow,
+                color: cs.surfaceContainerLow,
                 borderRadius: BorderRadius.circular(999),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.star_rounded, color: AppColors.primary, size: 16),
+                  Icon(Icons.star_rounded, color: cs.primary, size: 16),
                   const SizedBox(width: 4),
                   Text(
                     '${property.saves}',
@@ -65,7 +64,7 @@ class DetailPrimaryContent extends StatelessWidget {
           children: [
             Icon(
               Icons.location_on_outlined,
-              color: AppColors.primary,
+              color: cs.primary,
               size: 20,
             ),
             const SizedBox(width: 4),
@@ -95,7 +94,7 @@ class DetailPrimaryContent extends StatelessWidget {
           style: GoogleFonts.notoSerif(
             fontSize: 28,
             fontWeight: FontWeight.bold,
-            color: AppColors.primary,
+            color: cs.primary,
           ),
         ),
         const SizedBox(height: 24),
@@ -194,13 +193,13 @@ class DetailStatItem extends StatelessWidget {
       width: 148,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
-        color: AppColors.surfaceContainerLow,
+        color: cs.surfaceContainerLow,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: AppColors.primary, size: 22),
+          Icon(icon, color: cs.primary, size: 22),
           const SizedBox(height: 10),
           Text(
             value,
@@ -268,7 +267,7 @@ class DetailInfoCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surfaceContainerLowest,
+        color: cs.surfaceContainerLowest,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.15)),
         boxShadow: [
@@ -280,7 +279,7 @@ class DetailInfoCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(icon, color: AppColors.primary, size: 20),
+              Icon(icon, color: cs.primary, size: 20),
               const SizedBox(width: 8),
               Flexible(
                 child: Text(

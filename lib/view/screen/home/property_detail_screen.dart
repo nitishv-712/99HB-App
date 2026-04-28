@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:homebazaar/core/theme/app_theme.dart';
 import 'package:homebazaar/providers/comparisons_provider.dart';
 import 'package:homebazaar/providers/properties_provider.dart';
 import 'package:homebazaar/providers/reviews_provider.dart';
@@ -87,7 +86,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                     isSaved
                         ? Icons.favorite_rounded
                         : Icons.favorite_border_rounded,
-                    color: isSaved ? AppColors.primary : cs.onSurface,
+                    color: isSaved ? cs.primary : cs.onSurface,
                   ),
                   onPressed: () =>
                       context.read<SavedProvider>().toggle(widget.propertyId!),

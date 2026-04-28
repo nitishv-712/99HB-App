@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:homebazaar/core/theme/app_theme.dart';
 import 'package:homebazaar/model/property.dart';
 
 class DetailHeroGallery extends StatelessWidget {
@@ -40,18 +39,18 @@ class DetailHeroGallery extends StatelessWidget {
                     images[i].url,
                     fit: BoxFit.cover,
                     errorBuilder: (_, _, _) => Container(
-                      color: AppColors.surfaceContainerHighest,
-                      child: const Icon(Icons.broken_image_outlined, size: 48),
+                      color: cs.surfaceContainerHighest,
+                      child: Icon(Icons.broken_image_outlined, size: 48, color: cs.onSurfaceVariant),
                     ),
                   ),
                 )
               else
                 Container(
-                  color: AppColors.surfaceContainerHighest,
-                  child: const Icon(
+                  color: cs.surfaceContainerHighest,
+                  child: Icon(
                     Icons.home_outlined,
                     size: 64,
-                    color: Colors.white54,
+                    color: cs.onSurfaceVariant.withValues(alpha: 0.4),
                   ),
                 ),
               Positioned(
@@ -68,8 +67,8 @@ class DetailHeroGallery extends StatelessWidget {
                       const SizedBox(width: 8),
                       _GalleryBadge(
                         property.badge!.name.toUpperCase(),
-                        AppColors.tertiaryContainer,
-                        AppColors.onTertiaryContainer,
+                        cs.tertiaryContainer,
+                        cs.onTertiaryContainer,
                       ),
                     ],
                   ],
@@ -136,7 +135,7 @@ class _GalleryDot extends StatelessWidget {
       height: 8,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: active ? Colors.white : cs.surface.withValues(alpha: 0.4),
+        color: active ? cs.surface : cs.surface.withValues(alpha: 0.4),
       ),
     );
   }

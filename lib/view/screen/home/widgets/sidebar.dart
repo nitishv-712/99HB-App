@@ -3,7 +3,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:homebazaar/view/components/loaders.dart';
 import 'package:provider/provider.dart';
 import 'package:homebazaar/core/router/app_router.dart';
-import 'package:homebazaar/core/theme/app_theme.dart';
 import 'package:homebazaar/model/comparison.dart';
 import 'package:homebazaar/model/property.dart';
 import 'package:homebazaar/model/user.dart';
@@ -34,7 +33,7 @@ class DetailSidebar extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: AppColors.surfaceContainerLowest,
+            color: cs.surfaceContainerLowest,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: cs.outlineVariant.withValues(alpha: 0.15),
@@ -63,7 +62,7 @@ class DetailSidebar extends StatelessWidget {
                 children: [
                   CircleAvatar(
                     radius: 28,
-                    backgroundColor: AppColors.surfaceContainerHighest,
+                    backgroundColor: cs.surfaceContainerHighest,
                     backgroundImage: ownerAvatar != null
                         ? NetworkImage(ownerAvatar)
                         : null,
@@ -123,7 +122,7 @@ class DetailSidebar extends StatelessWidget {
                     color: cs.onSurfaceVariant.withValues(alpha: 0.75),
                   ),
                   filled: true,
-                  fillColor: AppColors.surfaceContainer,
+                  fillColor: cs.surfaceContainer,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide.none,
@@ -140,11 +139,15 @@ class DetailSidebar extends StatelessWidget {
                 width: double.infinity,
                 child: DecoratedBox(
                   decoration: BoxDecoration(
-                    gradient: AppColors.gradientCta,
+                    gradient: LinearGradient(
+                      colors: [cs.onSurface, cs.onSurface.withValues(alpha: 0.85)],
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                    ),
                     borderRadius: BorderRadius.circular(999),
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.primary.withValues(alpha: 0.2),
+                        color: cs.primary.withValues(alpha: 0.2),
                         blurRadius: 12,
                         offset: const Offset(0, 4),
                       ),
@@ -188,16 +191,16 @@ class DetailSidebar extends StatelessWidget {
                         ),
                       );
                     },
-                    icon: const Icon(
+                    icon: Icon(
                       Icons.send_rounded,
-                      color: Colors.white,
+                      color: cs.surface,
                       size: 18,
                     ),
                     label: Text(
                       'SEND INQUIRY',
                       style: GoogleFonts.inter(
                         fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                        color: cs.surface,
                         letterSpacing: 2,
                         fontSize: 13,
                       ),
@@ -205,30 +208,7 @@ class DetailSidebar extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 20),
-              Divider(color: cs.outlineVariant.withValues(alpha: 0.15)),
-              const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  _ContactAction(icon: Icons.call_outlined, label: 'Call'),
-                  Container(
-                    width: 1,
-                    height: 32,
-                    color: cs.outlineVariant.withValues(alpha: 0.2),
-                  ),
-                  _ContactAction(
-                    icon: Icons.mail_outline_rounded,
-                    label: 'Email',
-                  ),
-                  Container(
-                    width: 1,
-                    height: 32,
-                    color: cs.outlineVariant.withValues(alpha: 0.2),
-                  ),
-                  _ContactAction(icon: Icons.share_outlined, label: 'Share'),
-                ],
-              ),
+
             ],
           ),
         ),
@@ -238,8 +218,9 @@ class DetailSidebar extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: const Color(0xFF1A1A1A),
+            color: cs.surfaceContainerHighest.withValues(alpha: 0.45),
             borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.2)),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -249,7 +230,7 @@ class DetailSidebar extends StatelessWidget {
                 style: GoogleFonts.notoSerif(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: cs.onSurface,
                 ),
               ),
               const SizedBox(height: 16),
@@ -281,35 +262,6 @@ class DetailSidebar extends StatelessWidget {
   }
 }
 
-class _ContactAction extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  const _ContactAction({required this.icon, required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return GestureDetector(
-      onTap: () {},
-      child: Column(
-        children: [
-          Icon(icon, color: cs.onSurfaceVariant, size: 22),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: GoogleFonts.inter(
-              fontSize: 9,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 1.5,
-              color: cs.onSurfaceVariant.withValues(alpha: 0.85),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class _StatChip extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -321,24 +273,27 @@ class _StatChip extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) => Column(
-    children: [
-      Icon(icon, color: Colors.white70, size: 20),
-      const SizedBox(height: 4),
-      Text(
-        value,
-        style: GoogleFonts.inter(
-          fontWeight: FontWeight.bold,
-          color: Colors.white,
-          fontSize: 16,
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Column(
+      children: [
+        Icon(icon, color: cs.primary, size: 20),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: GoogleFonts.inter(
+            fontWeight: FontWeight.bold,
+            color: cs.onSurface,
+            fontSize: 16,
+          ),
         ),
-      ),
-      Text(
-        label,
-        style: GoogleFonts.inter(fontSize: 10, color: Colors.white54),
-      ),
-    ],
-  );
+        Text(
+          label,
+          style: GoogleFonts.inter(fontSize: 10, color: cs.onSurfaceVariant),
+        ),
+      ],
+    );
+  }
 }
 
 class DetailAddToComparisonButton extends StatelessWidget {
@@ -556,7 +511,6 @@ class _ComparisonSheetState extends State<_ComparisonSheet> {
                             ? const AppLoaderInline(
                                 size: 18,
                                 strokeWidth: 2,
-                                color: Colors.white,
                               )
                             : Text(
                                 'Create',

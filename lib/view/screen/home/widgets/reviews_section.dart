@@ -462,7 +462,6 @@ class _SubmitReviewSheetState extends State<SubmitReviewSheet> {
                       ? const AppLoaderInline(
                           size: 20,
                           strokeWidth: 2,
-                          color: Colors.white,
                         )
                       : Text(
                           isEdit ? 'Update Review' : 'Submit Review',
