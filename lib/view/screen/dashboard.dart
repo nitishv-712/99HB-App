@@ -89,46 +89,54 @@ class _DashState extends State<Dash> {
     final isAuthenticated = context.watch<AuthProvider>().isAuthenticated;
     final items = isAuthenticated ? _authItems : _unauthItems;
 
-    return WillPopScope(
-      onWillPop: () async {
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) async {
+        if (didPop) return;
         final exit = await showDialog<bool>(
           context: context,
           builder: (_) => AlertDialog(
-            backgroundColor: cs.surface,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            icon: Icon(Icons.exit_to_app_rounded, color: cs.primary, size: 32),
             title: Text(
               'Exit App?',
-              style: TextStyle(fontWeight: FontWeight.bold, color: cs.primary),
+              style: GoogleFonts.notoSerif(
+                fontWeight: FontWeight.w900,
+                color: cs.onSurface,
+              ),
+              textAlign: TextAlign.center,
             ),
-            content: const Text('Are you sure you want to exit the app?'),
+            content: Text(
+              'Are you sure you want to exit?',
+              style: TextStyle(color: cs.onSurfaceVariant, fontSize: 14),
+              textAlign: TextAlign.center,
+            ),
+            actionsAlignment: MainAxisAlignment.center,
+            actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
             actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: Text(
-                  'No',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: cs.primary,
-                  ),
+              SizedBox(
+                width: 110,
+                height: 44,
+                child: OutlinedButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: const Text('Cancel'),
                 ),
               ),
-              ElevatedButton(
-                style: ButtonStyle(
-                  backgroundColor: WidgetStatePropertyAll(cs.primary),
-                ),
-                onPressed: () => Navigator.of(context).pop(true),
-                child: Text(
-                  'Yes',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: cs.onPrimary,
-                  ),
+              const SizedBox(width: 10),
+              SizedBox(
+                width: 110,
+                height: 44,
+                child: FilledButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  child: const Text('Exit'),
                 ),
               ),
             ],
           ),
         );
         if (exit == true) SystemNavigator.pop();
-        return false;
       },
       child: Scaffold(
         body: PageView(
