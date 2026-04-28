@@ -5,7 +5,7 @@ import 'package:homebazaar/model/property.dart';
 import 'package:homebazaar/model/review.dart';
 import 'package:homebazaar/providers/reviews_provider.dart';
 import 'package:homebazaar/view/components/app_shared.dart';
-import 'package:homebazaar/view/components/skeletons.dart';
+import 'package:homebazaar/view/components/loaders.dart';
 
 class ReviewsScreen extends StatefulWidget {
   const ReviewsScreen({super.key});
@@ -194,9 +194,9 @@ class _ReviewCardState extends State<_ReviewCard> {
                   ? const SizedBox(
                       width: 32,
                       height: 32,
-                      child: Padding(
+                      child: const Padding(
                         padding: EdgeInsets.all(8),
-                        child: CircularProgressIndicator(strokeWidth: 2),
+                        child: AppLoaderInline(size: 16, strokeWidth: 2),
                       ),
                     )
                   : IconButton(

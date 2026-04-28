@@ -5,7 +5,7 @@ import 'package:homebazaar/providers/comparisons_provider.dart';
 import 'package:homebazaar/providers/properties_provider.dart';
 import 'package:homebazaar/providers/reviews_provider.dart';
 import 'package:homebazaar/providers/saved_provider.dart';
-import 'package:homebazaar/view/components/skeletons.dart';
+import 'package:homebazaar/view/components/loaders.dart';
 import 'package:provider/provider.dart';
 import 'widgets/hero_gallery.dart';
 import 'widgets/primary_content.dart';

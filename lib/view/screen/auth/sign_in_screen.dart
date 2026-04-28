@@ -5,7 +5,7 @@ import 'package:homebazaar/core/error_handler.dart';
 import 'package:homebazaar/core/router/app_router.dart';
 import 'package:homebazaar/providers/auth_provider.dart';
 import 'package:homebazaar/view/components/app_form_fields.dart';
-import 'package:homebazaar/view/components/app_loader.dart';
+import 'package:homebazaar/view/components/loaders.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});

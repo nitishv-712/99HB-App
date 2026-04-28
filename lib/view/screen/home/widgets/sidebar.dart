@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:homebazaar/view/components/loaders.dart';
 import 'package:provider/provider.dart';
 import 'package:homebazaar/core/router/app_router.dart';
 import 'package:homebazaar/core/theme/app_theme.dart';
@@ -301,7 +302,7 @@ class _ComparisonSheetState extends State<_ComparisonSheet> {
                   child: Container(padding: const EdgeInsets.symmetric(vertical: 13),
                       decoration: BoxDecoration(color: cs.onSurface, borderRadius: BorderRadius.circular(12)),
                       child: Center(child: _creating
-                          ? SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: cs.surface))
+                          ? const AppLoaderInline(size: 18, strokeWidth: 2, color: Colors.white)
                           : Text('Create', style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: cs.surface)))),
                 )),
               ],
@@ -359,7 +360,7 @@ class _ComparisonOptionState extends State<_ComparisonOption> {
                     style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant)),
               ],
             )),
-            if (_loading) SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: cs.onSurface))
+            if (_loading) const AppLoaderInline(size: 18, strokeWidth: 2)
             else if (added) Icon(Icons.check_circle_rounded, size: 18, color: Colors.green.shade600)
             else Icon(Icons.add_rounded, size: 18, color: cs.onSurface),
           ],

@@ -5,7 +5,7 @@ import 'package:homebazaar/model/comparison.dart';
 import 'package:homebazaar/model/property.dart';
 import 'package:homebazaar/providers/comparisons_provider.dart';
 import 'package:homebazaar/view/components/app_shared.dart';
-import 'package:homebazaar/view/components/skeletons.dart';
+import 'package:homebazaar/view/components/loaders.dart';
 
 // ── Comparisons List ──────────────────────────────────────────────────────────
 

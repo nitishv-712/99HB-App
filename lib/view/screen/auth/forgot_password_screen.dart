@@ -6,7 +6,7 @@ import 'package:homebazaar/core/error_handler.dart';
 import 'package:homebazaar/core/theme/app_theme.dart';
 import 'package:homebazaar/providers/auth_provider.dart';
 import 'package:homebazaar/view/components/app_form_fields.dart';
-import 'package:homebazaar/view/components/app_loader.dart';
+import 'package:homebazaar/view/components/loaders.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});

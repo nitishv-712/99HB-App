@@ -5,7 +5,7 @@ import 'package:homebazaar/core/router/app_router.dart';
 import 'package:homebazaar/model/analytics.dart';
 import 'package:homebazaar/providers/analytics_provider.dart';
 import 'package:homebazaar/view/components/app_shared.dart';
-import 'package:homebazaar/view/components/skeletons.dart';
+import 'package:homebazaar/view/components/loaders.dart';
 
 class AnalyticsScreen extends StatefulWidget {
   const AnalyticsScreen({super.key});

@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:homebazaar/model/review.dart';
 import 'package:homebazaar/model/user.dart';
 import 'package:homebazaar/providers/reviews_provider.dart';
-import 'package:homebazaar/view/components/skeletons.dart';
+import 'package:homebazaar/view/components/loaders.dart';
 
 class DetailReviewsSection extends StatelessWidget {
   final String propertyId;
@@ -458,14 +458,7 @@ class _SubmitReviewSheetState extends State<SubmitReviewSheet> {
                 ),
                 child: Center(
                   child: _loading
-                      ? SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: cs.surface,
-                          ),
-                        )
+                      ? const AppLoaderInline(size: 20, strokeWidth: 2, color: Colors.white)
                       : Text(
                           isEdit ? 'Update Review' : 'Submit Review',
                           style: GoogleFonts.inter(
@@ -565,7 +558,7 @@ class _ShimmerState extends State<_Shimmer>
   @override
   Widget build(BuildContext context) => AnimatedBuilder(
     animation: _ctrl,
-    builder: (_, __) =>
+    builder: (_, _) =>
         _ShimmerScope(progress: _ctrl.value, child: widget.child),
   );
 }

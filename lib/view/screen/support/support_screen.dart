@@ -5,7 +5,7 @@ import 'package:homebazaar/model/support_ticket.dart';
 import 'package:homebazaar/providers/auth_provider.dart';
 import 'package:homebazaar/providers/support_provider.dart';
 import 'package:homebazaar/view/components/app_shared.dart';
-import 'package:homebazaar/view/components/skeletons.dart';
+import 'package:homebazaar/view/components/loaders.dart';
 
 // ── Support List ──────────────────────────────────────────────────────────────
 
@@ -297,14 +297,7 @@ class _CreateTicketSheetState extends State<_CreateTicketSheet> {
                 ),
                 child: Center(
                   child: _loading
-                      ? SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: cs.surface,
-                          ),
-                        )
+                      ? const AppLoaderInline(size: 20, strokeWidth: 2, color: Colors.white)
                       : Text(
                           'Submit Ticket',
                           style: GoogleFonts.inter(
@@ -408,7 +401,7 @@ class _TicketDetailScreenState extends State<TicketDetailScreen> {
       body: Consumer<SupportProvider>(
         builder: (_, prov, child) {
           if (prov.detailLoading && prov.detail == null) {
-            return const Center(child: CircularProgressIndicator());
+            return const AppSpinner();
           }
           if (prov.detailError != null) {
             return Scaffold(
@@ -577,10 +570,7 @@ class _TicketHeader extends StatelessWidget {
                           border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.3)),
                         ),
                         child: closing
-                            ? SizedBox(
-                                width: 12, height: 12,
-                                child: CircularProgressIndicator(strokeWidth: 1.5, color: cs.onSurfaceVariant),
-                              )
+                            ? const AppLoaderInline(size: 12, strokeWidth: 1.5)
                             : Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
@@ -896,10 +886,9 @@ class _ReplyInput extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: sending
-                      ? Padding(
-                          padding: const EdgeInsets.all(12),
-                          child: CircularProgressIndicator(
-                              strokeWidth: 2, color: cs.surface),
+                      ? const Padding(
+                          padding: EdgeInsets.all(12),
+                          child: AppLoaderInline(size: 18, strokeWidth: 2, color: Colors.white),
                         )
                       : Icon(
                           Icons.send_rounded,

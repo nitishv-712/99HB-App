@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:homebazaar/providers/properties_provider.dart';
 import 'buy_property_card.dart';
-import 'package:homebazaar/view/components/skeletons.dart';
+import 'package:homebazaar/view/components/loaders.dart';
 
 class BuyResultsSliver extends StatelessWidget {
   final VoidCallback onRetry;

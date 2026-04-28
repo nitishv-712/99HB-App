@@ -7,7 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:homebazaar/providers/auth_provider.dart';
 import 'package:homebazaar/providers/user_provider.dart';
 import 'package:homebazaar/view/components/app_form_fields.dart';
-import 'package:homebazaar/view/components/app_loader.dart';
+import 'package:homebazaar/view/components/loaders.dart';
 import 'package:homebazaar/view/components/app_shared.dart';
 
 class EditProfileScreen extends StatefulWidget {

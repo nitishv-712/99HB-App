@@ -1,5 +1,92 @@
 import 'package:flutter/material.dart';
 
+// ── Full-screen overlay loader ────────────────────────────────────────────────
+
+class AppLoader extends StatelessWidget {
+  const AppLoader({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const ColoredBox(
+      color: Colors.black26,
+      child: Center(child: _LoaderCard()),
+    );
+  }
+}
+
+class _LoaderCard extends StatelessWidget {
+  const _LoaderCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 28),
+      decoration: BoxDecoration(
+        color: cs.surface,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withValues(alpha: 0.12), blurRadius: 24),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(
+            width: 40,
+            height: 40,
+            child: CircularProgressIndicator(
+              strokeWidth: 3,
+              valueColor: AlwaysStoppedAnimation(cs.onSurface),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Please wait...',
+            style: TextStyle(
+              color: cs.onSurfaceVariant,
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Inline button spinner ─────────────────────────────────────────────────────
+
+class AppLoaderInline extends StatelessWidget {
+  final double size;
+  final Color? color;
+  final double strokeWidth;
+  const AppLoaderInline({super.key, this.size = 20, this.color, this.strokeWidth = 2.5});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: size,
+      height: size,
+      child: CircularProgressIndicator(
+        strokeWidth: strokeWidth,
+        color: color ?? Theme.of(context).colorScheme.onSurface,
+      ),
+    );
+  }
+}
+
+// ── Center spinner (for empty states / pagination) ────────────────────────────
+
+class AppSpinner extends StatelessWidget {
+  const AppSpinner({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(child: CircularProgressIndicator());
+  }
+}
+
 // ── Shimmer base ──────────────────────────────────────────────────────────────
 
 class _Shimmer extends StatefulWidget {
@@ -72,7 +159,7 @@ class SkeletonBox extends StatelessWidget {
   }
 }
 
-// ── Property card skeleton (2-col grid) ───────────────────────────────────────
+// ── Property card skeleton ────────────────────────────────────────────────────
 
 class SkeletonPropertyCard extends StatelessWidget {
   const SkeletonPropertyCard({super.key});
@@ -181,7 +268,7 @@ class SkeletonList extends StatelessWidget {
   }
 }
 
-// ── Tile skeleton (for comparisons, inquiries, reviews, etc.) ─────────────────
+// ── Tile skeleton ─────────────────────────────────────────────────────────────
 
 class SkeletonTile extends StatelessWidget {
   const SkeletonTile({super.key});
@@ -254,7 +341,7 @@ class SkeletonAnalytics extends StatelessWidget {
   }
 }
 
-// ── Property detail skeleton ─────────────────────────────────────────────────
+// ── Property detail skeleton ──────────────────────────────────────────────────
 
 class SkeletonPropertyDetail extends StatelessWidget {
   const SkeletonPropertyDetail({super.key});
@@ -301,7 +388,7 @@ class SkeletonPropertyDetail extends StatelessWidget {
   }
 }
 
-// ── Featured listings horizontal skeleton ────────────────────────────────────
+// ── Featured listings skeleton ────────────────────────────────────────────────
 
 class SkeletonFeaturedListings extends StatelessWidget {
   const SkeletonFeaturedListings({super.key});

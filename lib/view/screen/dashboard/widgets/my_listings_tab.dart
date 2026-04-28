@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:homebazaar/core/router/app_router.dart';
 import 'package:homebazaar/model/property.dart';
 import 'package:homebazaar/providers/user_provider.dart';
-import 'package:homebazaar/view/components/skeletons.dart';
+import 'package:homebazaar/view/components/loaders.dart';
 import 'dash_states.dart';
 
 class DashMyListingsTab extends StatelessWidget {

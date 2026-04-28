@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:homebazaar/providers/search_history_provider.dart';
 import 'package:homebazaar/view/components/app_shared.dart';
-import 'package:homebazaar/view/components/skeletons.dart';
+import 'package:homebazaar/view/components/loaders.dart';
 
 class SearchHistoryScreen extends StatefulWidget {
   const SearchHistoryScreen({super.key});

@@ -6,7 +6,7 @@ import 'package:homebazaar/core/router/app_router.dart';
 import 'package:homebazaar/model/user.dart';
 import 'package:homebazaar/providers/auth_provider.dart';
 import 'package:homebazaar/view/components/app_form_fields.dart';
-import 'package:homebazaar/view/components/app_loader.dart';
+import 'package:homebazaar/view/components/loaders.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});

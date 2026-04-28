@@ -7,7 +7,7 @@ import 'package:homebazaar/model/user.dart';
 import 'package:homebazaar/providers/auth_provider.dart';
 import 'package:homebazaar/providers/inquiries_provider.dart';
 import 'package:homebazaar/view/components/app_shared.dart';
-import 'package:homebazaar/view/components/skeletons.dart';
+import 'package:homebazaar/view/components/loaders.dart';
 
 // ── Inquiries List ────────────────────────────────────────────────────────────
 
@@ -289,7 +289,7 @@ class _InquiryChatScreenState extends State<InquiryChatScreen> {
       body: Consumer<InquiriesProvider>(
         builder: (_, prov, __) {
           if (prov.detailLoading && prov.detail == null) {
-            return const Center(child: CircularProgressIndicator());
+            return const AppSpinner();
           }
           if (prov.detailError != null) {
             return Scaffold(
@@ -465,13 +465,7 @@ class _ChatHeader extends StatelessWidget {
                               color: cs.outlineVariant.withOpacity(0.3)),
                         ),
                         child: updatingStatus
-                            ? SizedBox(
-                                width: 12,
-                                height: 12,
-                                child: CircularProgressIndicator(
-                                    strokeWidth: 1.5,
-                                    color: cs.onSurfaceVariant),
-                              )
+                            ? const AppLoaderInline(size: 12, strokeWidth: 1.5)
                             : Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
@@ -816,10 +810,9 @@ class _ReplyInput extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: sending
-                      ? Padding(
-                          padding: const EdgeInsets.all(12),
-                          child: CircularProgressIndicator(
-                              strokeWidth: 2, color: cs.surface),
+                      ? const Padding(
+                          padding: EdgeInsets.all(12),
+                          child: AppLoaderInline(size: 18, strokeWidth: 2, color: Colors.white),
                         )
                       : Icon(
                           Icons.send_rounded,

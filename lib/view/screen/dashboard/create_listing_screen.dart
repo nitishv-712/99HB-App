@@ -8,7 +8,7 @@ import 'package:homebazaar/providers/analytics_provider.dart';
 import 'package:homebazaar/providers/properties_provider.dart';
 import 'package:homebazaar/providers/user_provider.dart';
 import 'package:homebazaar/view/components/app_form_fields.dart';
-import 'package:homebazaar/view/components/app_loader.dart';
+import 'package:homebazaar/view/components/loaders.dart';
 import 'package:homebazaar/view/components/app_shared.dart';
 
 class CreateListingScreen extends StatefulWidget {
