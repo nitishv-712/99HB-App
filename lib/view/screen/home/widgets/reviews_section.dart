@@ -14,7 +14,7 @@ class DetailReviewsSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return Consumer<ReviewsProvider>(
-      builder: (_, prov, __) => Column(
+      builder: (_, prov, _) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
@@ -105,9 +105,9 @@ class ReviewRatingSummary extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 20),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: cs.surfaceContainerHighest.withOpacity(0.3),
+        color: cs.surfaceContainerHighest.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: cs.outlineVariant.withOpacity(0.2)),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.2)),
       ),
       child: Row(
         children: [
@@ -213,9 +213,9 @@ class ReviewItemCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 14),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: cs.surfaceContainerHighest.withOpacity(0.3),
+        color: cs.surfaceContainerHighest.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: cs.outlineVariant.withOpacity(0.2)),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -254,7 +254,7 @@ class ReviewItemCard extends StatelessWidget {
                       review.createdAt.substring(0, 10),
                       style: TextStyle(
                         fontSize: 11,
-                        color: cs.onSurfaceVariant.withOpacity(0.6),
+                        color: cs.onSurfaceVariant.withValues(alpha: 0.85),
                       ),
                     ),
                   ],
@@ -381,7 +381,7 @@ class _SubmitReviewSheetState extends State<SubmitReviewSheet> {
               fontSize: 10,
               fontWeight: FontWeight.bold,
               letterSpacing: 2,
-              color: cs.onSurfaceVariant.withOpacity(0.6),
+              color: cs.onSurfaceVariant.withValues(alpha: 0.85),
             ),
           ),
           const SizedBox(height: 8),
@@ -431,8 +431,9 @@ class _SubmitReviewSheetState extends State<SubmitReviewSheet> {
                   ? null
                   : () async {
                       if (_titleCtrl.text.trim().isEmpty ||
-                          _commentCtrl.text.trim().isEmpty)
+                          _commentCtrl.text.trim().isEmpty) {
                         return;
+                      }
                       setState(() => _loading = true);
                       final ok = isEdit
                           ? await context.read<ReviewsProvider>().update(
@@ -458,7 +459,11 @@ class _SubmitReviewSheetState extends State<SubmitReviewSheet> {
                 ),
                 child: Center(
                   child: _loading
-                      ? const AppLoaderInline(size: 20, strokeWidth: 2, color: Colors.white)
+                      ? const AppLoaderInline(
+                          size: 20,
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        )
                       : Text(
                           isEdit ? 'Update Review' : 'Submit Review',
                           style: GoogleFonts.inter(

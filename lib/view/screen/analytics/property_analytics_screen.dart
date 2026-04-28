@@ -40,7 +40,7 @@ class _PropertyAnalyticsScreenState extends State<PropertyAnalyticsScreen> {
         title: widget.propertyTitle ?? 'Property Analytics',
       ),
       body: Consumer<AnalyticsProvider>(
-        builder: (_, prov, __) {
+        builder: (_, prov, _) {
           if (prov.propertyLoading) {
             return const SkeletonAnalytics();
           }
@@ -363,7 +363,7 @@ class _TrendChart extends StatelessWidget {
                 child: Container(
                   height: 76 * h,
                   decoration: BoxDecoration(
-                    color: cs.onSurface.withValues(alpha: 0.7),
+                    color: cs.onSurface.withValues(alpha: 0.85),
                     borderRadius: BorderRadius.circular(3),
                   ),
                 ),

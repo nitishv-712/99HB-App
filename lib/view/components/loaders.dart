@@ -26,7 +26,7 @@ class _LoaderCard extends StatelessWidget {
         color: cs.surface,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
-          BoxShadow(color: Colors.black.withValues(alpha: 0.12), blurRadius: 24),
+          BoxShadow(color: cs.onSurface.withValues(alpha: 0.08), blurRadius: 24),
         ],
       ),
       child: Column(
@@ -113,7 +113,7 @@ class _ShimmerState extends State<_Shimmer> with SingleTickerProviderStateMixin 
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: _ctrl,
-      builder: (_, __) => _ShimmerScope(progress: _ctrl.value, child: widget.child),
+      builder: (_, _) => _ShimmerScope(progress: _ctrl.value, child: widget.child),
     );
   }
 }
@@ -205,7 +205,7 @@ class SkeletonPropertyGrid extends StatelessWidget {
           childAspectRatio: 0.62,
         ),
         delegate: SliverChildBuilderDelegate(
-          (_, __) => const SkeletonPropertyCard(),
+          (_, _) => const SkeletonPropertyCard(),
           childCount: count,
         ),
       ),
@@ -262,8 +262,8 @@ class SkeletonList extends StatelessWidget {
     return ListView.separated(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 100),
       itemCount: count,
-      separatorBuilder: (_, __) => const SizedBox(height: 12),
-      itemBuilder: (_, __) => itemBuilder(),
+      separatorBuilder: (_, _) => const SizedBox(height: 12),
+      itemBuilder: (_, _) => itemBuilder(),
     );
   }
 }
@@ -402,8 +402,8 @@ class SkeletonFeaturedListings extends StatelessWidget {
           scrollDirection: Axis.horizontal,
           padding: const EdgeInsets.symmetric(horizontal: 16),
           itemCount: 3,
-          separatorBuilder: (_, __) => const SizedBox(width: 14),
-          itemBuilder: (_, __) => SizedBox(
+          separatorBuilder: (_, _) => const SizedBox(width: 14),
+          itemBuilder: (_, _) => SizedBox(
             width: 220,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

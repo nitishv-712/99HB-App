@@ -45,7 +45,7 @@ class PropertyCardHorizontal extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: cs.onSurface.withOpacity(0.06),
+              color: cs.onSurface.withValues(alpha: 0.06),
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),
@@ -66,8 +66,7 @@ class PropertyCardHorizontal extends StatelessWidget {
                     height: 180,
                     width: double.infinity,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) =>
-                        _ImagePlaceholder(height: 180),
+                    errorBuilder: (_, _, _) => _ImagePlaceholder(height: 180),
                   ),
                   if (item.badge.isNotEmpty)
                     Positioned(
@@ -158,7 +157,7 @@ class PropertyCardVertical extends StatelessWidget {
                     Image.network(
                       item.imageUrl,
                       fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) =>
+                      errorBuilder: (_, _, _) =>
                           _ImagePlaceholder(height: null),
                     ),
                     if (item.badge.isNotEmpty)

@@ -128,8 +128,8 @@ abstract final class AppRouter {
   // ── Slide transition ──────────────────────────────────────────────────────
 
   static PageRouteBuilder _slide(Widget page) => PageRouteBuilder(
-    pageBuilder: (_, __, ___) => page,
-    transitionsBuilder: (_, animation, __, child) => SlideTransition(
+    pageBuilder: (_, _, _) => page,
+    transitionsBuilder: (_, animation, _, child) => SlideTransition(
       position: Tween<Offset>(
         begin: const Offset(1, 0),
         end: Offset.zero,

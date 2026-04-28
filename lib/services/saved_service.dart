@@ -9,14 +9,16 @@ abstract final class SavedService {
     int? limit,
   }) async {
     final qs = ApiClient.buildQuery({
-      if (page != null) 'page': page,
-      if (limit != null) 'limit': limit,
+      'page': ?page,
+      'limit': ?limit,
     });
     final json = await ApiClient.fetch<Map<String, dynamic>>('/saved$qs');
     return ApiResponse.fromJson(json, (d) {
-      if (d is List) return d
+      if (d is List) {
+        return d
           .map((e) => ApiSavedProperty.fromJson(e as Map<String, dynamic>))
           .toList();
+      }
       if (d is Map<String, dynamic>) {
         for (final key in ['savedProperties', 'saved', 'items', 'data']) {
           if (d[key] is List) {

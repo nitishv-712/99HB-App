@@ -30,7 +30,7 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
       backgroundColor: cs.surface,
       appBar: const AppStandardBar(title: 'My Reviews'),
       body: Consumer<ReviewsProvider>(
-        builder: (_, prov, __) {
+        builder: (_, prov, _) {
           if (prov.myLoading) {
             return SkeletonList(itemBuilder: () => const SkeletonTile());
           }
@@ -50,7 +50,7 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
           return ListView.separated(
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 100),
             itemCount: prov.myReviews.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 12),
+            separatorBuilder: (_, _) => const SizedBox(height: 12),
             itemBuilder: (_, i) => _ReviewCard(review: prov.myReviews[i]),
           );
         },
@@ -92,8 +92,9 @@ class _ReviewCardState extends State<_ReviewCard> {
             child: Text(
               'Delete',
               style: TextStyle(
-                  color: Theme.of(context).colorScheme.error,
-                  fontWeight: FontWeight.bold),
+                color: Theme.of(context).colorScheme.error,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
         ],
@@ -105,9 +106,9 @@ class _ReviewCardState extends State<_ReviewCard> {
     if (mounted) {
       setState(() => _deleting = false);
       if (ok) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Review deleted')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Review deleted')));
       }
     }
   }
@@ -122,17 +123,18 @@ class _ReviewCardState extends State<_ReviewCard> {
 
     final isPublished = review.status == ReviewStatus.published;
     final statusBg = isPublished
-        ? const Color(0xFF10B981).withOpacity(0.12)
-        : const Color(0xFFF59E0B).withOpacity(0.12);
-    final statusFg =
-        isPublished ? const Color(0xFF34D399) : const Color(0xFFF59E0B);
+        ? const Color(0xFF10B981).withValues(alpha: 0.12)
+        : const Color(0xFFF59E0B).withValues(alpha: 0.12);
+    final statusFg = isPublished
+        ? const Color(0xFF34D399)
+        : const Color(0xFFF59E0B);
 
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: cs.surfaceContainerLowest,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: cs.outlineVariant.withOpacity(0.25)),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.25)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -151,7 +153,9 @@ class _ReviewCardState extends State<_ReviewCard> {
                         const SizedBox(width: 10),
                         Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 3),
+                            horizontal: 8,
+                            vertical: 3,
+                          ),
                           decoration: BoxDecoration(
                             color: statusBg,
                             borderRadius: BorderRadius.circular(4),
@@ -183,8 +187,11 @@ class _ReviewCardState extends State<_ReviewCard> {
               // Edit button (stub)
               IconButton(
                 onPressed: () {},
-                icon: Icon(Icons.edit_outlined,
-                    size: 16, color: cs.onSurfaceVariant),
+                icon: Icon(
+                  Icons.edit_outlined,
+                  size: 16,
+                  color: cs.onSurfaceVariant,
+                ),
                 visualDensity: VisualDensity.compact,
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
@@ -194,19 +201,24 @@ class _ReviewCardState extends State<_ReviewCard> {
                   ? const SizedBox(
                       width: 32,
                       height: 32,
-                      child: const Padding(
+                      child: Padding(
                         padding: EdgeInsets.all(8),
                         child: AppLoaderInline(size: 16, strokeWidth: 2),
                       ),
                     )
                   : IconButton(
                       onPressed: _delete,
-                      icon: Icon(Icons.delete_outline_rounded,
-                          size: 16, color: cs.error),
+                      icon: Icon(
+                        Icons.delete_outline_rounded,
+                        size: 16,
+                        color: cs.error,
+                      ),
                       visualDensity: VisualDensity.compact,
                       padding: EdgeInsets.zero,
-                      constraints:
-                          const BoxConstraints(minWidth: 32, minHeight: 32),
+                      constraints: const BoxConstraints(
+                        minWidth: 32,
+                        minHeight: 32,
+                      ),
                     ),
             ],
           ),
@@ -235,7 +247,9 @@ class _ReviewCardState extends State<_ReviewCard> {
                   child: Text(
                     prop.title,
                     style: GoogleFonts.inter(
-                        fontSize: 11, color: cs.onSurfaceVariant),
+                      fontSize: 11,
+                      color: cs.onSurfaceVariant,
+                    ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -248,7 +262,7 @@ class _ReviewCardState extends State<_ReviewCard> {
                     : review.createdAt,
                 style: GoogleFonts.inter(
                   fontSize: 10,
-                  color: cs.onSurfaceVariant.withOpacity(0.55),
+                  color: cs.onSurfaceVariant.withValues(alpha: 0.8),
                 ),
               ),
             ],
@@ -275,7 +289,9 @@ class _StarRow extends StatelessWidget {
         return Icon(
           filled ? Icons.star_rounded : Icons.star_outline_rounded,
           size: 14,
-          color: filled ? cs.onSurface : cs.onSurfaceVariant.withOpacity(0.4),
+          color: filled
+              ? cs.onSurface
+              : cs.onSurfaceVariant.withValues(alpha: 0.7),
         );
       }),
     );

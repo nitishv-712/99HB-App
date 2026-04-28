@@ -9,7 +9,9 @@ class DashProfileCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final name = user != null ? '${user!.firstName} ${user!.lastName}' : 'Guest';
+    final name = user != null
+        ? '${user!.firstName} ${user!.lastName}'
+        : 'Guest';
     final role = user?.role ?? 'buyer';
     final avatar = user?.avatar;
 
@@ -23,7 +25,11 @@ class DashProfileCard extends StatelessWidget {
             decoration: const BoxDecoration(
               shape: BoxShape.circle,
               gradient: LinearGradient(
-                colors: [Color(0xFF9F77DD), Color(0xFF5DCAA5), Color(0xFFF09595)],
+                colors: [
+                  Color(0xFF9F77DD),
+                  Color(0xFF5DCAA5),
+                  Color(0xFFF09595),
+                ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -31,11 +37,18 @@ class DashProfileCard extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.all(2.5),
               child: Container(
-                decoration: BoxDecoration(shape: BoxShape.circle, color: cs.surface),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: cs.surface,
+                ),
                 child: ClipOval(
                   child: avatar != null
-                      ? Image.network(avatar, fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => AvatarFallback(name: name, cs: cs))
+                      ? Image.network(
+                          avatar,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, _, _) =>
+                              AvatarFallback(name: name, cs: cs),
+                        )
                       : AvatarFallback(name: name, cs: cs),
                 ),
               ),
@@ -49,10 +62,15 @@ class DashProfileCard extends StatelessWidget {
                 Row(
                   children: [
                     Flexible(
-                      child: Text(name,
-                          style: GoogleFonts.notoSerif(
-                              fontSize: 20, fontWeight: FontWeight.w900, color: cs.onSurface),
-                          overflow: TextOverflow.ellipsis),
+                      child: Text(
+                        name,
+                        style: GoogleFonts.notoSerif(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w900,
+                          color: cs.onSurface,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                     if (user?.isVerified == true) ...[
                       const SizedBox(width: 6),
@@ -62,16 +80,26 @@ class DashProfileCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: cs.surfaceContainerHighest.withOpacity(0.5),
-                    borderRadius: BorderRadius.circular(999),
-                    border: Border.all(color: cs.outlineVariant.withOpacity(0.3)),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 3,
                   ),
-                  child: Text(role.toUpperCase(),
-                      style: GoogleFonts.inter(
-                          fontSize: 9, fontWeight: FontWeight.bold,
-                          letterSpacing: 1.5, color: cs.onSurfaceVariant)),
+                  decoration: BoxDecoration(
+                    color: cs.surfaceContainerHighest.withValues(alpha: 0.5),
+                    borderRadius: BorderRadius.circular(999),
+                    border: Border.all(
+                      color: cs.outlineVariant.withValues(alpha: 0.3),
+                    ),
+                  ),
+                  child: Text(
+                    role.toUpperCase(),
+                    style: GoogleFonts.inter(
+                      fontSize: 9,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.5,
+                      color: cs.onSurfaceVariant,
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -91,12 +119,24 @@ class AvatarFallback extends StatelessWidget {
   Widget build(BuildContext context) {
     final initials = name.trim().isEmpty
         ? '?'
-        : name.trim().split(' ').map((e) => e.isNotEmpty ? e[0] : '').take(2).join().toUpperCase();
+        : name
+              .trim()
+              .split(' ')
+              .map((e) => e.isNotEmpty ? e[0] : '')
+              .take(2)
+              .join()
+              .toUpperCase();
     return Container(
       color: cs.surfaceContainerHighest,
       child: Center(
-        child: Text(initials,
-            style: GoogleFonts.notoSerif(fontSize: 20, fontWeight: FontWeight.bold, color: cs.onSurface)),
+        child: Text(
+          initials,
+          style: GoogleFonts.notoSerif(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: cs.onSurface,
+          ),
+        ),
       ),
     );
   }

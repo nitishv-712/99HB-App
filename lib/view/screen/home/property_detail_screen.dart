@@ -80,7 +80,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
         actions: [
           if (widget.propertyId != null)
             Consumer<SavedProvider>(
-              builder: (_, saved, __) {
+              builder: (_, saved, _) {
                 final isSaved = saved.isSaved(widget.propertyId!);
                 return IconButton(
                   icon: Icon(

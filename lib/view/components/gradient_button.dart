@@ -40,7 +40,7 @@ class GradientButton extends StatelessWidget {
           boxShadow: onPressed != null
               ? [
                   BoxShadow(
-                    color: cs.onSurface.withOpacity(0.15),
+                    color: cs.onSurface.withValues(alpha: 0.15),
                     blurRadius: 16,
                     offset: const Offset(0, 6),
                   ),
@@ -77,7 +77,9 @@ class GradientButton extends StatelessWidget {
     label,
     style: GoogleFonts.inter(
       fontWeight: FontWeight.bold,
-      color: onPressed != null ? Colors.white : cs.onSurface.withOpacity(0.4),
+      color: onPressed != null
+          ? Colors.white
+          : cs.onSurface.withValues(alpha: 0.4),
       letterSpacing: letterSpacing,
       fontSize: fontSize,
     ),

@@ -13,10 +13,13 @@ class DashMyListingsTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<UserProvider>();
-    if (provider.listingsLoading) return SkeletonList(itemBuilder: () => const SkeletonListRow());
+    if (provider.listingsLoading)
+      return SkeletonList(itemBuilder: () => const SkeletonListRow());
     if (provider.listingsError != null) {
-      return DashErrorState(message: provider.listingsError!,
-          onRetry: () => context.read<UserProvider>().fetchMyListings());
+      return DashErrorState(
+        message: provider.listingsError!,
+        onRetry: () => context.read<UserProvider>().fetchMyListings(),
+      );
     }
     if (provider.myListings.isEmpty) {
       return DashEmptyState(
@@ -30,8 +33,9 @@ class DashMyListingsTab extends StatelessWidget {
     return ListView.separated(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 100),
       itemCount: provider.myListings.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 12),
-      itemBuilder: (_, i) => _ListingRow(property: provider.myListings[i], index: i),
+      separatorBuilder: (_, _) => const SizedBox(height: 12),
+      itemBuilder: (_, i) =>
+          _ListingRow(property: provider.myListings[i], index: i),
     );
   }
 }
@@ -45,7 +49,8 @@ class _ListingRow extends StatefulWidget {
   State<_ListingRow> createState() => _ListingRowState();
 }
 
-class _ListingRowState extends State<_ListingRow> with SingleTickerProviderStateMixin {
+class _ListingRowState extends State<_ListingRow>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _ctrl;
   late final Animation<double> _fade;
   late final Animation<Offset> _slide;
@@ -53,15 +58,25 @@ class _ListingRowState extends State<_ListingRow> with SingleTickerProviderState
   @override
   void initState() {
     super.initState();
-    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 350));
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 350),
+    );
     _fade = CurvedAnimation(parent: _ctrl, curve: Curves.easeOut);
-    _slide = Tween<Offset>(begin: const Offset(0.05, 0), end: Offset.zero)
-        .animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOutCubic));
-    Future.delayed(Duration(milliseconds: 60 * widget.index), () { if (mounted) _ctrl.forward(); });
+    _slide = Tween<Offset>(
+      begin: const Offset(0.05, 0),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOutCubic));
+    Future.delayed(Duration(milliseconds: 60 * widget.index), () {
+      if (mounted) _ctrl.forward();
+    });
   }
 
   @override
-  void dispose() { _ctrl.dispose(); super.dispose(); }
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -75,23 +90,33 @@ class _ListingRowState extends State<_ListingRow> with SingleTickerProviderState
       child: SlideTransition(
         position: _slide,
         child: GestureDetector(
-          onTap: () => AppRouter.push(context, AppRoutes.propertyDetail, args: widget.property.id),
+          onTap: () => AppRouter.push(
+            context,
+            AppRoutes.propertyDetail,
+            args: widget.property.id,
+          ),
           child: Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: cs.surfaceContainerHighest.withOpacity(0.3),
+              color: cs.surfaceContainerHighest.withValues(alpha: 0.3),
               borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: cs.outlineVariant.withOpacity(0.2)),
+              border: Border.all(
+                color: cs.outlineVariant.withValues(alpha: 0.2),
+              ),
             ),
             child: Row(
               children: [
                 ClipRRect(
                   borderRadius: BorderRadius.circular(12),
                   child: SizedBox(
-                    width: 76, height: 76,
+                    width: 76,
+                    height: 76,
                     child: imageUrl != null
-                        ? Image.network(imageUrl, fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => _ImgPlaceholder(cs: cs))
+                        ? Image.network(
+                            imageUrl,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, _, _) => _ImgPlaceholder(cs: cs),
+                          )
                         : _ImgPlaceholder(cs: cs),
                   ),
                 ),
@@ -100,39 +125,86 @@ class _ListingRowState extends State<_ListingRow> with SingleTickerProviderState
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(widget.property.title,
-                          style: GoogleFonts.notoSerif(fontSize: 14, fontWeight: FontWeight.bold, color: cs.onSurface),
-                          maxLines: 1, overflow: TextOverflow.ellipsis),
-                      const SizedBox(height: 3),
-                      Row(children: [
-                        Icon(Icons.location_on_outlined, size: 11, color: cs.onSurfaceVariant),
-                        const SizedBox(width: 2),
-                        Expanded(child: Text(widget.property.locationString,
-                            style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant),
-                            maxLines: 1, overflow: TextOverflow.ellipsis)),
-                      ]),
-                      const SizedBox(height: 8),
-                      Row(children: [
-                        Text(widget.property.priceLabel,
-                            style: GoogleFonts.notoSerif(fontSize: 14, fontWeight: FontWeight.w900, color: cs.onSurface)),
-                        const Spacer(),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                          decoration: BoxDecoration(
-                            color: isActive ? const Color(0xFFEAF3DE) : cs.surfaceContainerHighest.withOpacity(0.5),
-                            borderRadius: BorderRadius.circular(999),
-                          ),
-                          child: Text(status,
-                              style: GoogleFonts.inter(fontSize: 9, fontWeight: FontWeight.bold,
-                                  color: isActive ? const Color(0xFF27500A) : cs.onSurfaceVariant,
-                                  letterSpacing: 0.8)),
+                      Text(
+                        widget.property.title,
+                        style: GoogleFonts.notoSerif(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: cs.onSurface,
                         ),
-                      ]),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 3),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.location_on_outlined,
+                            size: 11,
+                            color: cs.onSurfaceVariant,
+                          ),
+                          const SizedBox(width: 2),
+                          Expanded(
+                            child: Text(
+                              widget.property.locationString,
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: cs.onSurfaceVariant,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Text(
+                            widget.property.priceLabel,
+                            style: GoogleFonts.notoSerif(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w900,
+                              color: cs.onSurface,
+                            ),
+                          ),
+                          const Spacer(),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 3,
+                            ),
+                            decoration: BoxDecoration(
+                              color: isActive
+                                  ? const Color(0xFFEAF3DE)
+                                  : cs.surfaceContainerHighest.withValues(
+                                      alpha: 0.5,
+                                    ),
+                              borderRadius: BorderRadius.circular(999),
+                            ),
+                            child: Text(
+                              status,
+                              style: GoogleFonts.inter(
+                                fontSize: 9,
+                                fontWeight: FontWeight.bold,
+                                color: isActive
+                                    ? const Color(0xFF27500A)
+                                    : cs.onSurfaceVariant,
+                                letterSpacing: 0.8,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ),
                 const SizedBox(width: 8),
-                Icon(Icons.chevron_right_rounded, color: cs.onSurfaceVariant, size: 20),
+                Icon(
+                  Icons.chevron_right_rounded,
+                  color: cs.onSurfaceVariant,
+                  size: 20,
+                ),
               ],
             ),
           ),

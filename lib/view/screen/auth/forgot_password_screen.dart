@@ -18,8 +18,10 @@ class ForgotPasswordScreen extends StatefulWidget {
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final _identityCtrl = TextEditingController();
   final _newPassCtrl = TextEditingController();
-  final List<TextEditingController> _otpCtrls =
-      List.generate(6, (_) => TextEditingController());
+  final List<TextEditingController> _otpCtrls = List.generate(
+    6,
+    (_) => TextEditingController(),
+  );
   final List<FocusNode> _otpFocus = List.generate(6, (_) => FocusNode());
 
   bool _obscure = true;
@@ -39,12 +41,12 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   }
 
   String get _strengthLabel => switch (_strength) {
-        0 => 'Too short',
-        1 => 'Weak',
-        2 => 'Medium',
-        3 => 'Strong',
-        _ => 'Very Strong',
-      };
+    0 => 'Too short',
+    1 => 'Weak',
+    2 => 'Medium',
+    3 => 'Strong',
+    _ => 'Very Strong',
+  };
 
   Future<void> _requestOtp() async {
     final identity = _identityCtrl.text.trim();
@@ -52,14 +54,16 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     final isEmail = identity.contains('@');
     setState(() => _loadingOtp = true);
     final ok = await context.read<AuthProvider>().generateOtp(
-          email: isEmail ? identity : null,
-          phone: isEmail ? null : identity,
-        );
+      email: isEmail ? identity : null,
+      phone: isEmail ? null : identity,
+    );
     setState(() => _loadingOtp = false);
     if (!ok && mounted) {
       final error = context.read<AuthProvider>().error;
       AppErrorHandler.showError(
-          context, error ?? 'Failed to send OTP. Please try again.');
+        context,
+        error ?? 'Failed to send OTP. Please try again.',
+      );
     }
   }
 
@@ -69,11 +73,11 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     final isEmail = identity.contains('@');
     setState(() => _loadingChange = true);
     final ok = await context.read<AuthProvider>().changePassword(
-          otp: otp,
-          newPassword: _newPassCtrl.text,
-          email: isEmail ? identity : null,
-          phone: isEmail ? null : identity,
-        );
+      otp: otp,
+      newPassword: _newPassCtrl.text,
+      email: isEmail ? identity : null,
+      phone: isEmail ? null : identity,
+    );
     setState(() => _loadingChange = false);
     if (!mounted) return;
     if (ok) {
@@ -84,7 +88,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     } else {
       final error = context.read<AuthProvider>().error;
       AppErrorHandler.showError(
-          context, error ?? 'Failed to change password. Please try again.');
+        context,
+        error ?? 'Failed to change password. Please try again.',
+      );
     }
   }
 
@@ -100,8 +106,12 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   void dispose() {
     _identityCtrl.dispose();
     _newPassCtrl.dispose();
-    for (final c in _otpCtrls) c.dispose();
-    for (final f in _otpFocus) f.dispose();
+    for (final c in _otpCtrls) {
+      c.dispose();
+    }
+    for (final f in _otpFocus) {
+      f.dispose();
+    }
     super.dispose();
   }
 
@@ -123,28 +133,35 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                         child: Center(
                           child: Container(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 28, vertical: 40),
+                              horizontal: 28,
+                              vertical: 40,
+                            ),
                             child: Center(
                               child: ConstrainedBox(
-                                constraints:
-                                    const BoxConstraints(maxWidth: 400),
+                                constraints: const BoxConstraints(
+                                  maxWidth: 400,
+                                ),
                                 child: Column(
                                   mainAxisSize: MainAxisSize.min,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     GestureDetector(
-                                      onTap: () =>
-                                          Navigator.maybePop(context),
+                                      onTap: () => Navigator.maybePop(context),
                                       child: Row(
                                         children: [
-                                          Icon(Icons.arrow_back,
-                                              size: 18,
-                                              color: cs.onSurfaceVariant),
+                                          Icon(
+                                            Icons.arrow_back,
+                                            size: 18,
+                                            color: cs.onSurfaceVariant,
+                                          ),
                                           const SizedBox(width: 6),
-                                          Text('Back to Sign In',
-                                              style: TextStyle(
-                                                  color: cs.onSurfaceVariant,
-                                                  fontSize: 14)),
+                                          Text(
+                                            'Back to Sign In',
+                                            style: TextStyle(
+                                              color: cs.onSurfaceVariant,
+                                              fontSize: 14,
+                                            ),
+                                          ),
                                         ],
                                       ),
                                     ),
@@ -162,8 +179,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                     Text(
                                       'Enter your email or phone to receive a one-time code.',
                                       style: TextStyle(
-                                          color: cs.onSurfaceVariant,
-                                          fontSize: 16),
+                                        color: cs.onSurfaceVariant,
+                                        fontSize: 16,
+                                      ),
                                     ),
                                     const SizedBox(height: 40),
 
@@ -177,20 +195,25 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                     const SizedBox(height: 20),
 
                                     AppPrimaryButton(
-                                        text: 'GET OTP',
-                                        onPressed: _requestOtp),
+                                      text: 'GET OTP',
+                                      onPressed: _requestOtp,
+                                    ),
 
                                     Padding(
                                       padding: const EdgeInsets.symmetric(
-                                          vertical: 28),
+                                        vertical: 28,
+                                      ),
                                       child: Row(
                                         children: [
                                           Expanded(
-                                              child: Divider(
-                                                  color: cs.outlineVariant)),
+                                            child: Divider(
+                                              color: cs.outlineVariant,
+                                            ),
+                                          ),
                                           Padding(
                                             padding: const EdgeInsets.symmetric(
-                                                horizontal: 16),
+                                              horizontal: 16,
+                                            ),
                                             child: Text(
                                               'ENTER CODE',
                                               style: TextStyle(
@@ -202,8 +225,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                             ),
                                           ),
                                           Expanded(
-                                              child: Divider(
-                                                  color: cs.outlineVariant)),
+                                            child: Divider(
+                                              color: cs.outlineVariant,
+                                            ),
+                                          ),
                                         ],
                                       ),
                                     ),
@@ -216,8 +241,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                         (i) => _OtpBox(
                                           controller: _otpCtrls[i],
                                           focusNode: _otpFocus[i],
-                                          onChanged: (v) =>
-                                              _onOtpChanged(v, i),
+                                          onChanged: (v) => _onOtpChanged(v, i),
                                         ),
                                       ),
                                     ),
@@ -232,7 +256,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                       onChanged: (_) => setState(() {}),
                                       suffix: IconButton(
                                         onPressed: () => setState(
-                                            () => _obscure = !_obscure),
+                                          () => _obscure = !_obscure,
+                                        ),
                                         icon: Icon(
                                           _obscure
                                               ? Icons.visibility_off
@@ -250,8 +275,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                     const SizedBox(height: 28),
 
                                     AppPrimaryButton(
-                                        text: 'CHANGE PASSWORD',
-                                        onPressed: _submitChange),
+                                      text: 'CHANGE PASSWORD',
+                                      onPressed: _submitChange,
+                                    ),
                                   ],
                                 ),
                               ),
@@ -275,21 +301,27 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               child: Center(
                 child: Container(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 24, vertical: 14),
+                    horizontal: 24,
+                    vertical: 14,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.onSurface,
                     borderRadius: BorderRadius.circular(999),
                     boxShadow: [
                       BoxShadow(
-                          color: Colors.black.withOpacity(0.2),
-                          blurRadius: 20),
+                        color: cs.onSurface.withValues(alpha: 0.15),
+                        blurRadius: 20,
+                      ),
                     ],
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.check_circle_rounded,
-                          color: Color(0xFF4ADE80), size: 20),
+                      const Icon(
+                        Icons.check_circle_rounded,
+                        color: Color(0xFF4ADE80),
+                        size: 20,
+                      ),
                       const SizedBox(width: 10),
                       Text(
                         'Password updated successfully',
@@ -347,10 +379,10 @@ class _OtpBox extends StatelessWidget {
           hintText: '·',
           hintStyle: GoogleFonts.inter(
             fontSize: 20,
-            color: cs.onSurfaceVariant.withOpacity(0.4),
+            color: cs.onSurfaceVariant.withValues(alpha: 0.7),
           ),
           filled: true,
-          fillColor: cs.surfaceContainerHighest.withOpacity(0.3),
+          fillColor: cs.surfaceContainerHighest.withValues(alpha: 0.3),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: BorderSide.none,

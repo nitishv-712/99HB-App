@@ -40,8 +40,10 @@ class _BuyScreenState extends State<BuyScreen> {
   }
 
   int get _activeFilterCount =>
-      (_typeIndex != 0 ? 1 : 0) + (_sortIndex != 0 ? 1 : 0) +
-      (_priceIndex != 0 ? 1 : 0) + (_bedIndex != 0 ? 1 : 0);
+      (_typeIndex != 0 ? 1 : 0) +
+      (_sortIndex != 0 ? 1 : 0) +
+      (_priceIndex != 0 ? 1 : 0) +
+      (_bedIndex != 0 ? 1 : 0);
 
   void _fetch() {
     context.read<PropertiesProvider>().fetchListForced(
@@ -52,7 +54,9 @@ class _BuyScreenState extends State<BuyScreen> {
         minPrice: priceRanges[_priceIndex].min,
         maxPrice: priceRanges[_priceIndex].max,
         minBeds: bedOptions[_bedIndex].beds,
-        search: _searchCtrl.text.trim().isEmpty ? null : _searchCtrl.text.trim(),
+        search: _searchCtrl.text.trim().isEmpty
+            ? null
+            : _searchCtrl.text.trim(),
       ),
     );
   }
@@ -62,14 +66,20 @@ class _BuyScreenState extends State<BuyScreen> {
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
       builder: (_) => BuyAllFiltersSheet(
         typeIndex: _typeIndex,
         sortIndex: _sortIndex,
         priceIndex: _priceIndex,
         bedIndex: _bedIndex,
         onApply: (t, s, p, b) {
-          setState(() { _typeIndex = t; _sortIndex = s; _priceIndex = p; _bedIndex = b; });
+          setState(() {
+            _typeIndex = t;
+            _sortIndex = s;
+            _priceIndex = p;
+            _bedIndex = b;
+          });
           _fetch();
         },
       ),
@@ -84,62 +94,89 @@ class _BuyScreenState extends State<BuyScreen> {
     return Scaffold(
       backgroundColor: cs.surface,
       appBar: BrandAppBar(
-        searchBar: Row(children: [
-          Expanded(
-            child: Container(
-              height: 40,
-              decoration: BoxDecoration(
-                color: cs.surfaceContainerHighest.withOpacity(0.4),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: cs.outlineVariant.withOpacity(0.3)),
-              ),
-              child: Row(children: [
-                const SizedBox(width: 10),
-                Icon(Icons.search_rounded, color: cs.onSurfaceVariant, size: 18),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: TextField(
-                    controller: _searchCtrl,
-                    onSubmitted: (_) => setState(() => _fetch()),
-                    style: TextStyle(color: cs.onSurface, fontSize: 14),
-                    decoration: InputDecoration(
-                      hintText: 'Search city, project...',
-                      hintStyle: TextStyle(color: cs.onSurfaceVariant, fontSize: 14),
-                      border: InputBorder.none,
-                      isDense: true,
-                      contentPadding: EdgeInsets.zero,
-                    ),
+        searchBar: Row(
+          children: [
+            Expanded(
+              child: Container(
+                height: 40,
+                decoration: BoxDecoration(
+                  color: cs.surfaceContainerHighest.withValues(alpha: 0.4),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: cs.outlineVariant.withValues(alpha: 0.3),
                   ),
                 ),
-              ]),
-            ),
-          ),
-          const SizedBox(width: 8),
-          GestureDetector(
-            onTap: _showAllFilters,
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 180),
-              height: 40,
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              decoration: BoxDecoration(
-                color: hasFilters ? cs.onSurface : cs.surfaceContainerHighest.withOpacity(0.4),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                    color: hasFilters ? cs.onSurface : cs.outlineVariant.withOpacity(0.3)),
-              ),
-              child: Row(mainAxisSize: MainAxisSize.min, children: [
-                Icon(Icons.tune_rounded, size: 16,
-                    color: hasFilters ? cs.surface : cs.onSurfaceVariant),
-                const SizedBox(width: 5),
-                Text(
-                  hasFilters ? 'Filters ($_activeFilterCount)' : 'Filters',
-                  style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600,
-                      color: hasFilters ? cs.surface : cs.onSurface),
+                child: Row(
+                  children: [
+                    const SizedBox(width: 10),
+                    Icon(
+                      Icons.search_rounded,
+                      color: cs.onSurfaceVariant,
+                      size: 18,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: TextField(
+                        controller: _searchCtrl,
+                        onSubmitted: (_) => setState(() => _fetch()),
+                        style: TextStyle(color: cs.onSurface, fontSize: 14),
+                        decoration: InputDecoration(
+                          hintText: 'Search city, project...',
+                          hintStyle: TextStyle(
+                            color: cs.onSurfaceVariant,
+                            fontSize: 14,
+                          ),
+                          border: InputBorder.none,
+                          isDense: true,
+                          contentPadding: EdgeInsets.zero,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ]),
+              ),
             ),
-          ),
-        ]),
+            const SizedBox(width: 8),
+            GestureDetector(
+              onTap: _showAllFilters,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 180),
+                height: 40,
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                decoration: BoxDecoration(
+                  color: hasFilters
+                      ? cs.onSurface
+                      : cs.surfaceContainerHighest.withValues(alpha: 0.4),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: hasFilters
+                        ? cs.onSurface
+                        : cs.outlineVariant.withValues(alpha: 0.3),
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.tune_rounded,
+                      size: 16,
+                      color: hasFilters ? cs.surface : cs.onSurfaceVariant,
+                    ),
+                    const SizedBox(width: 5),
+                    Text(
+                      hasFilters ? 'Filters ($_activeFilterCount)' : 'Filters',
+                      style: GoogleFonts.inter(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: hasFilters ? cs.surface : cs.onSurface,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -151,12 +188,19 @@ class _BuyScreenState extends State<BuyScreen> {
               children: [
                 Text(
                   _listingType == ListingType.sale ? 'For Sale' : 'For Rent',
-                  style: GoogleFonts.notoSerif(fontSize: 28, fontWeight: FontWeight.w900,
-                      color: cs.onSurface, height: 1.1),
+                  style: GoogleFonts.notoSerif(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w900,
+                    color: cs.onSurface,
+                    height: 1.1,
+                  ),
                 ),
                 BuyListingToggle(
                   value: _listingType,
-                  onChanged: (t) => setState(() { _listingType = t; _fetch(); }),
+                  onChanged: (t) => setState(() {
+                    _listingType = t;
+                    _fetch();
+                  }),
                 ),
               ],
             ),

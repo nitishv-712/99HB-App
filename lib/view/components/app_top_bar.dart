@@ -27,7 +27,7 @@ class AppTopBar extends StatelessWidget {
             color: cs.surface,
             border: Border(
               bottom: BorderSide(
-                color: cs.outlineVariant.withOpacity(0.2),
+                color: cs.outlineVariant.withValues(alpha: 0.2),
                 width: 1,
               ),
             ),
@@ -105,9 +105,9 @@ class _IconBtn extends StatelessWidget {
         width: 38,
         height: 38,
         decoration: BoxDecoration(
-          color: cs.surfaceContainerHighest.withOpacity(0.4),
+          color: cs.surfaceContainerHighest.withValues(alpha: 0.4),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: cs.outlineVariant.withOpacity(0.3)),
+          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.3)),
         ),
         child: Icon(icon, color: cs.onSurface, size: 20),
       ),

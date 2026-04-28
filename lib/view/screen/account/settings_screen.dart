@@ -240,9 +240,9 @@ class _ProfileCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: cs.surfaceContainerLowest,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: cs.outlineVariant.withOpacity(0.15)),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.15)),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8),
+          BoxShadow(color: cs.onSurface.withValues(alpha: 0.04), blurRadius: 8),
         ],
       ),
       child: Row(
@@ -298,10 +298,10 @@ class _ProfileCard extends StatelessWidget {
                     vertical: 3,
                   ),
                   decoration: BoxDecoration(
-                    color: cs.surfaceContainerHighest.withOpacity(0.5),
+                    color: cs.surfaceContainerHighest.withValues(alpha: 0.5),
                     borderRadius: BorderRadius.circular(999),
                     border: Border.all(
-                      color: cs.outlineVariant.withOpacity(0.3),
+                      color: cs.outlineVariant.withValues(alpha: 0.3),
                     ),
                   ),
                   child: Text(
@@ -398,9 +398,9 @@ class _ThemeSegment extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: cs.surfaceContainerHighest.withOpacity(0.4),
+        color: cs.surfaceContainerHighest.withValues(alpha: 0.4),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: cs.outlineVariant.withOpacity(0.2)),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.2)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -446,7 +446,7 @@ class _SectionLabel extends StatelessWidget {
           fontSize: 10,
           fontWeight: FontWeight.bold,
           letterSpacing: 2,
-          color: cs.onSurfaceVariant.withOpacity(0.6),
+          color: cs.onSurfaceVariant.withValues(alpha: 0.85),
         ),
       ),
     );
@@ -464,9 +464,9 @@ class _SettingsCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: cs.surfaceContainerLowest,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: cs.outlineVariant.withOpacity(0.15)),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.15)),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 8),
+          BoxShadow(color: cs.onSurface.withValues(alpha: 0.03), blurRadius: 8),
         ],
       ),
       child: Column(children: children),
@@ -482,7 +482,7 @@ class _Divider extends StatelessWidget {
       height: 1,
       indent: 66,
       endIndent: 0,
-      color: cs.outlineVariant.withOpacity(0.15),
+      color: cs.outlineVariant.withValues(alpha: 0.15),
     );
   }
 }
@@ -544,10 +544,12 @@ class _SwitchTile extends StatelessWidget {
           Switch(
             value: value,
             onChanged: onChanged,
-            activeColor: cs.onSurface,
+            activeThumbColor: cs.onSurface,
             activeTrackColor: cs.surfaceContainerHighest,
-            inactiveThumbColor: cs.onSurfaceVariant.withOpacity(0.4),
-            inactiveTrackColor: cs.surfaceContainerHighest.withOpacity(0.4),
+            inactiveThumbColor: cs.onSurfaceVariant.withValues(alpha: 0.7),
+            inactiveTrackColor: cs.surfaceContainerHighest.withValues(
+              alpha: 0.4,
+            ),
             materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
           ),
         ],
@@ -603,7 +605,7 @@ class _NavTile extends StatelessWidget {
                     ? Icon(
                         Icons.chevron_right_rounded,
                         size: 20,
-                        color: cs.onSurfaceVariant.withOpacity(0.5),
+                        color: cs.onSurfaceVariant.withValues(alpha: 0.75),
                       )
                     : const SizedBox.shrink()),
           ],
@@ -623,7 +625,7 @@ class _StatusBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(999),
       ),
       child: Text(
@@ -658,9 +660,9 @@ class _DangerButton extends StatelessWidget {
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
-          color: cs.error.withOpacity(0.06),
+          color: cs.error.withValues(alpha: 0.06),
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: cs.error.withOpacity(0.2)),
+          border: Border.all(color: cs.error.withValues(alpha: 0.2)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,

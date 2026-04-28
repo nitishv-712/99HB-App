@@ -11,8 +11,10 @@ class DetailHeroGallery extends StatelessWidget {
 
   const DetailHeroGallery({
     super.key,
-    required this.property, required this.pageCtrl,
-    required this.currentPage, required this.onPageChanged,
+    required this.property,
+    required this.pageCtrl,
+    required this.currentPage,
+    required this.onPageChanged,
   });
 
   @override
@@ -34,36 +36,59 @@ class DetailHeroGallery extends StatelessWidget {
                   controller: pageCtrl,
                   onPageChanged: onPageChanged,
                   itemCount: images.length,
-                  itemBuilder: (_, i) => Image.network(images[i].url, fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Container(
-                          color: AppColors.surfaceContainerHighest,
-                          child: const Icon(Icons.broken_image_outlined, size: 48))),
+                  itemBuilder: (_, i) => Image.network(
+                    images[i].url,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, _, _) => Container(
+                      color: AppColors.surfaceContainerHighest,
+                      child: const Icon(Icons.broken_image_outlined, size: 48),
+                    ),
+                  ),
                 )
               else
-                Container(color: AppColors.surfaceContainerHighest,
-                    child: const Icon(Icons.home_outlined, size: 64, color: Colors.white54)),
+                Container(
+                  color: AppColors.surfaceContainerHighest,
+                  child: const Icon(
+                    Icons.home_outlined,
+                    size: 64,
+                    color: Colors.white54,
+                  ),
+                ),
               Positioned(
-                top: 20, left: 20,
+                top: 20,
+                left: 20,
                 child: Row(
                   children: [
-                    _GalleryBadge(property.tag.toUpperCase(), cs.primary, cs.onPrimary),
+                    _GalleryBadge(
+                      property.tag.toUpperCase(),
+                      cs.primary,
+                      cs.onPrimary,
+                    ),
                     if (property.badge != null) ...[
                       const SizedBox(width: 8),
-                      _GalleryBadge(property.badge!.name.toUpperCase(),
-                          AppColors.tertiaryContainer, AppColors.onTertiaryContainer),
+                      _GalleryBadge(
+                        property.badge!.name.toUpperCase(),
+                        AppColors.tertiaryContainer,
+                        AppColors.onTertiaryContainer,
+                      ),
                     ],
                   ],
                 ),
               ),
               if (images.length > 1)
                 Positioned(
-                  bottom: 16, left: 0, right: 0,
+                  bottom: 16,
+                  left: 0,
+                  right: 0,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(images.length, (i) => Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 3),
-                      child: _GalleryDot(active: i == currentPage),
-                    )),
+                    children: List.generate(
+                      images.length,
+                      (i) => Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 3),
+                        child: _GalleryDot(active: i == currentPage),
+                      ),
+                    ),
                   ),
                 ),
             ],
@@ -83,8 +108,19 @@ class _GalleryBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-    decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(999)),
-    child: Text(label, style: GoogleFonts.inter(fontSize: 9, fontWeight: FontWeight.bold, color: fg, letterSpacing: 1.5)),
+    decoration: BoxDecoration(
+      color: bg,
+      borderRadius: BorderRadius.circular(999),
+    ),
+    child: Text(
+      label,
+      style: GoogleFonts.inter(
+        fontSize: 9,
+        fontWeight: FontWeight.bold,
+        color: fg,
+        letterSpacing: 1.5,
+      ),
+    ),
   );
 }
 
@@ -93,10 +129,15 @@ class _GalleryDot extends StatelessWidget {
   const _GalleryDot({required this.active});
 
   @override
-  Widget build(BuildContext context) => Container(
-    width: 8, height: 8,
-    decoration: BoxDecoration(
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Container(
+      width: 8,
+      height: 8,
+      decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: active ? Colors.white : Colors.white.withOpacity(0.4)),
-  );
+        color: active ? Colors.white : cs.surface.withValues(alpha: 0.4),
+      ),
+    );
+  }
 }

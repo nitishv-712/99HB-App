@@ -10,7 +10,7 @@ class ServiceTile extends StatelessWidget {
   final Color? titleColor;
   final Color? descColor;
 
-  const ServiceTile({
+  const ServiceTile({super.key, 
     required this.icon,
     required this.title,
     required this.desc,

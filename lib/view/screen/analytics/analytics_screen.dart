@@ -30,7 +30,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
       backgroundColor: cs.surface,
       appBar: const AppStandardBar(title: 'Analytics'),
       body: Consumer<AnalyticsProvider>(
-        builder: (_, prov, __) {
+        builder: (_, prov, _) {
           if (prov.overviewLoading) {
             return const SkeletonAnalytics();
           }
@@ -161,9 +161,9 @@ class _StatCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: cs.surfaceContainerHighest.withOpacity(0.35),
+        color: cs.surfaceContainerHighest.withValues(alpha: 0.35),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: cs.outlineVariant.withOpacity(0.25)),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.25)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -210,9 +210,9 @@ class _StatusBreakdown extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: cs.surfaceContainerHighest.withOpacity(0.3),
+        color: cs.surfaceContainerHighest.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: cs.outlineVariant.withOpacity(0.2)),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.2)),
       ),
       child: Column(
         children: items.map((item) {
@@ -274,7 +274,7 @@ class _TrendChart extends StatelessWidget {
       return Container(
         height: 80,
         decoration: BoxDecoration(
-          color: cs.surfaceContainerHighest.withOpacity(0.3),
+          color: cs.surfaceContainerHighest.withValues(alpha: 0.3),
           borderRadius: BorderRadius.circular(16),
         ),
         child: Center(
@@ -290,9 +290,9 @@ class _TrendChart extends StatelessWidget {
       height: 100,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
       decoration: BoxDecoration(
-        color: cs.surfaceContainerHighest.withOpacity(0.3),
+        color: cs.surfaceContainerHighest.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: cs.outlineVariant.withOpacity(0.2)),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.2)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
@@ -306,7 +306,7 @@ class _TrendChart extends StatelessWidget {
                 child: Container(
                   height: 76 * h,
                   decoration: BoxDecoration(
-                    color: cs.onSurface.withOpacity(0.7),
+                    color: cs.onSurface.withValues(alpha: 0.85),
                     borderRadius: BorderRadius.circular(3),
                   ),
                 ),
@@ -342,9 +342,9 @@ class _TopRow extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 10),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
-          color: cs.surfaceContainerHighest.withOpacity(0.3),
+          color: cs.surfaceContainerHighest.withValues(alpha: 0.3),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: cs.outlineVariant.withOpacity(0.2)),
+          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.2)),
         ),
         child: Row(
           children: [

@@ -54,7 +54,9 @@ class SectionDividerHeader extends StatelessWidget {
       children: [
         Text(title, style: Theme.of(context).textTheme.headlineSmall),
         const SizedBox(width: 16),
-        Expanded(child: Divider(color: cs.outlineVariant.withOpacity(0.3))),
+        Expanded(
+          child: Divider(color: cs.outlineVariant.withValues(alpha: 0.3)),
+        ),
       ],
     );
   }

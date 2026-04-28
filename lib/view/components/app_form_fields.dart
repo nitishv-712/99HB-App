@@ -67,32 +67,32 @@ class AppInputField extends StatelessWidget {
   }
 
   InputDecoration _decoration(ColorScheme cs) => InputDecoration(
-        hintText: hint,
-        prefixIcon: Icon(icon, size: 20, color: cs.onSurfaceVariant),
-        suffixIcon: suffix,
-        filled: true,
-        fillColor: cs.surfaceContainerHighest.withOpacity(0.3),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide.none,
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide.none,
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: cs.primary, width: 1),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: cs.error, width: 1),
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: cs.error, width: 1.5),
-        ),
-      );
+    hintText: hint,
+    prefixIcon: Icon(icon, size: 20, color: cs.onSurfaceVariant),
+    suffixIcon: suffix,
+    filled: true,
+    fillColor: cs.surfaceContainerHighest.withValues(alpha: 0.3),
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12),
+      borderSide: BorderSide.none,
+    ),
+    enabledBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12),
+      borderSide: BorderSide.none,
+    ),
+    focusedBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12),
+      borderSide: BorderSide(color: cs.primary, width: 1),
+    ),
+    errorBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12),
+      borderSide: BorderSide(color: cs.error, width: 1),
+    ),
+    focusedErrorBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12),
+      borderSide: BorderSide(color: cs.error, width: 1.5),
+    ),
+  );
 }
 
 // ── Gradient Primary Button ───────────────────────────────────────────────────
@@ -109,6 +109,7 @@ class AppPrimaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Container(
       width: double.infinity,
       height: 56,
@@ -117,7 +118,7 @@ class AppPrimaryButton extends StatelessWidget {
         gradient: AppColors.gradientCta,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
+            color: cs.onSurface.withValues(alpha: 0.15),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -266,12 +267,12 @@ class AppPasswordStrengthBar extends StatelessWidget {
   });
 
   Color _color(ColorScheme cs) => switch (strength) {
-        0 => cs.outlineVariant,
-        1 => cs.error,
-        2 => const Color(0xFFF59E0B),
-        3 => const Color(0xFF22C55E),
-        _ => const Color(0xFF16A34A),
-      };
+    0 => cs.outlineVariant,
+    1 => cs.error,
+    2 => const Color(0xFFF59E0B),
+    3 => const Color(0xFF22C55E),
+    _ => const Color(0xFF16A34A),
+  };
 
   @override
   Widget build(BuildContext context) {

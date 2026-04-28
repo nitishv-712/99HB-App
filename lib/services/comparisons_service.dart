@@ -17,9 +17,9 @@ abstract final class ComparisonsService {
       body: {
         'name': name,
         'propertyIds': propertyIds,
-        if (description != null) 'description': description,
-        if (notes != null) 'notes': notes,
-        if (tags != null) 'tags': tags,
+        'description': ?description,
+        'notes': ?notes,
+        'tags': ?tags,
       },
     );
     print(json); // --- IGNORE ---
@@ -37,8 +37,8 @@ abstract final class ComparisonsService {
     int? limit,
   }) async {
     final qs = ApiClient.buildQuery({
-      if (page != null) 'page': page,
-      if (limit != null) 'limit': limit,
+      'page': ?page,
+      'limit': ?limit,
     });
     final json = await ApiClient.fetch<Map<String, dynamic>>('/comparisons$qs');
     return ApiResponse.fromJson(json, (d) {
@@ -67,12 +67,12 @@ abstract final class ComparisonsService {
       '/comparisons/$id',
       method: 'PATCH',
       body: {
-        if (name != null) 'name': name,
-        if (description != null) 'description': description,
-        if (notes != null) 'notes': notes,
-        if (tags != null) 'tags': tags,
-        if (isPublic != null) 'isPublic': isPublic,
-        if (propertyIds != null) 'propertyIds': propertyIds,
+        'name': ?name,
+        'description': ?description,
+        'notes': ?notes,
+        'tags': ?tags,
+        'isPublic': ?isPublic,
+        'propertyIds': ?propertyIds,
       },
     );
     return ApiResponse.fromJson(

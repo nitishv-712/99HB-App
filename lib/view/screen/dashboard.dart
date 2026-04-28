@@ -198,11 +198,13 @@ class _AuthBottomNav extends StatelessWidget {
               decoration: BoxDecoration(
                 color: cs.surface,
                 border: Border(
-                  top: BorderSide(color: cs.outlineVariant.withOpacity(0.2)),
+                  top: BorderSide(
+                    color: cs.outlineVariant.withValues(alpha: 0.2),
+                  ),
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: cs.onSurface.withOpacity(0.06),
+                    color: cs.onSurface.withValues(alpha: 0.06),
                     blurRadius: 16,
                     offset: const Offset(0, -4),
                   ),
@@ -310,7 +312,7 @@ class _CreateFabState extends State<_CreateFab>
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: cs.onSurface.withOpacity(0.25),
+                color: cs.onSurface.withValues(alpha: 0.25),
                 blurRadius: 12,
                 offset: const Offset(0, 4),
               ),
@@ -390,7 +392,7 @@ class _NavItem extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
             decoration: BoxDecoration(
               color: active
-                  ? cs.secondary.withOpacity(0.5)
+                  ? cs.secondary.withValues(alpha: 0.5)
                   : Colors.transparent,
               borderRadius: BorderRadius.circular(999),
             ),

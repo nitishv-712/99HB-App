@@ -33,7 +33,7 @@ class AppEmptyState extends StatelessWidget {
                 width: 72,
                 height: 72,
                 decoration: BoxDecoration(
-                  color: cs.surfaceContainerHighest.withOpacity(0.4),
+                  color: cs.surfaceContainerHighest.withValues(alpha: 0.4),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(icon, size: 32, color: cs.onSurfaceVariant),
@@ -63,7 +63,9 @@ class AppEmptyState extends StatelessWidget {
                   onTap: onAction,
                   child: Container(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 24, vertical: 12),
+                      horizontal: 24,
+                      vertical: 12,
+                    ),
                     decoration: BoxDecoration(
                       color: cs.onSurface,
                       borderRadius: BorderRadius.circular(12),
@@ -120,7 +122,9 @@ class AppErrorRetry extends StatelessWidget {
               onTap: onRetry,
               child: Container(
                 padding: const EdgeInsets.symmetric(
-                    horizontal: 24, vertical: 10),
+                  horizontal: 24,
+                  vertical: 10,
+                ),
                 decoration: BoxDecoration(
                   color: cs.onSurface,
                   borderRadius: BorderRadius.circular(10),
@@ -128,7 +132,9 @@ class AppErrorRetry extends StatelessWidget {
                 child: Text(
                   'Retry',
                   style: TextStyle(
-                      color: cs.surface, fontWeight: FontWeight.bold),
+                    color: cs.surface,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),
@@ -154,7 +160,7 @@ class AppSectionLabel extends StatelessWidget {
         fontSize: 10,
         fontWeight: FontWeight.bold,
         letterSpacing: 2,
-        color: cs.onSurfaceVariant.withOpacity(0.6),
+        color: cs.onSurfaceVariant.withValues(alpha: 0.85),
       ),
     );
   }
@@ -175,11 +181,14 @@ class AppSectionHeader extends StatelessWidget {
         Text(
           title,
           style: GoogleFonts.notoSerif(
-              fontSize: 22, fontWeight: FontWeight.bold),
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         const SizedBox(width: 16),
         Expanded(
-            child: Divider(color: cs.outlineVariant.withOpacity(0.2))),
+          child: Divider(color: cs.outlineVariant.withValues(alpha: 0.2)),
+        ),
         if (trailing != null) ...[const SizedBox(width: 12), trailing!],
       ],
     );
@@ -229,8 +238,11 @@ class AppStandardBar extends StatelessWidget implements PreferredSizeWidget {
       elevation: 0,
       scrolledUnderElevation: 1,
       leading: IconButton(
-        icon: Icon(Icons.arrow_back_ios_new_rounded,
-            color: cs.onSurface, size: 20),
+        icon: Icon(
+          Icons.arrow_back_ios_new_rounded,
+          color: cs.onSurface,
+          size: 20,
+        ),
         onPressed: () => Navigator.maybePop(context),
       ),
       title: Text(
@@ -273,7 +285,8 @@ class AppChatInput extends StatelessWidget {
         decoration: BoxDecoration(
           color: cs.surface,
           border: Border(
-              top: BorderSide(color: cs.outlineVariant.withOpacity(0.2))),
+            top: BorderSide(color: cs.outlineVariant.withValues(alpha: 0.2)),
+          ),
         ),
         child: Row(
           children: [
@@ -286,16 +299,20 @@ class AppChatInput extends StatelessWidget {
                   hintText: enabled
                       ? 'Type a message...'
                       : (disabledHint ?? 'Closed'),
-                  hintStyle:
-                      TextStyle(color: cs.onSurfaceVariant, fontSize: 14),
+                  hintStyle: TextStyle(
+                    color: cs.onSurfaceVariant,
+                    fontSize: 14,
+                  ),
                   filled: true,
-                  fillColor: cs.surfaceContainerHighest.withOpacity(0.4),
+                  fillColor: cs.surfaceContainerHighest.withValues(alpha: 0.4),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide.none,
                   ),
                   contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 14, vertical: 12),
+                    horizontal: 14,
+                    vertical: 12,
+                  ),
                 ),
                 onSubmitted: enabled ? (_) => onSend() : null,
               ),
@@ -307,8 +324,7 @@ class AppChatInput extends StatelessWidget {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color:
-                      enabled ? cs.onSurface : cs.surfaceContainerHighest,
+                  color: enabled ? cs.onSurface : cs.surfaceContainerHighest,
                   shape: BoxShape.circle,
                 ),
                 child: Icon(

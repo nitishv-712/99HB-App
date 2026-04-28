@@ -92,47 +92,49 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
     if (_images.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Add at least one photo')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Add at least one photo')));
       return;
     }
 
     setState(() => _loading = true);
     final ok = await context.read<PropertiesProvider>().create(
-          title: _titleCtrl.text.trim(),
-          listingType: _listingType,
-          propertyType: _propertyType,
-          price: double.parse(_priceCtrl.text.trim()),
-          address: {
-            'street': _streetCtrl.text.trim(),
-            'city': _cityCtrl.text.trim(),
-            'state': _stateCtrl.text.trim(),
-            'zip': _zipCtrl.text.trim(),
-          },
-          description: _descCtrl.text.trim().isEmpty ? null : _descCtrl.text.trim(),
-          bedrooms: int.tryParse(_bedsCtrl.text.trim()),
-          bathrooms: int.tryParse(_bathsCtrl.text.trim()),
-          sqft: double.tryParse(_sqftCtrl.text.trim()),
-          yearBuilt: int.tryParse(_yearCtrl.text.trim()),
-          badge: _badge,
-          images: _images
-              .map((e) => {'url': e.file.path, 'isPrimary': e.isPrimary})
-              .toList(),
-        );
+      title: _titleCtrl.text.trim(),
+      listingType: _listingType,
+      propertyType: _propertyType,
+      price: double.parse(_priceCtrl.text.trim()),
+      address: {
+        'street': _streetCtrl.text.trim(),
+        'city': _cityCtrl.text.trim(),
+        'state': _stateCtrl.text.trim(),
+        'zip': _zipCtrl.text.trim(),
+      },
+      description: _descCtrl.text.trim().isEmpty ? null : _descCtrl.text.trim(),
+      bedrooms: int.tryParse(_bedsCtrl.text.trim()),
+      bathrooms: int.tryParse(_bathsCtrl.text.trim()),
+      sqft: double.tryParse(_sqftCtrl.text.trim()),
+      yearBuilt: int.tryParse(_yearCtrl.text.trim()),
+      badge: _badge,
+      images: _images
+          .map((e) => {'url': e.file.path, 'isPrimary': e.isPrimary})
+          .toList(),
+    );
     setState(() => _loading = false);
     if (!mounted) return;
     if (ok) {
       context.read<UserProvider>().invalidateListings();
       context.read<AnalyticsProvider>().invalidateOverview();
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Listing submitted — pending admin approval')),
+        const SnackBar(
+          content: Text('Listing submitted — pending admin approval'),
+        ),
       );
       Navigator.maybePop(context);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to create listing')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Failed to create listing')));
     }
   }
 
@@ -341,10 +343,11 @@ class _ToggleRow<T> extends StatelessWidget {
   final List<({String label, T value})> options;
   final T selected;
   final ValueChanged<T> onChanged;
-  const _ToggleRow(
-      {required this.options,
-      required this.selected,
-      required this.onChanged});
+  const _ToggleRow({
+    required this.options,
+    required this.selected,
+    required this.onChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -392,17 +395,32 @@ class _ToggleRow<T> extends StatelessWidget {
 class _PropertyTypeGrid extends StatelessWidget {
   final PropertyType selected;
   final ValueChanged<PropertyType> onChanged;
-  const _PropertyTypeGrid(
-      {required this.selected, required this.onChanged});
+  const _PropertyTypeGrid({required this.selected, required this.onChanged});
 
   static const _types = [
-    (label: 'Apartment', icon: Icons.apartment_outlined, value: PropertyType.apartment),
+    (
+      label: 'Apartment',
+      icon: Icons.apartment_outlined,
+      value: PropertyType.apartment,
+    ),
     (label: 'House', icon: Icons.house_outlined, value: PropertyType.house),
     (label: 'Villa', icon: Icons.villa_outlined, value: PropertyType.villa),
-    (label: 'Penthouse', icon: Icons.roofing_outlined, value: PropertyType.penthouse),
-    (label: 'Townhouse', icon: Icons.home_work_outlined, value: PropertyType.townhouse),
+    (
+      label: 'Penthouse',
+      icon: Icons.roofing_outlined,
+      value: PropertyType.penthouse,
+    ),
+    (
+      label: 'Townhouse',
+      icon: Icons.home_work_outlined,
+      value: PropertyType.townhouse,
+    ),
     (label: 'Land', icon: Icons.landscape_outlined, value: PropertyType.land),
-    (label: 'Office', icon: Icons.business_outlined, value: PropertyType.office),
+    (
+      label: 'Office',
+      icon: Icons.business_outlined,
+      value: PropertyType.office,
+    ),
   ];
 
   @override
@@ -417,8 +435,7 @@ class _PropertyTypeGrid extends StatelessWidget {
           onTap: () => onChanged(t.value),
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 180),
-            padding:
-                const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             decoration: BoxDecoration(
               color: active
                   ? cs.onSurface
@@ -433,9 +450,11 @@ class _PropertyTypeGrid extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(t.icon,
-                    size: 16,
-                    color: active ? cs.surface : cs.onSurfaceVariant),
+                Icon(
+                  t.icon,
+                  size: 16,
+                  color: active ? cs.surface : cs.onSurfaceVariant,
+                ),
                 const SizedBox(width: 6),
                 Text(
                   t.label,
@@ -477,7 +496,8 @@ class _BadgePicker extends StatelessWidget {
         return Expanded(
           child: Padding(
             padding: EdgeInsets.only(
-                right: b.value != PropertyBadge.featured ? 8 : 0),
+              right: b.value != PropertyBadge.featured ? 8 : 0,
+            ),
             child: GestureDetector(
               onTap: () => onChanged(b.value),
               child: AnimatedContainer(
@@ -518,10 +538,11 @@ class _TextAreaField extends StatelessWidget {
   final String label;
   final TextEditingController controller;
   final String hint;
-  const _TextAreaField(
-      {required this.label,
-      required this.controller,
-      required this.hint});
+  const _TextAreaField({
+    required this.label,
+    required this.controller,
+    required this.hint,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -545,8 +566,9 @@ class _TextAreaField extends StatelessWidget {
           style: TextStyle(color: cs.onSurface, fontSize: 14),
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle:
-                TextStyle(color: cs.onSurfaceVariant.withValues(alpha: 0.5)),
+            hintStyle: TextStyle(
+              color: cs.onSurfaceVariant.withValues(alpha: 0.75),
+            ),
             filled: true,
             fillColor: cs.surfaceContainerHighest.withValues(alpha: 0.3),
             border: OutlineInputBorder(
@@ -616,20 +638,27 @@ class _ImagePickerSection extends StatelessWidget {
             height: 100,
             width: double.infinity,
             decoration: BoxDecoration(
-              color: cs.surfaceContainerHighest.withOpacity(0.3),
+              color: cs.surfaceContainerHighest.withValues(alpha: 0.3),
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: cs.outlineVariant.withOpacity(0.3)),
+              border: Border.all(
+                color: cs.outlineVariant.withValues(alpha: 0.3),
+              ),
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.add_photo_alternate_outlined,
-                    size: 28, color: cs.onSurfaceVariant),
+                Icon(
+                  Icons.add_photo_alternate_outlined,
+                  size: 28,
+                  color: cs.onSurfaceVariant,
+                ),
                 const SizedBox(height: 6),
                 Text(
                   'No photos added yet',
                   style: GoogleFonts.inter(
-                      fontSize: 12, color: cs.onSurfaceVariant),
+                    fontSize: 12,
+                    color: cs.onSurfaceVariant,
+                  ),
                 ),
               ],
             ),
@@ -651,10 +680,7 @@ class _ImagePickerSection extends StatelessWidget {
                 children: [
                   ClipRRect(
                     borderRadius: BorderRadius.circular(10),
-                    child: Image.file(
-                      File(img.file.path),
-                      fit: BoxFit.cover,
-                    ),
+                    child: Image.file(File(img.file.path), fit: BoxFit.cover),
                   ),
                   if (img.isPrimary)
                     Positioned.fill(
@@ -671,7 +697,9 @@ class _ImagePickerSection extends StatelessWidget {
                       left: 5,
                       child: Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 6, vertical: 2),
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
                         decoration: BoxDecoration(
                           color: cs.onSurface,
                           borderRadius: BorderRadius.circular(4),
@@ -698,11 +726,14 @@ class _ImagePickerSection extends StatelessWidget {
                             width: 22,
                             height: 22,
                             decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.6),
+                              color: cs.onSurface.withValues(alpha: 0.6),
                               shape: BoxShape.circle,
                             ),
-                            child: const Icon(Icons.close_rounded,
-                                size: 13, color: Colors.white),
+                            child: const Icon(
+                              Icons.close_rounded,
+                              size: 13,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
                         if (!img.isPrimary) ...[
@@ -713,11 +744,14 @@ class _ImagePickerSection extends StatelessWidget {
                               width: 22,
                               height: 22,
                               decoration: BoxDecoration(
-                                color: cs.onSurface.withOpacity(0.75),
+                                color: cs.onSurface.withValues(alpha: 0.9),
                                 shape: BoxShape.circle,
                               ),
-                              child: Icon(Icons.star_rounded,
-                                  size: 13, color: cs.surface),
+                              child: Icon(
+                                Icons.star_rounded,
+                                size: 13,
+                                color: cs.surface,
+                              ),
                             ),
                           ),
                         ],
@@ -743,8 +777,11 @@ class _SourceButton extends StatelessWidget {
   final IconData icon;
   final String label;
   final VoidCallback onTap;
-  const _SourceButton(
-      {required this.icon, required this.label, required this.onTap});
+  const _SourceButton({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -754,9 +791,9 @@ class _SourceButton extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(
-          color: cs.surfaceContainerHighest.withOpacity(0.35),
+          color: cs.surfaceContainerHighest.withValues(alpha: 0.35),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: cs.outlineVariant.withOpacity(0.3)),
+          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.3)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,

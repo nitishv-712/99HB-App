@@ -65,8 +65,8 @@ abstract final class AuthService {
       body: {
         'otp': otp,
         'newPassword': newPassword,
-        if (email != null) 'email': email,
-        if (phone != null) 'phone': phone,
+        'email': ?email,
+        'phone': ?phone,
       },
     );
   }
@@ -77,8 +77,8 @@ abstract final class AuthService {
       '/auth/otp/generate',
       method: 'POST',
       body: {
-        if (email != null) 'email': email,
-        if (phone != null) 'phone': phone,
+        'email': ?email,
+        'phone': ?phone,
       },
     );
   }
@@ -94,8 +94,8 @@ abstract final class AuthService {
       method: 'POST',
       body: {
         'otp': otp,
-        if (email != null) 'email': email,
-        if (phone != null) 'phone': phone,
+        'email': ?email,
+        'phone': ?phone,
       },
     );
   }
@@ -113,7 +113,7 @@ abstract final class AuthService {
         'idToken': idToken,
         'provider': 'google',
         'platform': platform,
-        if (role != null) 'role': role,
+        'role': ?role,
       },
     );
     return ApiResponse.fromJson(json, (d) => d as Map<String, dynamic>);

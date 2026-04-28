@@ -52,7 +52,7 @@ class _InquiriesScreenState extends State<InquiriesScreen> {
         ],
       ),
       body: Consumer<InquiriesProvider>(
-        builder: (_, prov, __) {
+        builder: (_, prov, _) {
           if (prov.loading) {
             return SkeletonList(itemBuilder: () => const SkeletonTile());
           }
@@ -73,7 +73,7 @@ class _InquiriesScreenState extends State<InquiriesScreen> {
           return ListView.separated(
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 100),
             itemCount: prov.inquiries.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 10),
+            separatorBuilder: (_, _) => const SizedBox(height: 10),
             itemBuilder: (_, i) =>
                 _InquiryTile(inquiry: prov.inquiries[i], myId: myId),
           );
@@ -103,10 +103,9 @@ class _InquiryTile extends StatelessWidget {
         : (inquiry.user as ApiUser).id == myId;
 
     final statusBg = isActive
-        ? const Color(0xFF10B981).withOpacity(0.12)
-        : cs.surfaceContainerHighest.withOpacity(0.4);
-    final statusFg =
-        isActive ? const Color(0xFF34D399) : cs.onSurfaceVariant;
+        ? const Color(0xFF10B981).withValues(alpha: 0.12)
+        : cs.surfaceContainerHighest.withValues(alpha: 0.4);
+    final statusFg = isActive ? const Color(0xFF34D399) : cs.onSurfaceVariant;
 
     final date = inquiry.lastMessageAt.length >= 10
         ? inquiry.lastMessageAt.substring(0, 10)
@@ -124,7 +123,7 @@ class _InquiryTile extends StatelessWidget {
         decoration: BoxDecoration(
           color: cs.surfaceContainerLowest,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: cs.outlineVariant.withOpacity(0.25)),
+          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.25)),
         ),
         child: Row(
           children: [
@@ -137,7 +136,9 @@ class _InquiryTile extends StatelessWidget {
                     children: [
                       Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 7, vertical: 3),
+                          horizontal: 7,
+                          vertical: 3,
+                        ),
                         decoration: BoxDecoration(
                           color: statusBg,
                           borderRadius: BorderRadius.circular(4),
@@ -156,13 +157,17 @@ class _InquiryTile extends StatelessWidget {
                       Text(
                         date,
                         style: GoogleFonts.inter(
-                            fontSize: 10, color: cs.onSurfaceVariant),
+                          fontSize: 10,
+                          color: cs.onSurfaceVariant,
+                        ),
                       ),
                       const SizedBox(width: 8),
                       Text(
                         isInquirer ? '(Sent)' : '(Received)',
                         style: GoogleFonts.inter(
-                            fontSize: 10, color: cs.onSurfaceVariant),
+                          fontSize: 10,
+                          color: cs.onSurfaceVariant,
+                        ),
                       ),
                     ],
                   ),
@@ -184,7 +189,9 @@ class _InquiryTile extends StatelessWidget {
                     Text(
                       prop!.locationString,
                       style: GoogleFonts.inter(
-                          fontSize: 11, color: cs.onSurfaceVariant),
+                        fontSize: 11,
+                        color: cs.onSurfaceVariant,
+                      ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -205,8 +212,11 @@ class _InquiryTile extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 2),
-                Icon(Icons.chevron_right_rounded,
-                    size: 16, color: cs.onSurfaceVariant),
+                Icon(
+                  Icons.chevron_right_rounded,
+                  size: 16,
+                  color: cs.onSurfaceVariant,
+                ),
               ],
             ),
           ],
@@ -275,7 +285,10 @@ class _InquiryChatScreenState extends State<InquiryChatScreen> {
     final next = current == InquiryStatus.active
         ? InquiryStatus.closed
         : InquiryStatus.active;
-    await context.read<InquiriesProvider>().updateStatus(widget.inquiryId, next);
+    await context.read<InquiriesProvider>().updateStatus(
+      widget.inquiryId,
+      next,
+    );
     setState(() => _updatingStatus = false);
   }
 
@@ -287,7 +300,7 @@ class _InquiryChatScreenState extends State<InquiryChatScreen> {
     return Scaffold(
       backgroundColor: cs.surface,
       body: Consumer<InquiriesProvider>(
-        builder: (_, prov, __) {
+        builder: (_, prov, _) {
           if (prov.detailLoading && prov.detail == null) {
             return const AppSpinner();
           }
@@ -310,10 +323,12 @@ class _InquiryChatScreenState extends State<InquiryChatScreen> {
           final prop = inquiry.property is ApiProperty
               ? inquiry.property as ApiProperty
               : null;
-          final inquiryUser =
-              inquiry.user is ApiUser ? inquiry.user as ApiUser : null;
-          final inquiryOwner =
-              inquiry.owner is ApiUser ? inquiry.owner as ApiUser : null;
+          final inquiryUser = inquiry.user is ApiUser
+              ? inquiry.user as ApiUser
+              : null;
+          final inquiryOwner = inquiry.owner is ApiUser
+              ? inquiry.owner as ApiUser
+              : null;
 
           final isInquirer = inquiry.user is String
               ? inquiry.user == myId
@@ -346,7 +361,9 @@ class _InquiryChatScreenState extends State<InquiryChatScreen> {
                         child: Text(
                           'No messages yet',
                           style: GoogleFonts.inter(
-                              fontSize: 13, color: cs.onSurfaceVariant),
+                            fontSize: 13,
+                            color: cs.onSurfaceVariant,
+                          ),
                         ),
                       )
                     : ListView.builder(
@@ -368,8 +385,7 @@ class _InquiryChatScreenState extends State<InquiryChatScreen> {
                 controller: _msgCtrl,
                 sending: _sending,
                 enabled: isActive,
-                disabledHint:
-                    'This inquiry is closed. Reopen it to continue.',
+                disabledHint: 'This inquiry is closed. Reopen it to continue.',
                 onSend: _send,
               ),
             ],
@@ -411,10 +427,9 @@ class _ChatHeader extends StatelessWidget {
     final isActive = inquiry.status == InquiryStatus.active;
 
     final statusBg = isActive
-        ? const Color(0xFF10B981).withOpacity(0.12)
-        : cs.surfaceContainerHighest.withOpacity(0.4);
-    final statusFg =
-        isActive ? const Color(0xFF34D399) : cs.onSurfaceVariant;
+        ? const Color(0xFF10B981).withValues(alpha: 0.12)
+        : cs.surfaceContainerHighest.withValues(alpha: 0.4);
+    final statusFg = isActive ? const Color(0xFF34D399) : cs.onSurfaceVariant;
 
     return Container(
       color: cs.surface,
@@ -435,7 +450,9 @@ class _ChatHeader extends StatelessWidget {
                   // Status badge
                   Container(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 8, vertical: 4),
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: statusBg,
                       borderRadius: BorderRadius.circular(6),
@@ -457,12 +474,17 @@ class _ChatHeader extends StatelessWidget {
                       onTap: updatingStatus ? null : onToggleStatus,
                       child: Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 6),
+                          horizontal: 10,
+                          vertical: 6,
+                        ),
                         decoration: BoxDecoration(
-                          color: cs.surfaceContainerHighest.withOpacity(0.4),
+                          color: cs.surfaceContainerHighest.withValues(
+                            alpha: 0.4,
+                          ),
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
-                              color: cs.outlineVariant.withOpacity(0.3)),
+                            color: cs.outlineVariant.withValues(alpha: 0.3),
+                          ),
                         ),
                         child: updatingStatus
                             ? const AppLoaderInline(size: 12, strokeWidth: 1.5)
@@ -510,12 +532,14 @@ class _ChatHeader extends StatelessWidget {
                         width: 52,
                         height: 52,
                         fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Container(
+                        errorBuilder: (_, _, _) => Container(
                           width: 52,
                           height: 52,
                           color: cs.surfaceContainerHighest,
-                          child: Icon(Icons.image_outlined,
-                              color: cs.onSurfaceVariant),
+                          child: Icon(
+                            Icons.image_outlined,
+                            color: cs.onSurfaceVariant,
+                          ),
                         ),
                       ),
                     ),
@@ -539,7 +563,9 @@ class _ChatHeader extends StatelessWidget {
                           Text(
                             prop!.locationString,
                             style: GoogleFonts.inter(
-                                fontSize: 11, color: cs.onSurfaceVariant),
+                              fontSize: 11,
+                              color: cs.onSurfaceVariant,
+                            ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -575,7 +601,7 @@ class _ChatHeader extends StatelessWidget {
             ),
           ),
 
-          Divider(height: 1, color: cs.outlineVariant.withOpacity(0.2)),
+          Divider(height: 1, color: cs.outlineVariant.withValues(alpha: 0.2)),
         ],
       ),
     );
@@ -586,8 +612,11 @@ class _ParticipantChip extends StatelessWidget {
   final String label;
   final String name;
   final bool isYou;
-  const _ParticipantChip(
-      {required this.label, required this.name, required this.isYou});
+  const _ParticipantChip({
+    required this.label,
+    required this.name,
+    required this.isYou,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -597,14 +626,17 @@ class _ParticipantChip extends StatelessWidget {
         style: GoogleFonts.inter(fontSize: 11, color: cs.onSurfaceVariant),
         children: [
           TextSpan(
-              text: '$label: ',
-              style: TextStyle(fontWeight: FontWeight.w600, color: cs.onSurface)),
+            text: '$label: ',
+            style: TextStyle(fontWeight: FontWeight.w600, color: cs.onSurface),
+          ),
           TextSpan(text: name),
           if (isYou)
             TextSpan(
               text: ' (You)',
               style: TextStyle(
-                  color: cs.onSurfaceVariant, fontStyle: FontStyle.italic),
+                color: cs.onSurfaceVariant,
+                fontStyle: FontStyle.italic,
+              ),
             ),
         ],
       ),
@@ -636,26 +668,26 @@ class _ChatBubble extends StatelessWidget {
     final isAdmin = message.role == MessageRole.admin;
 
     final bubbleBg = isAdmin
-        ? const Color(0xFFFBBF24).withOpacity(0.08)
+        ? const Color(0xFFFBBF24).withValues(alpha: 0.08)
         : isMe
-            ? cs.onSurface
-            : cs.surfaceContainerHighest.withOpacity(0.5);
+        ? cs.onSurface
+        : cs.surfaceContainerHighest.withValues(alpha: 0.5);
     final bubbleBorder = isAdmin
-        ? const Color(0xFFFBBF24).withOpacity(0.2)
+        ? const Color(0xFFFBBF24).withValues(alpha: 0.2)
         : isMe
-            ? Colors.transparent
-            : cs.outlineVariant.withOpacity(0.25);
+        ? Colors.transparent
+        : cs.outlineVariant.withValues(alpha: 0.25);
     final textColor = isMe && !isAdmin ? cs.surface : cs.onSurface;
-    final roleColor =
-        isAdmin ? const Color(0xFFF59E0B) : cs.onSurfaceVariant;
+    final roleColor = isAdmin ? const Color(0xFFF59E0B) : cs.onSurfaceVariant;
 
     return Align(
       alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-        constraints:
-            BoxConstraints(maxWidth: MediaQuery.sizeOf(context).width * 0.72),
+        constraints: BoxConstraints(
+          maxWidth: MediaQuery.sizeOf(context).width * 0.72,
+        ),
         decoration: BoxDecoration(
           color: bubbleBg,
           border: Border.all(color: bubbleBorder),
@@ -687,8 +719,8 @@ class _ChatBubble extends StatelessWidget {
                   style: GoogleFonts.inter(
                     fontSize: 9,
                     color: isMe && !isAdmin
-                        ? cs.surface.withOpacity(0.5)
-                        : cs.onSurfaceVariant.withOpacity(0.6),
+                        ? cs.surface.withValues(alpha: 0.5)
+                        : cs.onSurfaceVariant.withValues(alpha: 0.85),
                   ),
                 ),
                 if (message.isEditedByAdmin) ...[
@@ -696,9 +728,10 @@ class _ChatBubble extends StatelessWidget {
                   Text(
                     '(edited by admin)',
                     style: GoogleFonts.inter(
-                        fontSize: 9,
-                        color: const Color(0xFFF59E0B),
-                        fontStyle: FontStyle.italic),
+                      fontSize: 9,
+                      color: const Color(0xFFF59E0B),
+                      fontStyle: FontStyle.italic,
+                    ),
                   ),
                 ],
               ],
@@ -707,7 +740,10 @@ class _ChatBubble extends StatelessWidget {
             Text(
               message.text,
               style: GoogleFonts.inter(
-                  fontSize: 14, color: textColor, height: 1.4),
+                fontSize: 14,
+                color: textColor,
+                height: 1.4,
+              ),
             ),
           ],
         ),
@@ -740,24 +776,32 @@ class _ReplyInput extends StatelessWidget {
     if (!enabled) {
       return Container(
         padding: EdgeInsets.fromLTRB(
-            20, 12, 20, 12 + MediaQuery.paddingOf(context).bottom),
-        color: cs.surfaceContainerHighest.withOpacity(0.2),
+          20,
+          12,
+          20,
+          12 + MediaQuery.paddingOf(context).bottom,
+        ),
+        color: cs.surfaceContainerHighest.withValues(alpha: 0.2),
         child: Text(
           disabledHint,
           textAlign: TextAlign.center,
-          style:
-              GoogleFonts.inter(fontSize: 12, color: cs.onSurfaceVariant),
+          style: GoogleFonts.inter(fontSize: 12, color: cs.onSurfaceVariant),
         ),
       );
     }
 
     return Container(
       padding: EdgeInsets.fromLTRB(
-          16, 10, 16, 10 + MediaQuery.paddingOf(context).bottom),
+        16,
+        10,
+        16,
+        10 + MediaQuery.paddingOf(context).bottom,
+      ),
       decoration: BoxDecoration(
         color: cs.surface,
-        border:
-            Border(top: BorderSide(color: cs.outlineVariant.withOpacity(0.2))),
+        border: Border(
+          top: BorderSide(color: cs.outlineVariant.withValues(alpha: 0.2)),
+        ),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -770,18 +814,28 @@ class _ReplyInput extends StatelessWidget {
                   controller: controller,
                   maxLength: 2000,
                   maxLines: null,
-                  buildCounter: (_, {required currentLength, required isFocused, maxLength}) =>
-                      const SizedBox.shrink(),
+                  buildCounter:
+                      (
+                        _, {
+                        required currentLength,
+                        required isFocused,
+                        maxLength,
+                      }) => const SizedBox.shrink(),
                   style: GoogleFonts.inter(fontSize: 14, color: cs.onSurface),
                   decoration: InputDecoration(
                     hintText: 'Type your message...',
                     hintStyle: GoogleFonts.inter(
-                        fontSize: 14,
-                        color: cs.onSurfaceVariant.withOpacity(0.5)),
+                      fontSize: 14,
+                      color: cs.onSurfaceVariant.withValues(alpha: 0.75),
+                    ),
                     filled: true,
-                    fillColor: cs.surfaceContainerHighest.withOpacity(0.3),
+                    fillColor: cs.surfaceContainerHighest.withValues(
+                      alpha: 0.3,
+                    ),
                     contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 14, vertical: 10),
+                      horizontal: 14,
+                      vertical: 10,
+                    ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide.none,
@@ -789,7 +843,8 @@ class _ReplyInput extends StatelessWidget {
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide(
-                          color: cs.outlineVariant.withOpacity(0.4)),
+                        color: cs.outlineVariant.withValues(alpha: 0.4),
+                      ),
                     ),
                   ),
                 ),
@@ -805,14 +860,18 @@ class _ReplyInput extends StatelessWidget {
                   height: 44,
                   decoration: BoxDecoration(
                     color: controller.text.trim().isEmpty
-                        ? cs.surfaceContainerHighest.withOpacity(0.4)
+                        ? cs.surfaceContainerHighest.withValues(alpha: 0.4)
                         : cs.onSurface,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: sending
                       ? const Padding(
                           padding: EdgeInsets.all(12),
-                          child: AppLoaderInline(size: 18, strokeWidth: 2, color: Colors.white),
+                          child: AppLoaderInline(
+                            size: 18,
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
                         )
                       : Icon(
                           Icons.send_rounded,
@@ -829,8 +888,9 @@ class _ReplyInput extends StatelessWidget {
           Text(
             '${controller.text.length}/2000',
             style: GoogleFonts.inter(
-                fontSize: 10,
-                color: cs.onSurfaceVariant.withOpacity(0.5)),
+              fontSize: 10,
+              color: cs.onSurfaceVariant.withValues(alpha: 0.75),
+            ),
           ),
         ],
       ),

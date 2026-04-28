@@ -76,7 +76,7 @@ class _Hero extends StatelessWidget {
               Image.network(
                 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=800&q=80',
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) =>
+                errorBuilder: (_, _, _) =>
                     Container(color: cs.surfaceContainerHigh),
               ),
               // gradient
@@ -111,7 +111,7 @@ class _Hero extends StatelessWidget {
                     Text(
                       'Thousands of verified listings across India.',
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.65),
+                        color: cs.surface.withValues(alpha: 0.65),
                         fontSize: 13,
                       ),
                     ),
@@ -163,28 +163,29 @@ class _HeroBtn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(
-          color: filled ? Colors.white : Colors.white.withOpacity(0.15),
+          color: filled ? cs.surface : cs.surface.withValues(alpha: 0.15),
           borderRadius: BorderRadius.circular(14),
           border: filled
               ? null
-              : Border.all(color: Colors.white.withOpacity(0.4)),
+              : Border.all(color: cs.surface.withValues(alpha: 0.4)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 16, color: filled ? Colors.black : Colors.white),
+            Icon(icon, size: 16, color: filled ? cs.onSurface : cs.surface),
             const SizedBox(width: 8),
             Text(
               label,
               style: GoogleFonts.inter(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
-                color: filled ? Colors.black : Colors.white,
+                color: filled ? cs.onSurface : cs.surface,
               ),
             ),
           ],
@@ -237,10 +238,12 @@ class _QuickActions extends StatelessWidget {
                         width: 56,
                         height: 56,
                         decoration: BoxDecoration(
-                          color: cs.surfaceContainerHighest.withOpacity(0.5),
+                          color: cs.surfaceContainerHighest.withValues(
+                            alpha: 0.5,
+                          ),
                           borderRadius: BorderRadius.circular(18),
                           border: Border.all(
-                            color: cs.outlineVariant.withOpacity(0.25),
+                            color: cs.outlineVariant.withValues(alpha: 0.25),
                           ),
                         ),
                         child: Icon(e.icon, size: 22, color: cs.onSurface),
@@ -338,7 +341,7 @@ class _MarketCarouselState extends State<_MarketCarousel> {
                               style: GoogleFonts.notoSerif(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w900,
-                                color: Colors.white,
+                                color: cs.surface,
                               ),
                             ),
                             const SizedBox(height: 6),
@@ -346,7 +349,7 @@ class _MarketCarouselState extends State<_MarketCarousel> {
                               s.sub,
                               style: TextStyle(
                                 fontSize: 12,
-                                color: Colors.white.withOpacity(0.6),
+                                color: cs.surface.withValues(alpha: 0.6),
                                 height: 1.4,
                               ),
                             ),
@@ -358,10 +361,10 @@ class _MarketCarouselState extends State<_MarketCarousel> {
                         width: 48,
                         height: 48,
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.1),
+                          color: cs.surface.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(14),
                         ),
-                        child: Icon(s.icon, color: Colors.white, size: 24),
+                        child: Icon(s.icon, color: cs.surface, size: 24),
                       ),
                     ],
                   ),
@@ -383,7 +386,7 @@ class _MarketCarouselState extends State<_MarketCarousel> {
               decoration: BoxDecoration(
                 color: _page == i
                     ? cs.onSurface
-                    : cs.onSurface.withOpacity(0.2),
+                    : cs.onSurface.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(999),
               ),
             ),
@@ -468,7 +471,7 @@ class _FeaturedListings extends StatelessWidget {
             child: Container(
               height: 100,
               decoration: BoxDecoration(
-                color: cs.surfaceContainerHighest.withOpacity(0.3),
+                color: cs.surfaceContainerHighest.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(14),
               ),
               child: Center(
@@ -486,7 +489,7 @@ class _FeaturedListings extends StatelessWidget {
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 16),
               itemCount: provider.featured.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 12),
+              separatorBuilder: (_, _) => const SizedBox(width: 12),
               itemBuilder: (_, i) {
                 final p = provider.featured[i];
                 return _FeaturedCard(
@@ -541,7 +544,7 @@ class _FeaturedCard extends StatelessWidget {
                         ? Image.network(
                             imageUrl,
                             fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) =>
+                            errorBuilder: (_, _, _) =>
                                 Container(color: cs.surfaceContainerHigh),
                           )
                         : Container(color: cs.surfaceContainerHigh),
@@ -553,7 +556,7 @@ class _FeaturedCard extends StatelessWidget {
                             end: Alignment.bottomCenter,
                             colors: [
                               Colors.transparent,
-                              Colors.black.withOpacity(0.5),
+                              cs.scrim.withValues(alpha: 0.5),
                             ],
                             stops: const [0.5, 1.0],
                           ),
@@ -570,7 +573,7 @@ class _FeaturedCard extends StatelessWidget {
                             vertical: 4,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.9),
+                            color: cs.surface.withValues(alpha: 0.9),
                             borderRadius: BorderRadius.circular(999),
                           ),
                           child: Text(
@@ -578,7 +581,7 @@ class _FeaturedCard extends StatelessWidget {
                             style: GoogleFonts.inter(
                               fontSize: 9,
                               fontWeight: FontWeight.bold,
-                              color: Colors.black,
+                              color: cs.onSurface,
                             ),
                           ),
                         ),
@@ -591,7 +594,7 @@ class _FeaturedCard extends StatelessWidget {
                         style: GoogleFonts.notoSerif(
                           fontSize: 15,
                           fontWeight: FontWeight.w900,
-                          color: Colors.white,
+                          color: cs.surface,
                         ),
                       ),
                     ),
@@ -697,7 +700,7 @@ class _Services extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: e.dark
                           ? cs.onSurface
-                          : cs.surfaceContainerHighest.withOpacity(0.45),
+                          : cs.surfaceContainerHighest.withValues(alpha: 0.45),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Column(
@@ -724,7 +727,7 @@ class _Services extends StatelessWidget {
                             fontSize: 11,
                             height: 1.5,
                             color: e.dark
-                                ? cs.surface.withOpacity(0.55)
+                                ? cs.surface.withValues(alpha: 0.55)
                                 : cs.onSurfaceVariant,
                           ),
                           maxLines: 3,
@@ -774,7 +777,7 @@ class _Newsletter extends StatelessWidget {
             Text(
               'Curated listings & market insights, weekly.',
               style: TextStyle(
-                color: cs.surface.withOpacity(0.55),
+                color: cs.surface.withValues(alpha: 0.55),
                 fontSize: 13,
                 height: 1.5,
               ),
@@ -789,9 +792,11 @@ class _Newsletter extends StatelessWidget {
                     style: TextStyle(color: cs.surface, fontSize: 14),
                     decoration: InputDecoration(
                       hintText: 'Your email address',
-                      hintStyle: TextStyle(color: cs.surface.withOpacity(0.35)),
+                      hintStyle: TextStyle(
+                        color: cs.surface.withValues(alpha: 0.35),
+                      ),
                       filled: true,
-                      fillColor: cs.surface.withOpacity(0.1),
+                      fillColor: cs.surface.withValues(alpha: 0.1),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide.none,

@@ -779,7 +779,7 @@ class _SupportBubble extends StatelessWidget {
                     fontSize: 9,
                     color: isMe && !isAdmin
                         ? cs.surface.withValues(alpha: 0.5)
-                        : cs.onSurfaceVariant.withValues(alpha: 0.6),
+                        : cs.onSurfaceVariant.withValues(alpha: 0.85),
                   ),
                 ),
               ],
@@ -855,7 +855,7 @@ class _ReplyInput extends StatelessWidget {
                     hintText: 'Type your reply...',
                     hintStyle: GoogleFonts.inter(
                         fontSize: 14,
-                        color: cs.onSurfaceVariant.withValues(alpha: 0.5)),
+                        color: cs.onSurfaceVariant.withValues(alpha: 0.75)),
                     filled: true,
                     fillColor: cs.surfaceContainerHighest.withValues(alpha: 0.3),
                     contentPadding: const EdgeInsets.symmetric(
@@ -905,7 +905,7 @@ class _ReplyInput extends StatelessWidget {
           Text(
             '${controller.text.length}/5000',
             style: GoogleFonts.inter(
-                fontSize: 10, color: cs.onSurfaceVariant.withValues(alpha: 0.5)),
+                fontSize: 10, color: cs.onSurfaceVariant.withValues(alpha: 0.75)),
           ),
         ],
       ),

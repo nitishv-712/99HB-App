@@ -18,7 +18,8 @@ class DashboardScreen extends StatefulWidget {
   State<DashboardScreen> createState() => _DashboardScreenState();
 }
 
-class _DashboardScreenState extends State<DashboardScreen> with TickerProviderStateMixin {
+class _DashboardScreenState extends State<DashboardScreen>
+    with TickerProviderStateMixin {
   late final TabController _tabCtrl;
 
   @override
@@ -48,7 +49,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
       backgroundColor: cs.surface,
       appBar: BrandAppBar(),
       body: NestedScrollView(
-        headerSliverBuilder: (_, __) => [
+        headerSliverBuilder: (_, _) => [
           SliverToBoxAdapter(
             child: Column(
               children: [
@@ -64,15 +65,25 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
             delegate: _TabBarDelegate(
               TabBar(
                 controller: _tabCtrl,
-                labelStyle: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1),
-                unselectedLabelStyle: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w500),
+                labelStyle: GoogleFonts.inter(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1,
+                ),
+                unselectedLabelStyle: GoogleFonts.inter(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                ),
                 labelColor: cs.onSurface,
                 unselectedLabelColor: cs.onSurfaceVariant,
                 indicatorColor: cs.onSurface,
                 indicatorWeight: 2,
                 indicatorSize: TabBarIndicatorSize.label,
-                dividerColor: cs.outlineVariant.withOpacity(0.3),
-                tabs: const [Tab(text: 'SAVED'), Tab(text: 'MY LISTINGS')],
+                dividerColor: cs.outlineVariant.withValues(alpha: 0.3),
+                tabs: const [
+                  Tab(text: 'SAVED'),
+                  Tab(text: 'MY LISTINGS'),
+                ],
               ),
               cs.surface,
             ),
@@ -98,7 +109,7 @@ class _TabBarDelegate extends SliverPersistentHeaderDelegate {
   double get maxExtent => tabBar.preferredSize.height;
 
   @override
-  Widget build(_, __, ___) => Container(
+  Widget build(_, _, _) => Container(
     color: background,
     padding: const EdgeInsets.symmetric(horizontal: 20),
     child: tabBar,

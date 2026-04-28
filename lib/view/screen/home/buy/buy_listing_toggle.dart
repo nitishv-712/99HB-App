@@ -5,7 +5,11 @@ import 'package:homebazaar/model/property.dart';
 class BuyListingToggle extends StatelessWidget {
   final ListingType value;
   final ValueChanged<ListingType> onChanged;
-  const BuyListingToggle({super.key, required this.value, required this.onChanged});
+  const BuyListingToggle({
+    super.key,
+    required this.value,
+    required this.onChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -13,18 +17,26 @@ class BuyListingToggle extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(
-        color: cs.surfaceContainerHighest.withOpacity(0.4),
+        color: cs.surfaceContainerHighest.withValues(alpha: 0.4),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: cs.outlineVariant.withOpacity(0.3)),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.3)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _Btn(label: 'Buy', active: value == ListingType.sale,
-              onTap: () => onChanged(ListingType.sale), cs: cs),
+          _Btn(
+            label: 'Buy',
+            active: value == ListingType.sale,
+            onTap: () => onChanged(ListingType.sale),
+            cs: cs,
+          ),
           const SizedBox(width: 3),
-          _Btn(label: 'Rent', active: value == ListingType.rent,
-              onTap: () => onChanged(ListingType.rent), cs: cs),
+          _Btn(
+            label: 'Rent',
+            active: value == ListingType.rent,
+            onTap: () => onChanged(ListingType.rent),
+            cs: cs,
+          ),
         ],
       ),
     );
@@ -36,7 +48,12 @@ class _Btn extends StatelessWidget {
   final bool active;
   final VoidCallback onTap;
   final ColorScheme cs;
-  const _Btn({required this.label, required this.active, required this.onTap, required this.cs});
+  const _Btn({
+    required this.label,
+    required this.active,
+    required this.onTap,
+    required this.cs,
+  });
 
   @override
   Widget build(BuildContext context) {

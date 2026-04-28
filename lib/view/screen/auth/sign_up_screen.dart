@@ -38,12 +38,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
   }
 
   String get _strengthLabel => switch (_strength) {
-        0 => 'Too short',
-        1 => 'Weak',
-        2 => 'Medium',
-        3 => 'Strong',
-        _ => 'Very Strong',
-      };
+    0 => 'Too short',
+    1 => 'Weak',
+    2 => 'Medium',
+    3 => 'Strong',
+    _ => 'Very Strong',
+  };
 
   @override
   void dispose() {
@@ -60,12 +60,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
     const roles = [UserRole.buyer, UserRole.seller, UserRole.agent];
     setState(() => _loading = true);
     final ok = await context.read<AuthProvider>().register(
-          firstName: _firstCtrl.text.trim(),
-          lastName: _lastCtrl.text.trim(),
-          email: _emailCtrl.text.trim(),
-          password: _passCtrl.text,
-          role: roles[_roleIndex],
-        );
+      firstName: _firstCtrl.text.trim(),
+      lastName: _lastCtrl.text.trim(),
+      email: _emailCtrl.text.trim(),
+      password: _passCtrl.text,
+      role: roles[_roleIndex],
+    );
     setState(() => _loading = false);
     if (!mounted) return;
     if (ok) {
@@ -73,7 +73,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
     } else {
       final error = context.read<AuthProvider>().error;
       AppErrorHandler.showError(
-          context, error ?? 'Registration failed. Please try again.');
+        context,
+        error ?? 'Registration failed. Please try again.',
+      );
     }
   }
 
@@ -95,11 +97,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         child: Center(
                           child: Container(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 28, vertical: 40),
+                              horizontal: 28,
+                              vertical: 40,
+                            ),
                             child: Center(
                               child: ConstrainedBox(
-                                constraints:
-                                    const BoxConstraints(maxWidth: 400),
+                                constraints: const BoxConstraints(
+                                  maxWidth: 400,
+                                ),
                                 child: Form(
                                   key: _formKey,
                                   child: Column(
@@ -112,14 +117,19 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                             Navigator.maybePop(context),
                                         child: Row(
                                           children: [
-                                            Icon(Icons.arrow_back,
-                                                size: 18,
-                                                color: cs.onSurfaceVariant),
+                                            Icon(
+                                              Icons.arrow_back,
+                                              size: 18,
+                                              color: cs.onSurfaceVariant,
+                                            ),
                                             const SizedBox(width: 6),
-                                            Text('Back',
-                                                style: TextStyle(
-                                                    color: cs.onSurfaceVariant,
-                                                    fontSize: 14)),
+                                            Text(
+                                              'Back',
+                                              style: TextStyle(
+                                                color: cs.onSurfaceVariant,
+                                                fontSize: 14,
+                                              ),
+                                            ),
                                           ],
                                         ),
                                       ),
@@ -137,8 +147,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                       Text(
                                         'Join the most exclusive real estate network.',
                                         style: TextStyle(
-                                            color: cs.onSurfaceVariant,
-                                            fontSize: 16),
+                                          color: cs.onSurfaceVariant,
+                                          fontSize: 16,
+                                        ),
                                       ),
                                       const SizedBox(height: 32),
 
@@ -160,8 +171,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                                   Icons.person_outline_rounded,
                                               validator: (v) =>
                                                   (v == null || v.isEmpty)
-                                                      ? 'Required'
-                                                      : null,
+                                                  ? 'Required'
+                                                  : null,
                                             ),
                                           ),
                                           const SizedBox(width: 12),
@@ -174,8 +185,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                                   Icons.person_outline_rounded,
                                               validator: (v) =>
                                                   (v == null || v.isEmpty)
-                                                      ? 'Required'
-                                                      : null,
+                                                  ? 'Required'
+                                                  : null,
                                             ),
                                           ),
                                         ],
@@ -189,10 +200,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                         icon: Icons.alternate_email_rounded,
                                         keyboardType:
                                             TextInputType.emailAddress,
-                                        validator: (v) => (v == null ||
+                                        validator: (v) =>
+                                            (v == null ||
                                                 v.isEmpty ||
-                                                !RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                                                    .hasMatch(v))
+                                                !RegExp(
+                                                  r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                                                ).hasMatch(v))
                                             ? 'Enter a valid email'
                                             : null,
                                       ),
@@ -207,11 +220,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                         onChanged: (_) => setState(() {}),
                                         validator: (v) =>
                                             (v == null || v.length < 8)
-                                                ? 'Min 8 characters'
-                                                : null,
+                                            ? 'Min 8 characters'
+                                            : null,
                                         suffix: IconButton(
                                           onPressed: () => setState(
-                                              () => _obscure = !_obscure),
+                                            () => _obscure = !_obscure,
+                                          ),
                                           icon: Icon(
                                             _obscure
                                                 ? Icons.visibility_off
@@ -235,44 +249,52 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                           Checkbox(
                                             value: _agreed,
                                             onChanged: (v) => setState(
-                                                () => _agreed = v ?? false),
+                                              () => _agreed = v ?? false,
+                                            ),
                                             activeColor: cs.onSurface,
                                             shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(4)),
+                                              borderRadius:
+                                                  BorderRadius.circular(4),
+                                            ),
                                             side: BorderSide(
-                                                color: cs.outlineVariant),
+                                              color: cs.outlineVariant,
+                                            ),
                                           ),
                                           const SizedBox(width: 4),
                                           Expanded(
                                             child: Padding(
                                               padding: const EdgeInsets.only(
-                                                  top: 12),
+                                                top: 12,
+                                              ),
                                               child: RichText(
                                                 text: TextSpan(
                                                   style: TextStyle(
-                                                      color:
-                                                          cs.onSurfaceVariant,
-                                                      fontSize: 13,
-                                                      height: 1.5),
+                                                    color: cs.onSurfaceVariant,
+                                                    fontSize: 13,
+                                                    height: 1.5,
+                                                  ),
                                                   children: [
                                                     const TextSpan(
-                                                        text: 'I agree to the '),
+                                                      text: 'I agree to the ',
+                                                    ),
                                                     TextSpan(
                                                       text: 'Terms of Service',
                                                       style: TextStyle(
-                                                          color: cs.onSurface,
-                                                          fontWeight:
-                                                              FontWeight.w600),
+                                                        color: cs.onSurface,
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                      ),
                                                     ),
                                                     const TextSpan(
-                                                        text: ' and '),
+                                                      text: ' and ',
+                                                    ),
                                                     TextSpan(
                                                       text: 'Privacy Policy',
                                                       style: TextStyle(
-                                                          color: cs.onSurface,
-                                                          fontWeight:
-                                                              FontWeight.w600),
+                                                        color: cs.onSurface,
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                      ),
                                                     ),
                                                   ],
                                                 ),
@@ -284,8 +306,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                       const SizedBox(height: 28),
 
                                       AppPrimaryButton(
-                                          text: 'CREATE ACCOUNT',
-                                          onPressed: _submit),
+                                        text: 'CREATE ACCOUNT',
+                                        onPressed: _submit,
+                                      ),
 
                                       const AppOrDivider(),
 
@@ -339,7 +362,7 @@ class _RoleToggle extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: cs.surfaceContainerHighest.withOpacity(0.3),
+        color: cs.surfaceContainerHighest.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(

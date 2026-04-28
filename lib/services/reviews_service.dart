@@ -35,10 +35,10 @@ abstract final class ReviewsService {
     int? limit,
   }) async {
     final qs = ApiClient.buildQuery({
-      if (rating != null) 'rating': rating,
-      if (sort != null) 'sort': sort,
-      if (page != null) 'page': page,
-      if (limit != null) 'limit': limit,
+      'rating': ?rating,
+      'sort': ?sort,
+      'page': ?page,
+      'limit': ?limit,
     });
     return ApiClient.fetch<Map<String, dynamic>>(
       '/reviews/property/$propertyId$qs',
@@ -48,8 +48,8 @@ abstract final class ReviewsService {
   /// GET /reviews/user/my-reviews
   static Future<ApiResponse<List<ApiReview>>> myReviews({int? page, int? limit}) async {
     final qs = ApiClient.buildQuery({
-      if (page != null) 'page': page,
-      if (limit != null) 'limit': limit,
+      'page': ?page,
+      'limit': ?limit,
     });
     final json = await ApiClient.fetch<Map<String, dynamic>>('/reviews/user/my-reviews$qs');
     return ApiResponse.fromJson(json, (d) {
@@ -78,9 +78,9 @@ abstract final class ReviewsService {
       '/reviews/$id',
       method: 'PATCH',
       body: {
-        if (rating != null) 'rating': rating,
-        if (title != null) 'title': title,
-        if (comment != null) 'comment': comment,
+        'rating': ?rating,
+        'title': ?title,
+        'comment': ?comment,
       },
     );
     return ApiResponse.fromJson(

@@ -4,23 +4,22 @@ import 'package:google_fonts/google_fonts.dart';
 // ── Color Palette ─────────────────────────────────────────────────────────────
 
 abstract final class AppColors {
-  // Primary – deep indigo-teal
-  // Primary – Red (#E43636)
+  // Primary – Red
   static const primary = Color(0xFFE43636);
   static const onPrimary = Colors.white;
-  static const primaryContainer = Color(0xFFFFDAD6); // Lightened tint
+  static const primaryContainer = Color(0xFFFFDAD6);
   static const onPrimaryContainer = Color(0xFF410002);
   static const primaryFixed = Color(0xFFFFDAD6);
 
-  // Secondary – Tan/Sage (#E2DDB4)
-  static const secondary = Color(0xFFE2DDB4);
-  static const onSecondary = Color(0xFF000000); // Black for contrast
-  static const secondaryContainer = Color(0xFFF6EFD2); // Using the Cream color
+  // Secondary – warm tan
+  static const secondary = Color(0xFFC8C09A);
+  static const onSecondary = Color(0xFF1A1800);
+  static const secondaryContainer = Color(0xFFF0EBD8);
   static const onSecondaryContainer = Color(0xFF1D1D00);
 
-  // Tertiary – Cream (#F6EFD2)
+  // Tertiary
   static const tertiary = Color(0xFFF6EFD2);
-  static const onTertiary = Color(0xFF000000);
+  static const onTertiary = Color(0xFF1A1800);
   static const tertiaryContainer = Color(0xFFFFFFFF);
   static const onTertiaryContainer = Color(0xFF1F1C05);
   static const tertiaryFixed = Color(0xFFF6EFD2);
@@ -31,70 +30,31 @@ abstract final class AppColors {
   static const errorContainer = Color(0xFFFFDAD6);
   static const onErrorContainer = Color(0xFF410002);
 
-  // Neutral surface tones – Using Black (#000000) as the foundation
-  static const surface = Color(0xFFFFFFFF); // Keep white for readability
-  static const onSurface = Color(0xFF000000); // True Black
-  static const surfaceVariant = Color(0xFFE2DDB4); // Tan as variant
-  static const onSurfaceVariant = Color(0xFF494836);
+  // Surfaces – clean warm whites
+  static const surface = Color(0xFFFFFDF7);
+  static const onSurface = Color(0xFF1A1814);
+  static const surfaceVariant = Color(0xFFF0EBD8);
+  static const onSurfaceVariant = Color(0xFF5C5640);
 
-  static const surfaceContainer = Color(0xFFF6EFD2); // Cream for containers
-  static const surfaceContainerLow = Color(0xFFFAF7E8);
+  static const surfaceContainer = Color(0xFFF5F0E8);
+  static const surfaceContainerLow = Color(0xFFFAF7F0);
   static const surfaceContainerLowest = Color(0xFFFFFFFF);
-  static const surfaceContainerHigh = Color(0xFFF0E9C7);
-  static const surfaceContainerHighest = Color(0xFFEBE3BD);
+  static const surfaceContainerHigh = Color(0xFFEDE7D8);
+  static const surfaceContainerHighest = Color(0xFFE5DFD0);
 
   // Outline
-  static const outline = Color(0xFF000000); // Black outlines for a bold look
-  static const outlineVariant = Color(0xFFE2DDB4);
-  // static const primary = Color(0xFF2563EB);
-  // static const onPrimary = Colors.white;
-  // static const primaryContainer = Color(0xFFDBEAFE);
-  // static const onPrimaryContainer = Color(0xFF1E3A5F);
-  // static const primaryFixed = Color(0xFFEFF6FF);
+  static const outline = Color(0xFF8A8470);
+  static const outlineVariant = Color(0xFFD8D2C0);
 
-  // // Secondary – slate
-  // static const secondary = Color(0xFF6366F1);
-  // static const onSecondary = Colors.white;
-  // static const secondaryContainer = Color(0xFFE0E7FF);
-  // static const onSecondaryContainer = Color(0xFF312E81);
-
-  // // Tertiary – amber/gold
-  // static const tertiary = Color(0xFFD97706);
-  // static const onTertiary = Colors.white;
-  // static const tertiaryContainer = Color(0xFFFEF3C7);
-  // static const onTertiaryContainer = Color(0xFF78350F);
-  // static const tertiaryFixed = Color(0xFFFFFBEB);
-
-  // // Error
-  // static const error = Color(0xFFDC2626);
-  // static const onError = Colors.white;
-  // static const errorContainer = Color(0xFFFEE2E2);
-  // static const onErrorContainer = Color(0xFF7F1D1D);
-
-  // // Neutral surface tones
-  // static const surface = Color(0xFFFAFAFC);
-  // static const onSurface = Color(0xFF0F172A);
-  // static const surfaceVariant = Color(0xFFF1F5F9);
-  // static const onSurfaceVariant = Color(0xFF475569);
-  // static const surfaceContainer = Color(0xFFF1F5F9);
-  // static const surfaceContainerLow = Color(0xFFF8FAFC);
-  // static const surfaceContainerLowest = Color(0xFFFFFFFF);
-  // static const surfaceContainerHigh = Color(0xFFE2E8F0);
-  // static const surfaceContainerHighest = Color(0xFFCBD5E1);
-
-  // // Outline
-  // static const outline = Color(0xFF94A3B8);
-  // static const outlineVariant = Color(0xFFCBD5E1);
-
-  // Gradient
+  // Gradients
   static const gradientCta = LinearGradient(
-    colors: [Color(0xFF1A1A1A), Color(0xFF434343)],
+    colors: [Color(0xFF1A1814), Color(0xFF3D3830)],
     begin: Alignment.centerLeft,
     end: Alignment.centerRight,
   );
 
   static const gradientCtaVertical = LinearGradient(
-    colors: [Color(0xFF1A1A1A), Color(0xFF434343)],
+    colors: [Color(0xFF1A1814), Color(0xFF3D3830)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
@@ -133,38 +93,35 @@ final _lightColorScheme = ColorScheme(
 );
 
 // ── Dark ColorScheme ──────────────────────────────────────────────────────────
+
 final _darkColorScheme = ColorScheme(
   brightness: Brightness.dark,
-  primary: const Color(0xFF60A5FA), // Bright blue for visibility
-  onPrimary: const Color(0xFF0C2340), // Very dark blue for contrast
-  primaryContainer: const Color(0xFF1E3A5F), // Medium dark blue
-  onPrimaryContainer: const Color(0xFFDBEAFE), // Light blue tint
-  secondary: const Color(0xFF818CF8), // Bright indigo
-  onSecondary: const Color(0xFF0F0D2E), // Very dark indigo
-  secondaryContainer: const Color(0xFF2E2A5E), // Medium dark indigo
-  onSecondaryContainer: const Color(0xFFE0E7FF), // Light indigo tint
-  tertiary: const Color(0xFFFBBF24), // Bright amber
-  onTertiary: const Color(0xFF1A0F00), // Very dark amber
-  tertiaryContainer: const Color(0xFF4A2400), // Medium dark amber
-  onTertiaryContainer: const Color(0xFFFEF3C7), // Light amber tint
-  error: const Color(0xFFF87171), // Bright red
-  onError: const Color(0xFF2D0A0A), // Very dark red
-  errorContainer: const Color(
-    0xFF5C1515,
-  ), // Medium dark red (fixed from too dark)
-  onErrorContainer: const Color(0xFFFEE2E2), // Light red tint
-  surface: const Color(0xFF0F172A), // Dark slate background
-  onSurface: const Color(0xFFF1F5F9), // Light text on dark
-  surfaceContainerHighest: const Color(0xFF334155), // Lightest surface variant
-  surfaceContainerHigh: const Color(0xFF1E293B), // Lighter surface variant
-  surfaceContainer: const Color(0xFF1E293B), // Default surface variant
-  surfaceContainerLow: const Color(
-    0xFF0C1425,
-  ), // Darker surface variant (fixed)
-  surfaceContainerLowest: const Color(0xFF0B1222), // Darkest surface variant
-  onSurfaceVariant: const Color(0xFF94A3B8), // Muted text
-  outline: const Color(0xFF475569), // Medium outline
-  outlineVariant: const Color(0xFF334155), // Subtle outline
+  primary: const Color(0xFFFF6B6B),
+  onPrimary: const Color(0xFF5A0000),
+  primaryContainer: const Color(0xFF7A0000),
+  onPrimaryContainer: const Color(0xFFFFDAD6),
+  secondary: const Color(0xFFCFC5A0),
+  onSecondary: const Color(0xFF332D10),
+  secondaryContainer: const Color(0xFF4A4428),
+  onSecondaryContainer: const Color(0xFFEDE3BC),
+  tertiary: const Color(0xFFD4C98A),
+  onTertiary: const Color(0xFF363100),
+  tertiaryContainer: const Color(0xFF4F4800),
+  onTertiaryContainer: const Color(0xFFF1E5A1),
+  error: const Color(0xFFFF8A80),
+  onError: const Color(0xFF5A0000),
+  errorContainer: const Color(0xFF7A0000),
+  onErrorContainer: const Color(0xFFFFDAD6),
+  surface: const Color(0xFF141210),
+  onSurface: const Color(0xFFF8F5F0),
+  surfaceContainerHighest: const Color(0xFF48443C),
+  surfaceContainerHigh: const Color(0xFF343028),
+  surfaceContainer: const Color(0xFF201E18),
+  surfaceContainerLow: const Color(0xFF1A1814),
+  surfaceContainerLowest: const Color(0xFF0F0E0C),
+  onSurfaceVariant: const Color(0xFFD4CFC2),
+  outline: const Color(0xFF8A8070),
+  outlineVariant: const Color(0xFF5A5650),
 );
 
 // ── TextTheme helper ──────────────────────────────────────────────────────────
@@ -263,11 +220,11 @@ ThemeData _buildTheme(ColorScheme cs) {
     textTheme: text,
     scaffoldBackgroundColor: cs.surface,
 
-    // AppBar
     appBarTheme: AppBarTheme(
-      backgroundColor: cs.surface.withOpacity(0.92),
+      backgroundColor: cs.surface,
       foregroundColor: cs.onSurface,
       elevation: 0,
+      scrolledUnderElevation: 0.5,
       centerTitle: false,
       titleTextStyle: GoogleFonts.notoSerif(
         fontSize: 20,
@@ -276,16 +233,13 @@ ThemeData _buildTheme(ColorScheme cs) {
         letterSpacing: -0.5,
       ),
       iconTheme: IconThemeData(color: cs.onSurface),
+      surfaceTintColor: Colors.transparent,
     ),
 
-    // Input
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
       fillColor: cs.surfaceContainer,
-      hintStyle: GoogleFonts.inter(
-        color: cs.onSurfaceVariant.withOpacity(0.5),
-        fontSize: 14,
-      ),
+      hintStyle: GoogleFonts.inter(color: cs.onSurfaceVariant, fontSize: 14),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
@@ -305,7 +259,6 @@ ThemeData _buildTheme(ColorScheme cs) {
       ),
     ),
 
-    // ElevatedButton
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         backgroundColor: cs.primary,
@@ -320,7 +273,6 @@ ThemeData _buildTheme(ColorScheme cs) {
       ),
     ),
 
-    // OutlinedButton
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
         foregroundColor: cs.primary,
@@ -334,7 +286,6 @@ ThemeData _buildTheme(ColorScheme cs) {
       ),
     ),
 
-    // TextButton
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
         foregroundColor: cs.primary,
@@ -342,7 +293,6 @@ ThemeData _buildTheme(ColorScheme cs) {
       ),
     ),
 
-    // Card
     cardTheme: CardThemeData(
       color: cs.surfaceContainerLowest,
       elevation: 0,
@@ -350,14 +300,12 @@ ThemeData _buildTheme(ColorScheme cs) {
       margin: EdgeInsets.zero,
     ),
 
-    // Divider
     dividerTheme: DividerThemeData(
-      color: cs.outlineVariant.withOpacity(0.4),
+      color: cs.outlineVariant.withValues(alpha: 0.5),
       thickness: 1,
       space: 1,
     ),
 
-    // BottomSheet
     bottomSheetTheme: BottomSheetThemeData(
       backgroundColor: cs.surfaceContainerLowest,
       shape: const RoundedRectangleBorder(
@@ -365,7 +313,6 @@ ThemeData _buildTheme(ColorScheme cs) {
       ),
     ),
 
-    // Chip
     chipTheme: ChipThemeData(
       backgroundColor: cs.surfaceContainer,
       labelStyle: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w500),
@@ -374,7 +321,6 @@ ThemeData _buildTheme(ColorScheme cs) {
       side: BorderSide.none,
     ),
 
-    // ListTile
     listTileTheme: ListTileThemeData(
       titleTextStyle: GoogleFonts.inter(
         fontSize: 14,
@@ -387,7 +333,6 @@ ThemeData _buildTheme(ColorScheme cs) {
       ),
     ),
 
-    // SnackBar
     snackBarTheme: SnackBarThemeData(
       backgroundColor: cs.onSurface,
       contentTextStyle: GoogleFonts.inter(color: cs.surface, fontSize: 14),
@@ -395,7 +340,6 @@ ThemeData _buildTheme(ColorScheme cs) {
       behavior: SnackBarBehavior.floating,
     ),
 
-    // FloatingActionButton
     floatingActionButtonTheme: FloatingActionButtonThemeData(
       backgroundColor: cs.primary,
       foregroundColor: cs.onPrimary,
@@ -403,13 +347,10 @@ ThemeData _buildTheme(ColorScheme cs) {
       shape: const CircleBorder(),
     ),
 
-    // Icon
     iconTheme: IconThemeData(color: cs.onSurface, size: 24),
 
-    // Progress indicator
     progressIndicatorTheme: ProgressIndicatorThemeData(color: cs.primary),
 
-    // Switch
     switchTheme: SwitchThemeData(
       thumbColor: WidgetStateProperty.resolveWith(
         (s) => s.contains(WidgetState.selected) ? cs.primary : cs.outline,

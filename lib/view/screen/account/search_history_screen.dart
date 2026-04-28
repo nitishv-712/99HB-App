@@ -30,7 +30,7 @@ class _SearchHistoryScreenState extends State<SearchHistoryScreen> {
         title: 'Search History',
         actions: [
           Consumer<SearchHistoryProvider>(
-            builder: (_, prov, __) {
+            builder: (_, prov, _) {
               if (prov.history.isEmpty) return const SizedBox.shrink();
               return TextButton(
                 onPressed: () => _confirmClear(context, cs),
@@ -47,7 +47,7 @@ class _SearchHistoryScreenState extends State<SearchHistoryScreen> {
         ],
       ),
       body: Consumer<SearchHistoryProvider>(
-        builder: (_, prov, __) {
+        builder: (_, prov, _) {
           if (prov.loading) {
             return SkeletonList(itemBuilder: () => const SkeletonTile());
           }
@@ -64,7 +64,7 @@ class _SearchHistoryScreenState extends State<SearchHistoryScreen> {
           return ListView.separated(
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 100),
             itemCount: prov.history.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 10),
+            separatorBuilder: (_, _) => const SizedBox(height: 10),
             itemBuilder: (_, i) {
               final item = prov.history[i];
               return Container(
@@ -73,9 +73,11 @@ class _SearchHistoryScreenState extends State<SearchHistoryScreen> {
                   vertical: 12,
                 ),
                 decoration: BoxDecoration(
-                  color: cs.surfaceContainerHighest.withOpacity(0.3),
+                  color: cs.surfaceContainerHighest.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: cs.outlineVariant.withOpacity(0.2)),
+                  border: Border.all(
+                    color: cs.outlineVariant.withValues(alpha: 0.2),
+                  ),
                 ),
                 child: Row(
                   children: [
@@ -103,7 +105,9 @@ class _SearchHistoryScreenState extends State<SearchHistoryScreen> {
                                 : item.createdAt,
                             style: TextStyle(
                               fontSize: 11,
-                              color: cs.onSurfaceVariant.withOpacity(0.6),
+                              color: cs.onSurfaceVariant.withValues(
+                                alpha: 0.85,
+                              ),
                             ),
                           ),
                         ],

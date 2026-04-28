@@ -9,8 +9,8 @@ abstract final class SearchHistoryService {
     int? limit,
   }) async {
     final qs = ApiClient.buildQuery({
-      if (page != null) 'page': page,
-      if (limit != null) 'limit': limit,
+      'page': ?page,
+      'limit': ?limit,
     });
     final json =
         await ApiClient.fetch<Map<String, dynamic>>('/search-history$qs');
@@ -31,7 +31,7 @@ abstract final class SearchHistoryService {
       method: 'POST',
       body: {
         'query': query,
-        if (filters != null) 'filters': filters,
+        'filters': ?filters,
       },
     );
     return ApiResponse.fromJson(

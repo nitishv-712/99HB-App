@@ -32,7 +32,7 @@ class _ComparisonsScreenState extends State<ComparisonsScreen> {
       backgroundColor: cs.surface,
       appBar: const AppStandardBar(title: 'Comparisons'),
       body: Consumer<ComparisonsProvider>(
-        builder: (_, prov, __) {
+        builder: (_, prov, _) {
           if (prov.loading) {
             return SkeletonList(itemBuilder: () => const SkeletonTile());
           }
@@ -49,7 +49,7 @@ class _ComparisonsScreenState extends State<ComparisonsScreen> {
           return ListView.separated(
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 100),
             itemCount: prov.comparisons.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 12),
+            separatorBuilder: (_, _) => const SizedBox(height: 12),
             itemBuilder: (_, i) => _ComparisonTile(
               comparison: prov.comparisons[i],
               onDelete: () => prov.delete(prov.comparisons[i].id),
@@ -81,9 +81,9 @@ class _ComparisonTile extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: cs.surfaceContainerHighest.withOpacity(0.3),
+          color: cs.surfaceContainerHighest.withValues(alpha: 0.3),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: cs.outlineVariant.withOpacity(0.25)),
+          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.25)),
         ),
         child: Row(
           children: [
@@ -91,7 +91,7 @@ class _ComparisonTile extends StatelessWidget {
               width: 44,
               height: 44,
               decoration: BoxDecoration(
-                color: cs.surfaceContainerHighest.withOpacity(0.5),
+                color: cs.surfaceContainerHighest.withValues(alpha: 0.5),
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -169,7 +169,7 @@ class _ComparisonDetailScreenState extends State<ComparisonDetailScreen> {
             context.watch<ComparisonsProvider>().detail?.name ?? 'Comparison',
       ),
       body: Consumer<ComparisonsProvider>(
-        builder: (_, prov, __) {
+        builder: (_, prov, _) {
           if (prov.detailLoading) {
             return const SkeletonAnalytics();
           }
@@ -248,9 +248,9 @@ class _AnalysisCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: cs.surfaceContainerHighest.withOpacity(0.3),
+        color: cs.surfaceContainerHighest.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: cs.outlineVariant.withOpacity(0.2)),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.2)),
       ),
       child: Column(
         children: rows
@@ -296,9 +296,9 @@ class _PropertyRow extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: cs.surfaceContainerHighest.withOpacity(0.3),
+        color: cs.surfaceContainerHighest.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: cs.outlineVariant.withOpacity(0.2)),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.2)),
       ),
       child: Row(
         children: [
@@ -311,7 +311,7 @@ class _PropertyRow extends StatelessWidget {
                   ? Image.network(
                       property.primaryImageUrl!,
                       fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) =>
+                      errorBuilder: (_, _, _) =>
                           Container(color: cs.surfaceContainerHigh),
                     )
                   : Container(color: cs.surfaceContainerHigh),

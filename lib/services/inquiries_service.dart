@@ -27,8 +27,8 @@ abstract final class InquiriesService {
   }) async {
     final qs = ApiClient.buildQuery({
       if (status != null) 'status': status.name,
-      if (page != null) 'page': page,
-      if (limit != null) 'limit': limit,
+      'page': ?page,
+      'limit': ?limit,
     });
     final json = await ApiClient.fetch<Map<String, dynamic>>('/inquiries$qs');
     return ApiResponse.fromJson(json, (d) {
@@ -45,8 +45,8 @@ abstract final class InquiriesService {
   }) async {
     final qs = ApiClient.buildQuery({
       if (status != null) 'status': status.name,
-      if (page != null) 'page': page,
-      if (limit != null) 'limit': limit,
+      'page': ?page,
+      'limit': ?limit,
     });
     final json = await ApiClient.fetch<Map<String, dynamic>>('/inquiries/me$qs');
     return ApiResponse.fromJson(json, (d) {

@@ -23,8 +23,8 @@ abstract final class UsersService {
   }) async {
     final qs = ApiClient.buildQuery({
       if (status != null) 'status': status.name,
-      if (page != null) 'page': page,
-      if (limit != null) 'limit': limit,
+      'page': ?page,
+      'limit': ?limit,
     });
     final json = await ApiClient.fetch<Map<String, dynamic>>(
       '/users/my-listings$qs',
@@ -53,15 +53,15 @@ abstract final class UsersService {
       '/users/update-profile',
       method: 'PATCH',
       body: {
-        if (firstName != null) 'firstName': firstName,
-        if (lastName != null) 'lastName': lastName,
-        if (avatar != null) 'avatar': avatar,
-        if (email != null) 'email': email,
-        if (phone != null) 'phone': phone,
-        if (panNumber != null) 'panNumber': panNumber,
-        if (panCardImage != null) 'panCardImage': panCardImage,
-        if (aadharNumber != null) 'aadharNumber': aadharNumber,
-        if (aadharCardImage != null) 'aadharCardImage': aadharCardImage,
+        'firstName': ?firstName,
+        'lastName': ?lastName,
+        'avatar': ?avatar,
+        'email': ?email,
+        'phone': ?phone,
+        'panNumber': ?panNumber,
+        'panCardImage': ?panCardImage,
+        'aadharNumber': ?aadharNumber,
+        'aadharCardImage': ?aadharCardImage,
       },
     );
     return ApiResponse.fromJson(json, (d) => d as Map<String, dynamic>);

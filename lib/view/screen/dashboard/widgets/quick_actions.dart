@@ -7,48 +7,62 @@ class DashQuickActions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     final actions = [
       _Action(
         icon: Icons.analytics_outlined,
         label: 'Analytics',
         desc: 'Performance insights',
         route: AppRoutes.analytics,
-        colors: [const Color(0xFF6366F1), const Color(0xFF8B5CF6)],
+        colors: isDark
+            ? [const Color(0xFF1E293B), const Color(0xFF334155)]
+            : [const Color(0xFFE43636), const Color(0xFFFF6B6B)],
       ),
       _Action(
         icon: Icons.compare_arrows_rounded,
         label: 'Comparisons',
         desc: 'Compare properties',
         route: AppRoutes.comparisons,
-        colors: [const Color(0xFF0EA5E9), const Color(0xFF06B6D4)],
+        colors: isDark
+            ? [const Color(0xFF1E3A5F), const Color(0xFF1E293B)]
+            : [const Color(0xFF494836), const Color(0xFF6B6950)],
       ),
       _Action(
         icon: Icons.rate_review_outlined,
         label: 'My Reviews',
         desc: 'Reviews you wrote',
         route: AppRoutes.reviews,
-        colors: [const Color(0xFFF59E0B), const Color(0xFFEF4444)],
+        colors: isDark
+            ? [const Color(0xFF2D1B1B), const Color(0xFF3D2020)]
+            : [const Color(0xFFB5451B), const Color(0xFFE43636)],
       ),
       _Action(
         icon: Icons.chat_bubble_outline_rounded,
         label: 'Inquiries',
         desc: 'Property inquiries',
         route: AppRoutes.inquiries,
-        colors: [const Color(0xFF10B981), const Color(0xFF059669)],
+        colors: isDark
+            ? [const Color(0xFF0F2A1E), const Color(0xFF1A3D2B)]
+            : [const Color(0xFF2D6A4F), const Color(0xFF40916C)],
       ),
       _Action(
         icon: Icons.history_rounded,
         label: 'Search History',
         desc: 'Your recent searches',
         route: AppRoutes.searchHistory,
-        colors: [const Color(0xFFF97316), const Color(0xFFEF4444)],
+        colors: isDark
+            ? [const Color(0xFF2A1F0F), const Color(0xFF3D2E12)]
+            : [const Color(0xFF8B6914), const Color(0xFFB8860B)],
       ),
       _Action(
         icon: Icons.support_agent_outlined,
         label: 'Support',
         desc: 'Help & tickets',
         route: AppRoutes.support,
-        colors: [const Color(0xFFEC4899), const Color(0xFF8B5CF6)],
+        colors: isDark
+            ? [const Color(0xFF1A1A2E), const Color(0xFF2D2D4A)]
+            : [const Color(0xFF3D3580), const Color(0xFF5C52B8)],
       ),
     ];
 
@@ -77,7 +91,10 @@ class DashQuickActions extends StatelessWidget {
               childAspectRatio: 0.95,
             ),
             itemCount: actions.length,
-            itemBuilder: (_, i) => _ActionCard(action: actions[i], delay: Duration(milliseconds: i * 60)),
+            itemBuilder: (_, i) => _ActionCard(
+              action: actions[i],
+              delay: Duration(milliseconds: i * 60),
+            ),
           ),
         ],
       ),
@@ -91,7 +108,13 @@ class _Action {
   final String desc;
   final String route;
   final List<Color> colors;
-  const _Action({required this.icon, required this.label, required this.desc, required this.route, required this.colors});
+  const _Action({
+    required this.icon,
+    required this.label,
+    required this.desc,
+    required this.route,
+    required this.colors,
+  });
 }
 
 class _ActionCard extends StatefulWidget {
@@ -103,7 +126,8 @@ class _ActionCard extends StatefulWidget {
   State<_ActionCard> createState() => _ActionCardState();
 }
 
-class _ActionCardState extends State<_ActionCard> with SingleTickerProviderStateMixin {
+class _ActionCardState extends State<_ActionCard>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _ctrl;
   late final Animation<double> _scale;
   late final Animation<double> _fade;
@@ -112,19 +136,30 @@ class _ActionCardState extends State<_ActionCard> with SingleTickerProviderState
   @override
   void initState() {
     super.initState();
-    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 350));
-    _scale = Tween<double>(begin: 0.8, end: 1.0)
-        .animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOutBack));
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 350),
+    );
+    _scale = Tween<double>(
+      begin: 0.8,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOutBack));
     _fade = CurvedAnimation(parent: _ctrl, curve: Curves.easeOut);
-    Future.delayed(widget.delay, () { if (mounted) _ctrl.forward(); });
+    Future.delayed(widget.delay, () {
+      if (mounted) _ctrl.forward();
+    });
   }
 
   @override
-  void dispose() { _ctrl.dispose(); super.dispose(); }
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final a = widget.action;
+    final cs = Theme.of(context).colorScheme;
     return FadeTransition(
       opacity: _fade,
       child: ScaleTransition(
@@ -166,7 +201,7 @@ class _ActionCardState extends State<_ActionCard> with SingleTickerProviderState
                       height: 64,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: Colors.white.withValues(alpha: 0.1),
+                        color: cs.surface.withValues(alpha: 0.1),
                       ),
                     ),
                   ),
@@ -178,7 +213,7 @@ class _ActionCardState extends State<_ActionCard> with SingleTickerProviderState
                       height: 40,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: Colors.white.withValues(alpha: 0.07),
+                        color: cs.surface.withValues(alpha: 0.07),
                       ),
                     ),
                   ),
@@ -193,7 +228,7 @@ class _ActionCardState extends State<_ActionCard> with SingleTickerProviderState
                           width: 36,
                           height: 36,
                           decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.2),
+                            color: cs.surface.withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: Icon(a.icon, size: 18, color: Colors.white),
@@ -219,7 +254,7 @@ class _ActionCardState extends State<_ActionCard> with SingleTickerProviderState
                               overflow: TextOverflow.ellipsis,
                               style: GoogleFonts.inter(
                                 fontSize: 9,
-                                color: Colors.white.withValues(alpha: 0.75),
+                                color: cs.surface.withValues(alpha: 0.75),
                               ),
                             ),
                           ],

@@ -21,7 +21,7 @@ class BuyResultsGrid extends StatelessWidget {
           crossAxisCount: 2, mainAxisSpacing: 16, crossAxisSpacing: 12, childAspectRatio: 0.62,
         ),
         itemCount: 6,
-        itemBuilder: (_, __) => const SkeletonPropertyCard(),
+        itemBuilder: (_, _) => const SkeletonPropertyCard(),
       );
     }
 
@@ -61,7 +61,7 @@ class BuyResultsGrid extends StatelessWidget {
               style: GoogleFonts.inter(color: cs.onSurfaceVariant, fontWeight: FontWeight.w600)),
           const SizedBox(height: 4),
           Text('Try adjusting your filters',
-              style: TextStyle(color: cs.onSurfaceVariant.withOpacity(0.6), fontSize: 12)),
+              style: TextStyle(color: cs.onSurfaceVariant.withValues(alpha: 0.85), fontSize: 12)),
         ]),
       );
     }

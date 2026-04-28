@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -308,9 +307,11 @@ class _LockedBanner extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 20),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: const Color(0xFFFEF3C7).withOpacity(0.15),
+        color: const Color(0xFFFEF3C7).withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFF59E0B).withOpacity(0.3)),
+        border: Border.all(
+          color: const Color(0xFFF59E0B).withValues(alpha: 0.3),
+        ),
       ),
       child: Row(
         children: [
@@ -361,7 +362,7 @@ class _AvatarCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: cs.surfaceContainerLowest,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: cs.outlineVariant.withOpacity(0.2)),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.2)),
       ),
       child: Column(
         children: [
@@ -433,7 +434,7 @@ class _DocSection extends StatelessWidget {
       decoration: BoxDecoration(
         color: cs.surfaceContainerLowest,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: cs.outlineVariant.withOpacity(0.2)),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -501,13 +502,13 @@ class _VerificationBadge extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
         color: verified
-            ? const Color(0xFF10B981).withOpacity(0.12)
-            : const Color(0xFFF59E0B).withOpacity(0.1),
+            ? const Color(0xFF10B981).withValues(alpha: 0.12)
+            : const Color(0xFFF59E0B).withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(999),
         border: Border.all(
           color: verified
-              ? const Color(0xFF34D399).withOpacity(0.3)
-              : const Color(0xFFFBBF24).withOpacity(0.3),
+              ? const Color(0xFF34D399).withValues(alpha: 0.3)
+              : const Color(0xFFFBBF24).withValues(alpha: 0.3),
         ),
       ),
       child: Row(
@@ -569,9 +570,9 @@ class _ReadOnlyField extends StatelessWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
           decoration: BoxDecoration(
-            color: cs.surfaceContainerHighest.withOpacity(0.3),
+            color: cs.surfaceContainerHighest.withValues(alpha: 0.3),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: cs.outlineVariant.withOpacity(0.2)),
+            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.2)),
           ),
           child: Row(
             children: [
@@ -589,7 +590,7 @@ class _ReadOnlyField extends StatelessWidget {
               Icon(
                 Icons.lock_outline_rounded,
                 size: 13,
-                color: cs.onSurfaceVariant.withOpacity(0.4),
+                color: cs.onSurfaceVariant.withValues(alpha: 0.7),
               ),
             ],
           ),
@@ -680,9 +681,9 @@ class _CircleImage extends StatelessWidget {
           height: 88,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: cs.surfaceContainerHighest.withOpacity(0.4),
+            color: cs.surfaceContainerHighest.withValues(alpha: 0.4),
             border: Border.all(
-              color: cs.outlineVariant.withOpacity(0.3),
+              color: cs.outlineVariant.withValues(alpha: 0.3),
               width: 1.5,
             ),
           ),
@@ -735,10 +736,10 @@ class _RectImage extends StatelessWidget {
       height: 140,
       width: double.infinity,
       decoration: BoxDecoration(
-        color: cs.surfaceContainerHighest.withOpacity(0.35),
+        color: cs.surfaceContainerHighest.withValues(alpha: 0.35),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: cs.outlineVariant.withOpacity(locked ? 0.2 : 0.4),
+          color: cs.outlineVariant.withValues(alpha: locked ? 0.2 : 0.4),
         ),
       ),
       child: hasImage
@@ -762,7 +763,7 @@ class _RectImage extends StatelessWidget {
                         vertical: 5,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.55),
+                        color: cs.onSurface.withValues(alpha: 0.55),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Row(
@@ -829,13 +830,14 @@ class _ImageContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (localFile != null)
+    if (localFile != null) {
       return Image.file(File(localFile!.path), fit: BoxFit.cover);
+    }
     if (remoteUrl != null && remoteUrl!.isNotEmpty) {
       return Image.network(
         remoteUrl!,
         fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) =>
+        errorBuilder: (_, _, _) =>
             Icon(Icons.broken_image_outlined, color: cs.onSurfaceVariant),
       );
     }
