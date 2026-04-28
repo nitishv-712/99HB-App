@@ -80,23 +80,6 @@ class BuyPropertyCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Positioned(
-                    top: 10,
-                    right: 10,
-                    child: Container(
-                      width: 32,
-                      height: 32,
-                      decoration: BoxDecoration(
-                        color: cs.surface.withValues(alpha: 0.92),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        Icons.favorite_border_rounded,
-                        size: 16,
-                        color: cs.onSurface,
-                      ),
-                    ),
-                  ),
                 ],
               ),
             ),

@@ -3,17 +3,31 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:homebazaar/core/router/app_router.dart';
 import 'package:homebazaar/model/property.dart';
-import 'package:homebazaar/providers/user_provider.dart';
+import 'package:homebazaar/providers/saved_provider.dart';
 import 'package:homebazaar/view/components/loaders.dart';
 import 'dash_states.dart';
 
-class DashSavedTab extends StatelessWidget {
+class DashSavedTab extends StatefulWidget {
   const DashSavedTab({super.key});
 
   @override
+  State<DashSavedTab> createState() => _DashSavedTabState();
+}
+
+class _DashSavedTabState extends State<DashSavedTab> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<SavedProvider>().invalidate();
+      context.read<SavedProvider>().fetchList();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final provider = context.watch<UserProvider>();
-    if (provider.savedLoading) {
+    final provider = context.watch<SavedProvider>();
+    if (provider.loading) {
       return GridView.builder(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -26,15 +40,24 @@ class DashSavedTab extends StatelessWidget {
         itemBuilder: (_, _) => const SkeletonPropertyCard(),
       );
     }
-    if (provider.savedError != null) {
+    if (provider.error != null) {
       return DashErrorState(
-        message: provider.savedError!,
-        onRetry: () => context.read<UserProvider>().fetchSaved(),
+        message: provider.error!,
+        onRetry: () {
+          provider.invalidate();
+          provider.fetchList();
+        },
       );
     }
-    if (provider.saved.isEmpty) {
+    final saved = provider.items
+        .map(
+          (s) => s.property is ApiProperty ? s.property as ApiProperty : null,
+        )
+        .whereType<ApiProperty>()
+        .toList();
+    if (saved.isEmpty) {
       return const DashEmptyState(
-        icon: Icons.favorite_border_rounded,
+        icon: Icons.bookmark_border_rounded,
         title: 'No saved properties',
         subtitle: 'Properties you save will appear here.',
       );
@@ -47,12 +70,9 @@ class DashSavedTab extends StatelessWidget {
         crossAxisSpacing: 12,
         childAspectRatio: 0.62,
       ),
-      itemCount: provider.saved.length,
-      itemBuilder: (_, i) => _SavedPropertyCard(
-        property: provider.saved[i],
-        staggered: i.isOdd,
-        index: i,
-      ),
+      itemCount: saved.length,
+      itemBuilder: (_, i) =>
+          _SavedPropertyCard(property: saved[i], staggered: i.isOdd, index: i),
     );
   }
 }
@@ -157,24 +177,29 @@ class _SavedPropertyCardState extends State<_SavedPropertyCard>
                             style: GoogleFonts.notoSerif(
                               fontSize: 13,
                               fontWeight: FontWeight.w900,
-                              color: Colors.white,
+                              color: Colors.white.withValues(alpha: 0.92),
                             ),
                           ),
                         ),
                         Positioned(
                           top: 8,
                           right: 8,
-                          child: Container(
-                            width: 30,
-                            height: 30,
-                            decoration: BoxDecoration(
-                              color: cs.surface.withValues(alpha: 0.92),
-                              shape: BoxShape.circle,
+                          child: GestureDetector(
+                            onTap: () => context.read<SavedProvider>().toggle(
+                              widget.property.id,
                             ),
-                            child: Icon(
-                              Icons.favorite_rounded,
-                              size: 14,
-                              color: cs.onSurface,
+                            child: Container(
+                              width: 30,
+                              height: 30,
+                              decoration: BoxDecoration(
+                                color: cs.surface.withValues(alpha: 0.92),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.bookmark_rounded,
+                                size: 14,
+                                color: cs.primary,
+                              ),
                             ),
                           ),
                         ),

@@ -84,8 +84,8 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                 return IconButton(
                   icon: Icon(
                     isSaved
-                        ? Icons.favorite_rounded
-                        : Icons.favorite_border_rounded,
+                        ? Icons.bookmark_rounded
+                        : Icons.bookmark_border_rounded,
                     color: isSaved ? cs.primary : cs.onSurface,
                   ),
                   onPressed: () =>

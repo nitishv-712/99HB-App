@@ -39,24 +39,36 @@ class SavedProvider extends ChangeNotifier {
   void invalidate() => _loaded = false;
 
   Future<bool> toggle(String propertyId) async {
+    final wasSaved = isSaved(propertyId);
+    // optimistic remove for unsave
+    if (wasSaved) {
+      _items.removeWhere((s) {
+        final id = s.property is ApiProperty
+            ? (s.property as ApiProperty).id
+            : s.property as String;
+        return id == propertyId;
+      });
+      notifyListeners();
+    }
     try {
       final res = await SavedService.toggle(propertyId);
       final saved = res.data['saved'] as bool;
       if (saved) {
+        // fetch to get the real saved object
         _loaded = false;
         await fetchList();
-      } else {
-        _items.removeWhere((s) {
-          final id = s.property is ApiProperty
-              ? (s.property as ApiProperty).id
-              : s.property as String;
-          return id == propertyId;
-        });
+      } else if (!wasSaved) {
+        // was not saved and still not — nothing to do
         notifyListeners();
       }
       return saved;
     } catch (_) {
-      return false;
+      // revert optimistic remove
+      if (wasSaved) {
+        _loaded = false;
+        await fetchList();
+      }
+      return wasSaved;
     }
   }
 }
