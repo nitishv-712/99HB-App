@@ -2,12 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:homebazaar/view/components/app_bar.dart';
 import 'package:provider/provider.dart';
-import 'package:homebazaar/providers/analytics_provider.dart';
 import 'package:homebazaar/providers/auth_provider.dart';
+import 'package:homebazaar/providers/analytics_provider.dart';
 import 'package:homebazaar/providers/inquiries_provider.dart';
 import 'package:homebazaar/providers/user_provider.dart';
 import 'widgets/profile_card.dart';
-import 'widgets/stats_row.dart';
 import 'widgets/quick_actions.dart';
 import 'widgets/saved_tab.dart';
 import 'widgets/my_listings_tab.dart';
@@ -54,9 +53,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
             child: Column(
               children: [
                 DashProfileCard(user: user),
-                const SizedBox(height: 20),
-                const DashStatsRow(),
-                const SizedBox(height: 20),
+                const SizedBox(height: 24),
                 const DashQuickActions(),
                 const SizedBox(height: 8),
               ],
