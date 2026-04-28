@@ -594,7 +594,7 @@ class _FeaturedCard extends StatelessWidget {
                         style: GoogleFonts.notoSerif(
                           fontSize: 15,
                           fontWeight: FontWeight.w900,
-                          color: cs.surface,
+                          color: Colors.white,
                         ),
                       ),
                     ),

@@ -32,8 +32,8 @@ class MyApp extends StatelessWidget {
       builder: (context, _) => Consumer<ThemeProvider>(
         builder: (context, theme, _) => MaterialApp(
           title: '99 HomeBazaar',
-          debugShowCheckedModeBanner: false,
-          theme: theme.currentTheme,
+          theme: theme.lightTheme,
+          darkTheme: theme.darkTheme,
           themeMode: theme.themeMode,
           navigatorKey: AppErrorHandler.navigatorKey,
           scaffoldMessengerKey: AppErrorHandler.scaffoldMessengerKey,
