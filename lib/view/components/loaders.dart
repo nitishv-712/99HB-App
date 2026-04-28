@@ -259,11 +259,13 @@ class SkeletonList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.separated(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 100),
-      itemCount: count,
-      separatorBuilder: (_, _) => const SizedBox(height: 12),
-      itemBuilder: (_, _) => itemBuilder(),
+    return _Shimmer(
+      child: ListView.separated(
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
+        itemCount: count,
+        separatorBuilder: (_, _) => const SizedBox(height: 12),
+        itemBuilder: (_, _) => itemBuilder(),
+      ),
     );
   }
 }
@@ -298,6 +300,166 @@ class SkeletonTile extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+// ── Chat bubble skeleton ─────────────────────────────────────────────────────
+
+/// Full chat screen skeleton — header bar + bubbles + input bar.
+/// Drop this directly as the loading state inside a [Scaffold] body.
+class SkeletonChatScreen extends StatelessWidget {
+  const SkeletonChatScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Column(
+      children: [
+        // header
+        Container(
+          color: cs.surface,
+          child: SafeArea(
+            bottom: false,
+            child: _Shimmer(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(4, 8, 16, 12),
+                child: Row(
+                  children: [
+                    const SizedBox(width: 48), // back button space
+                    SkeletonBox(width: 36, height: 36, radius: 18),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SkeletonBox(width: 120, height: 13),
+                          const SizedBox(height: 5),
+                          SkeletonBox(width: 80, height: 10),
+                        ],
+                      ),
+                    ),
+                    SkeletonBox(width: 52, height: 22, radius: 6),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+        Divider(height: 1, color: cs.outlineVariant.withValues(alpha: 0.2)),
+        // bubbles
+        Expanded(
+          child: ColoredBox(
+            color: cs.surfaceContainerLowest,
+            child: _Shimmer(
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final w = constraints.maxWidth;
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const SizedBox(height: 12),
+                      _SkeletonBubble(isMe: false, width: w * 0.60),
+                      _SkeletonBubble(isMe: false, width: w * 0.42),
+                      _SkeletonBubble(isMe: true,  width: w * 0.52),
+                      _SkeletonBubble(isMe: true,  width: w * 0.68),
+                      _SkeletonBubble(isMe: false, width: w * 0.48),
+                      _SkeletonBubble(isMe: true,  width: w * 0.38),
+                      _SkeletonBubble(isMe: false, width: w * 0.70),
+                      _SkeletonBubble(isMe: true,  width: w * 0.55),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ),
+        ),
+        // input bar
+        Container(
+          padding: EdgeInsets.fromLTRB(
+            12, 8, 12, 8 + MediaQuery.paddingOf(context).bottom,
+          ),
+          decoration: BoxDecoration(
+            color: cs.surface,
+            border: Border(
+              top: BorderSide(color: cs.outlineVariant.withValues(alpha: 0.2)),
+            ),
+          ),
+          child: _Shimmer(
+            child: Row(
+              children: [
+                Expanded(
+                  child: SkeletonBox(
+                    width: double.infinity, height: 44, radius: 24),
+                ),
+                const SizedBox(width: 8),
+                SkeletonBox(width: 44, height: 44, radius: 22),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _SkeletonBubble extends StatelessWidget {
+  final bool isMe;
+  final double width;
+  const _SkeletonBubble({required this.isMe, required this.width});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(
+        bottom: 8,
+        left: isMe ? 56 : 8,
+        right: isMe ? 8 : 56,
+      ),
+      child: Align(
+        alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+        child: SkeletonBox(width: width, height: 44, radius: 18),
+      ),
+    );
+  }
+}
+
+// ── Chat tile skeleton ────────────────────────────────────────────────────────
+
+class SkeletonChatTile extends StatelessWidget {
+  const SkeletonChatTile({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: cs.surfaceContainerHighest.withValues(alpha: 0.3),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        children: [
+          SkeletonBox(width: 46, height: 46, radius: 23),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(child: SkeletonBox(width: double.infinity, height: 13)),
+                    const SizedBox(width: 16),
+                    SkeletonBox(width: 36, height: 10),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                SkeletonBox(width: 90, height: 10),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
