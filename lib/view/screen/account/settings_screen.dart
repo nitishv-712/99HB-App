@@ -142,11 +142,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const SizedBox(height: 10),
           _SettingsCard(
             children: [
-              _NavTile(
-                icon: Icons.help_outline_rounded,
-                label: 'Help & FAQ',
-                onTap: () => AppRouter.push(context, AppRoutes.support),
-              ),
+              // _NavTile(
+              //   icon: Icons.help_outline_rounded,
+              //   label: 'Help & FAQ',
+              //   onTap: () => AppRouter.push(context, AppRoutes.support),
+              // ),
               _Divider(),
               _NavTile(
                 icon: Icons.support_agent_outlined,
