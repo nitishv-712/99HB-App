@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:homebazaar/providers/saved_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:homebazaar/providers/inquiries_provider.dart';
 import 'package:homebazaar/providers/user_provider.dart';
@@ -10,7 +11,7 @@ class DashStatsRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final saved = context.watch<UserProvider>().saved.length;
+    final saved = context.watch<SavedProvider>().items.length;
     final listings = context.watch<UserProvider>().myListings.length;
     final inquiries = context.watch<InquiriesProvider>().inquiries.length;
     final h = MediaQuery.of(context).size.width * 0.48;

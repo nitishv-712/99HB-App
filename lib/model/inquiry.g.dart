@@ -16,9 +16,6 @@ Message _$MessageFromJson(Map<String, dynamic> json) => Message(
     unknownValue: MessageRole.user,
   ),
   text: json['text'] as String? ?? '',
-  visibleToUser: json['visibleToUser'] as bool? ?? false,
-  visibleToOwner: json['visibleToOwner'] as bool? ?? false,
-  isEditedByAdmin: json['isEditedByAdmin'] as bool? ?? false,
   createdAt: json['createdAt'] as String? ?? '',
   updatedAt: json['updatedAt'] as String? ?? '',
 );
@@ -29,9 +26,6 @@ Map<String, dynamic> _$MessageToJson(Message instance) => <String, dynamic>{
   'sender': _userToJson(instance.sender),
   'role': _$MessageRoleEnumMap[instance.role]!,
   'text': instance.text,
-  'visibleToUser': instance.visibleToUser,
-  'visibleToOwner': instance.visibleToOwner,
-  'isEditedByAdmin': instance.isEditedByAdmin,
   'createdAt': instance.createdAt,
   'updatedAt': instance.updatedAt,
 };

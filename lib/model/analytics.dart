@@ -92,22 +92,37 @@ class ListingsByType {
 
 @JsonSerializable(explicitToJson: true)
 class OwnerAnalytics {
-  @JsonKey(defaultValue: 0) final int totalListings;
-  @JsonKey(defaultValue: 0) final int activeListings;
-  @JsonKey(defaultValue: 0) final int pendingListings;
-  @JsonKey(defaultValue: 0) final int soldListings;
-  @JsonKey(defaultValue: 0) final int rentedListings;
-  @JsonKey(defaultValue: 0) final int archivedListings;
-  @JsonKey(defaultValue: 0) final int totalViews;
-  @JsonKey(defaultValue: 0) final int totalSaves;
-  @JsonKey(defaultValue: 0) final int totalInquiries;
-  @JsonKey(fromJson: _toDouble) final double averageViewsPerListing;
-  @JsonKey(fromJson: _toDouble) final double averageSavesPerListing;
-  @JsonKey(fromJson: _toDouble) final double conversionRate;
+  @JsonKey(defaultValue: 0)
+  final int totalListings;
+  @JsonKey(defaultValue: 0)
+  final int activeListings;
+  @JsonKey(defaultValue: 0)
+  final int pendingListings;
+  @JsonKey(defaultValue: 0)
+  final int soldListings;
+  @JsonKey(defaultValue: 0)
+  final int rentedListings;
+  @JsonKey(defaultValue: 0)
+  final int archivedListings;
+  @JsonKey(defaultValue: 0)
+  final int totalViews;
+  @JsonKey(defaultValue: 0)
+  final int totalSaves;
+  @JsonKey(defaultValue: 0)
+  final int totalInquiries;
+  @JsonKey(fromJson: _toDouble)
+  final double averageViewsPerListing;
+  @JsonKey(fromJson: _toDouble)
+  final double averageSavesPerListing;
+  @JsonKey(fromJson: _toDouble)
+  final double conversionRate;
   final ListingsByType listingsByType;
-  @JsonKey(defaultValue: []) final List<TopProperty> topByViews;
-  @JsonKey(defaultValue: []) final List<TopProperty> topByInquiries;
-  @JsonKey(defaultValue: []) final List<TrendPoint> inquiryTrend;
+  @JsonKey(defaultValue: [])
+  final List<TopProperty> topByViews;
+  @JsonKey(defaultValue: [])
+  final List<TopProperty> topByInquiries;
+  @JsonKey(defaultValue: [])
+  final List<TrendPoint> inquiryTrend;
   final InquiryStatusBreakdown inquiryStatus;
 
   const OwnerAnalytics({
@@ -200,14 +215,21 @@ class PropertyAnalyticsInquiry {
 
 @JsonSerializable(explicitToJson: true)
 class PropertyAnalyticsData {
-  @JsonKey(defaultValue: 0) final int totalViews;
-  @JsonKey(defaultValue: 0) final int totalSaves;
-  @JsonKey(defaultValue: 0) final int totalInquiries;
-  @JsonKey(fromJson: _toDouble) final double conversionRate;
-  @JsonKey(fromJson: _toDouble) final double saveRate;
+  @JsonKey(defaultValue: 0)
+  final int totalViews;
+  @JsonKey(defaultValue: 0)
+  final int totalSaves;
+  @JsonKey(defaultValue: 0)
+  final int totalInquiries;
+  @JsonKey(fromJson: _toDouble)
+  final double conversionRate;
+  @JsonKey(fromJson: _toDouble)
+  final double saveRate;
   final InquiryStatusBreakdown inquiryStatus;
-  @JsonKey(defaultValue: []) final List<TrendPoint> inquiryTrend;
-  @JsonKey(defaultValue: []) final List<PropertyAnalyticsInquiry> inquiries;
+  @JsonKey(defaultValue: [])
+  final List<TrendPoint> inquiryTrend;
+  @JsonKey(defaultValue: [])
+  final List<PropertyAnalyticsInquiry> inquiries;
 
   const PropertyAnalyticsData({
     required this.totalViews,

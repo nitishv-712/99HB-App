@@ -4,17 +4,6 @@ import 'package:homebazaar/model/misc.dart';
 import 'package:homebazaar/model/property.dart';
 
 abstract final class UsersService {
-  /// GET /users/saved
-  static Future<ApiResponse<List<ApiProperty>>> saved() async {
-    final json = await ApiClient.fetch<Map<String, dynamic>>('/users/saved');
-    return ApiResponse.fromJson(json, (d) {
-      final list = (d as Map<String, dynamic>)['properties'] as List? ?? [];
-      return list
-          .map((e) => ApiProperty.fromJson(e as Map<String, dynamic>))
-          .toList();
-    });
-  }
-
   /// GET /users/my-listings
   static Future<ApiResponse<List<ApiProperty>>> myListings({
     PropertyStatus? status,

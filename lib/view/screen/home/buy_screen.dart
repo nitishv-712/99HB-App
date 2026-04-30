@@ -18,7 +18,11 @@ class BuyScreen extends StatefulWidget {
   State<BuyScreen> createState() => _BuyScreenState();
 }
 
-class _BuyScreenState extends State<BuyScreen> {
+class _BuyScreenState extends State<BuyScreen>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
   int _typeIndex = 0;
   int _sortIndex = 0;
   int _priceIndex = 0;
@@ -46,7 +50,7 @@ class _BuyScreenState extends State<BuyScreen> {
       (_bedIndex != 0 ? 1 : 0);
 
   void _fetch() {
-    context.read<PropertiesProvider>().fetchListForced(
+    context.read<PropertiesProvider>().fetchList(
       PropertyFilters(
         type: _listingType,
         propType: propTypes[_typeIndex].type,
@@ -88,6 +92,7 @@ class _BuyScreenState extends State<BuyScreen> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final cs = Theme.of(context).colorScheme;
     final hasFilters = _activeFilterCount > 0;
 

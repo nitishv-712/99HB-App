@@ -1,27 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:homebazaar/core/provider_state.dart';
 import 'package:homebazaar/model/support_ticket.dart';
 import 'package:homebazaar/services/support_service.dart';
 
 class SupportProvider extends ChangeNotifier {
-  List<ApiSupportTicket> _tickets = [];
-  bool _loading = false;
-  String? _error;
-  bool _loaded = false;
+  final _list = ProviderState<List<ApiSupportTicket>>();
+  final _detail = ProviderMapState<String, TicketDetailResponse>();
 
-  // ── Detail cache (id → response) ─────────────────────────────────────────
-  final Map<String, TicketDetailResponse> _detailCache = {};
-  String? _detailId;
-  bool _detailLoading = false;
-  String? _detailError;
+  List<ApiSupportTicket> get tickets => _list.data ?? [];
+  bool get loading => _list.loading;
+  String? get error => _list.error;
 
-  List<ApiSupportTicket> get tickets => _tickets;
-  bool get loading => _loading;
-  String? get error => _error;
-
-  TicketDetailResponse? get detail =>
-      _detailId != null ? _detailCache[_detailId] : null;
-  bool get detailLoading => _detailLoading;
-  String? get detailError => _detailError;
+  TicketDetailResponse? get detail => _detail.active;
+  bool get detailLoading => _detail.loading;
+  String? get detailError => _detail.error;
 
   Future<void> fetchList({
     TicketStatus? status,
@@ -30,45 +22,36 @@ class SupportProvider extends ChangeNotifier {
     int? page,
     int? limit,
   }) async {
-    if (_loaded && _error == null) return;
-    _loading = true;
-    _error = null;
+    if (!_list.shouldFetch) return;
+    _list.startLoading();
     notifyListeners();
     try {
       final res = await SupportService.list(
-        status: status,
-        category: category,
-        priority: priority,
-        page: page,
-        limit: limit,
+        status: status, category: category,
+        priority: priority, page: page, limit: limit,
       );
-      _tickets = res.data;
-      _loaded = true;
+      _list.setData(res.data);
     } catch (e) {
-      _error = e.toString();
+      _list.setError(e.toString());
     }
-    _loading = false;
     notifyListeners();
   }
 
-  void invalidateList() => _loaded = false;
+  void invalidateList() => _list.invalidate();
 
   Future<void> fetchDetail(String id, {int? page, int? limit}) async {
-    _detailId = id;
-    if (_detailCache.containsKey(id) && _detailError == null) {
+    _detail.setActive(id);
+    if (!_detail.shouldFetch(id)) {
       notifyListeners();
       return;
     }
-    _detailLoading = true;
-    _detailError = null;
     notifyListeners();
     try {
       final res = await SupportService.get(id, page: page, limit: limit);
-      _detailCache[id] = res.data;
+      _detail.setData(id, res.data);
     } catch (e) {
-      _detailError = e.toString();
+      _detail.setError(e.toString());
     }
-    _detailLoading = false;
     notifyListeners();
   }
 
@@ -80,13 +63,10 @@ class SupportProvider extends ChangeNotifier {
   }) async {
     try {
       final res = await SupportService.create(
-        subject: subject,
-        category: category,
-        message: message,
-        priority: priority,
+        subject: subject, category: category,
+        message: message, priority: priority,
       );
-      _tickets.insert(0, res.data);
-      _loaded = true;
+      _list.data?.insert(0, res.data);
       notifyListeners();
       return true;
     } catch (_) {
@@ -97,11 +77,12 @@ class SupportProvider extends ChangeNotifier {
   Future<bool> addMessage(String id, String message) async {
     try {
       final res = await SupportService.addMessage(id, message);
-      if (_detailCache.containsKey(id)) {
-        _detailCache[id] = TicketDetailResponse(
-          ticket: _detailCache[id]!.ticket,
-          messages: [..._detailCache[id]!.messages, res.data],
-        );
+      final cached = _detail.get(id);
+      if (cached != null) {
+        _detail.setData(id, TicketDetailResponse(
+          ticket: cached.ticket,
+          messages: [...cached.messages, res.data],
+        ));
         notifyListeners();
       }
       return true;
@@ -113,11 +94,17 @@ class SupportProvider extends ChangeNotifier {
   Future<bool> close(String id) async {
     try {
       final res = await SupportService.close(id);
-      final idx = _tickets.indexWhere((t) => t.id == id);
-      if (idx != -1) _tickets[idx] = res.data;
-      if (_detailCache.containsKey(id)) {
-        _detailCache[id] = TicketDetailResponse(
-            ticket: res.data, messages: _detailCache[id]!.messages);
+      final data = _list.data;
+      if (data != null) {
+        final idx = data.indexWhere((t) => t.id == id);
+        if (idx != -1) data[idx] = res.data;
+      }
+      final cached = _detail.get(id);
+      if (cached != null) {
+        _detail.setData(id, TicketDetailResponse(
+          ticket: res.data,
+          messages: cached.messages,
+        ));
       }
       notifyListeners();
       return true;

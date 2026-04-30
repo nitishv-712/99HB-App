@@ -1,67 +1,49 @@
 import 'package:flutter/material.dart';
+import 'package:homebazaar/core/provider_state.dart';
 import 'package:homebazaar/model/analytics.dart';
 import 'package:homebazaar/services/analytics_service.dart';
 
 class AnalyticsProvider extends ChangeNotifier {
-  // ── Overview ──────────────────────────────────────────────────────────────
-  OwnerAnalytics? _overview;
-  bool _overviewLoading = false;
-  String? _overviewError;
-  bool _overviewLoaded = false;
+  final _overview = ProviderState<OwnerAnalytics>();
+  final _property = ProviderMapState<String, PropertyAnalytics>();
 
-  OwnerAnalytics? get overview => _overview;
-  bool get overviewLoading => _overviewLoading;
-  String? get overviewError => _overviewError;
+  OwnerAnalytics? get overview => _overview.data;
+  bool get overviewLoading => _overview.loading;
+  String? get overviewError => _overview.error;
 
-  // ── Per-property cache (id → analytics) ──────────────────────────────────
-  final Map<String, PropertyAnalytics> _propertyCache = {};
-  String? _propertyId;
-  bool _propertyLoading = false;
-  String? _propertyError;
-
-  PropertyAnalytics? get propertyAnalytics =>
-      _propertyId != null ? _propertyCache[_propertyId] : null;
-  bool get propertyLoading => _propertyLoading;
-  String? get propertyError => _propertyError;
-
-  // ── Actions ───────────────────────────────────────────────────────────────
+  PropertyAnalytics? get propertyAnalytics => _property.active;
+  bool get propertyLoading => _property.loading;
+  String? get propertyError => _property.error;
 
   Future<void> fetchOverview() async {
-    if (_overviewLoaded && _overviewError == null) return;
-    _overviewLoading = true;
-    _overviewError = null;
+    if (!_overview.shouldFetch) return;
+    _overview.startLoading();
     notifyListeners();
     try {
       final res = await AnalyticsService.overview();
-      _overview = res.data;
-      _overviewLoaded = true;
+      _overview.setData(res.data);
     } catch (e) {
-      _overviewError = e.toString();
+      _overview.setError(e.toString());
     }
-    _overviewLoading = false;
     notifyListeners();
   }
 
-  void invalidateOverview() => _overviewLoaded = false;
+  void invalidateOverview() => _overview.invalidate();
+  void invalidateProperty(String id) => _property.remove(id);
 
   Future<void> fetchPropertyAnalytics(String id) async {
-    _propertyId = id;
-    if (_propertyCache.containsKey(id) && _propertyError == null) {
+    _property.setActive(id);
+    if (!_property.shouldFetch(id)) {
       notifyListeners();
       return;
     }
-    _propertyLoading = true;
-    _propertyError = null;
     notifyListeners();
     try {
       final res = await AnalyticsService.property(id);
-      _propertyCache[id] = res.data;
+      _property.setData(id, res.data);
     } catch (e) {
-      _propertyError = e.toString();
+      _property.setError(e.toString());
     }
-    _propertyLoading = false;
     notifyListeners();
   }
-
-  void invalidateProperty(String id) => _propertyCache.remove(id);
 }

@@ -5,9 +5,12 @@ part 'comparison.g.dart';
 
 @JsonSerializable()
 class RangeStats {
-  @JsonKey(fromJson: _toDouble) final double min;
-  @JsonKey(fromJson: _toDouble) final double max;
-  @JsonKey(fromJson: _toDoubleNullable) final double? average;
+  @JsonKey(fromJson: _toDouble)
+  final double min;
+  @JsonKey(fromJson: _toDouble)
+  final double max;
+  @JsonKey(fromJson: _toDoubleNullable)
+  final double? average;
 
   const RangeStats({required this.min, required this.max, this.average});
 
@@ -19,9 +22,12 @@ class RangeStats {
 
 @JsonSerializable()
 class PricePerSqftEntry {
-  @JsonKey(defaultValue: '') final String propertyId;
-  @JsonKey(defaultValue: '') final String title;
-  @JsonKey(fromJson: _toDouble) final double pricePerSqft;
+  @JsonKey(defaultValue: '')
+  final String propertyId;
+  @JsonKey(defaultValue: '')
+  final String title;
+  @JsonKey(fromJson: _toDouble)
+  final double pricePerSqft;
 
   const PricePerSqftEntry({
     required this.propertyId,
@@ -37,12 +43,14 @@ class PricePerSqftEntry {
 
 @JsonSerializable(explicitToJson: true)
 class ComparisonAnalysis {
-  @JsonKey(defaultValue: 0) final int totalProperties;
+  @JsonKey(defaultValue: 0)
+  final int totalProperties;
   final RangeStats priceRange;
   final RangeStats bedroomRange;
   final RangeStats bathroomRange;
   final RangeStats sqftRange;
-  @JsonKey(defaultValue: []) final List<PricePerSqftEntry> pricePerSqft;
+  @JsonKey(defaultValue: [])
+  final List<PricePerSqftEntry> pricePerSqft;
 
   const ComparisonAnalysis({
     required this.totalProperties,
@@ -61,17 +69,24 @@ class ComparisonAnalysis {
 
 @JsonSerializable(explicitToJson: true)
 class Comparison {
-  @JsonKey(name: '_id') final String id;
-  @JsonKey(defaultValue: '') final String user;
-  @JsonKey(defaultValue: '') final String name;
+  @JsonKey(name: '_id')
+  final String id;
+  @JsonKey(defaultValue: '')
+  final String user;
+  @JsonKey(defaultValue: '')
+  final String name;
   final String? description;
   @JsonKey(fromJson: _propertyIdsFromJson, toJson: _propertyIdsToJson)
   final List<dynamic> propertyIds;
-  @JsonKey(defaultValue: []) final List<String> tags;
+  @JsonKey(defaultValue: [])
+  final List<String> tags;
   final String? notes;
-  @JsonKey(defaultValue: false) final bool isPublic;
-  @JsonKey(defaultValue: '') final String createdAt;
-  @JsonKey(defaultValue: '') final String updatedAt;
+  @JsonKey(defaultValue: false)
+  final bool isPublic;
+  @JsonKey(defaultValue: '')
+  final String createdAt;
+  @JsonKey(defaultValue: '')
+  final String updatedAt;
 
   const Comparison({
     required this.id,

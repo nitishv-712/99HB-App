@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:homebazaar/providers/auth_provider.dart';
 import 'package:homebazaar/providers/analytics_provider.dart';
 import 'package:homebazaar/providers/inquiries_provider.dart';
+import 'package:homebazaar/providers/saved_provider.dart';
 import 'package:homebazaar/providers/user_provider.dart';
 import 'widgets/profile_card.dart';
 import 'widgets/quick_actions.dart';
@@ -19,7 +20,9 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen>
-    with TickerProviderStateMixin {
+    with TickerProviderStateMixin, AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
   late final TabController _tabCtrl;
 
   @override
@@ -27,7 +30,7 @@ class _DashboardScreenState extends State<DashboardScreen>
     super.initState();
     _tabCtrl = TabController(length: 2, vsync: this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<UserProvider>().fetchSaved();
+      context.read<SavedProvider>().fetchList();
       context.read<UserProvider>().fetchMyListings();
       context.read<InquiriesProvider>().fetchMyInquiries();
       context.read<AnalyticsProvider>().fetchOverview();
@@ -41,7 +44,9 @@ class _DashboardScreenState extends State<DashboardScreen>
   }
 
   @override
+  @override
   Widget build(BuildContext context) {
+    super.build(context);
     final cs = Theme.of(context).colorScheme;
     final user = context.watch<AuthProvider>().user;
 

@@ -21,14 +21,19 @@ class SettingsScreen extends StatefulWidget {
   State<SettingsScreen> createState() => _SettingsScreenState();
 }
 
-class _SettingsScreenState extends State<SettingsScreen> {
+class _SettingsScreenState extends State<SettingsScreen>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
   bool _notifListings = true;
   bool _notifInquiries = true;
   bool _notifPriceDrops = false;
   bool _notifNewsletter = false;
 
   @override
+  @override
   Widget build(BuildContext context) {
+    super.build(context);
     final cs = Theme.of(context).colorScheme;
     final auth = context.watch<AuthProvider>();
     final theme = context.watch<ThemeProvider>();

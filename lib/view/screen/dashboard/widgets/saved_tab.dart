@@ -14,7 +14,10 @@ class DashSavedTab extends StatefulWidget {
   State<DashSavedTab> createState() => _DashSavedTabState();
 }
 
-class _DashSavedTabState extends State<DashSavedTab> {
+class _DashSavedTabState extends State<DashSavedTab>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
   @override
   void initState() {
     super.initState();
@@ -25,7 +28,9 @@ class _DashSavedTabState extends State<DashSavedTab> {
   }
 
   @override
+  @override
   Widget build(BuildContext context) {
+    super.build(context);
     final provider = context.watch<SavedProvider>();
     if (provider.loading) {
       return GridView.builder(

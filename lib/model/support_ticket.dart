@@ -5,13 +5,18 @@ import 'package:homebazaar/model/user.dart';
 part 'support_ticket.g.dart';
 
 enum TicketCategory { technical, billing, account, listing, other }
+
 enum TicketPriority { low, medium, high }
 
 enum TicketStatus {
-  @JsonValue('open') open,
-  @JsonValue('in-progress') inProgress,
-  @JsonValue('resolved') resolved,
-  @JsonValue('closed') closed,
+  @JsonValue('open')
+  open,
+  @JsonValue('in-progress')
+  inProgress,
+  @JsonValue('resolved')
+  resolved,
+  @JsonValue('closed')
+  closed,
 }
 
 // ── Ticket message ────────────────────────────────────────────────────────────
@@ -57,8 +62,6 @@ typedef ApiTicketMessage = TicketMessage;
 class SupportTicket {
   @JsonKey(name: '_id')
   final String id;
-  @JsonKey(fromJson: _userFromJson, toJson: _userToJson)
-  final dynamic user;
   @JsonKey(defaultValue: '')
   final String subject;
   @JsonKey(unknownEnumValue: TicketCategory.other)
@@ -81,7 +84,6 @@ class SupportTicket {
 
   const SupportTicket({
     required this.id,
-    required this.user,
     required this.subject,
     required this.category,
     required this.priority,

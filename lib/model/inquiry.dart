@@ -5,6 +5,7 @@ import 'package:homebazaar/model/user.dart';
 part 'inquiry.g.dart';
 
 enum InquiryStatus { active, closed }
+
 enum MessageRole { user, owner, admin }
 
 // ── Message ───────────────────────────────────────────────────────────────────
@@ -20,12 +21,6 @@ class Message {
   final MessageRole role;
   @JsonKey(defaultValue: '')
   final String text;
-  @JsonKey(defaultValue: false)
-  final bool visibleToUser;
-  @JsonKey(defaultValue: false)
-  final bool visibleToOwner;
-  @JsonKey(defaultValue: false)
-  final bool isEditedByAdmin;
   @JsonKey(defaultValue: '')
   final String createdAt;
   @JsonKey(defaultValue: '')
@@ -37,9 +32,6 @@ class Message {
     required this.sender,
     required this.role,
     required this.text,
-    required this.visibleToUser,
-    required this.visibleToOwner,
-    required this.isEditedByAdmin,
     required this.createdAt,
     required this.updatedAt,
   });

@@ -1,31 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:homebazaar/core/provider_state.dart';
 import 'package:homebazaar/model/misc.dart';
 import 'package:homebazaar/services/search_history_service.dart';
 
 class SearchHistoryProvider extends ChangeNotifier {
-  List<ApiSearchHistory> _history = [];
-  bool _loading = false;
-  String? _error;
-  bool _loaded = false;
+  final _state = ProviderState<List<ApiSearchHistory>>();
 
-  List<ApiSearchHistory> get history => _history;
-  bool get loading => _loading;
-  String? get error => _error;
+  List<ApiSearchHistory> get history => _state.data ?? [];
+  bool get loading => _state.loading;
+  String? get error => _state.error;
 
   Future<void> fetchList({int? page, int? limit}) async {
-    if (_loaded && _error == null) return;
-    _loading = true;
-    _error = null;
+    if (!_state.shouldFetch) return;
+    _state.startLoading();
     notifyListeners();
     try {
-      final res =
-          await SearchHistoryService.list(page: page, limit: limit);
-      _history = res.data;
-      _loaded = true;
+      final res = await SearchHistoryService.list(page: page, limit: limit);
+      _state.setData(res.data);
     } catch (e) {
-      _error = e.toString();
+      _state.setError(e.toString());
     }
-    _loading = false;
     notifyListeners();
   }
 
@@ -34,10 +28,8 @@ class SearchHistoryProvider extends ChangeNotifier {
     Map<String, dynamic>? filters,
   }) async {
     try {
-      final res =
-          await SearchHistoryService.record(query: query, filters: filters);
-      _history.insert(0, res.data);
-      _loaded = true;
+      final res = await SearchHistoryService.record(query: query, filters: filters);
+      _state.data?.insert(0, res.data);
       notifyListeners();
     } catch (_) {}
   }
@@ -45,7 +37,7 @@ class SearchHistoryProvider extends ChangeNotifier {
   Future<void> delete(String id) async {
     try {
       await SearchHistoryService.delete(id);
-      _history.removeWhere((h) => h.id == id);
+      _state.data?.removeWhere((h) => h.id == id);
       notifyListeners();
     } catch (_) {}
   }
@@ -53,7 +45,7 @@ class SearchHistoryProvider extends ChangeNotifier {
   Future<void> deleteAll() async {
     try {
       await SearchHistoryService.deleteAll();
-      _history.clear();
+      _state.clear();
       notifyListeners();
     } catch (_) {}
   }

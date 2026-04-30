@@ -7,11 +7,21 @@ import 'package:homebazaar/providers/user_provider.dart';
 import 'package:homebazaar/view/components/loaders.dart';
 import 'dash_states.dart';
 
-class DashMyListingsTab extends StatelessWidget {
+class DashMyListingsTab extends StatefulWidget {
   const DashMyListingsTab({super.key});
 
   @override
+  State<DashMyListingsTab> createState() => _DashMyListingsTabState();
+}
+
+class _DashMyListingsTabState extends State<DashMyListingsTab>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
   Widget build(BuildContext context) {
+    super.build(context);
     final provider = context.watch<UserProvider>();
     if (provider.listingsLoading) {
       return SkeletonList(itemBuilder: () => const SkeletonListRow());

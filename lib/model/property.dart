@@ -6,26 +6,38 @@ part 'property.g.dart';
 // ── Enums ─────────────────────────────────────────────────────────────────────
 
 enum ListingType {
-  @JsonValue('sale') sale,
-  @JsonValue('rent') rent,
+  @JsonValue('sale')
+  sale,
+  @JsonValue('rent')
+  rent,
 }
 
 enum PropertyType {
-  @JsonValue('House') house,
-  @JsonValue('Apartment') apartment,
-  @JsonValue('Villa') villa,
-  @JsonValue('Penthouse') penthouse,
-  @JsonValue('Townhouse') townhouse,
-  @JsonValue('Land') land,
-  @JsonValue('Office') office,
+  @JsonValue('House')
+  house,
+  @JsonValue('Apartment')
+  apartment,
+  @JsonValue('Villa')
+  villa,
+  @JsonValue('Penthouse')
+  penthouse,
+  @JsonValue('Townhouse')
+  townhouse,
+  @JsonValue('Land')
+  land,
+  @JsonValue('Office')
+  office,
 }
 
 enum PropertyStatus { pending, active, sold, rented, archived }
 
 enum PropertyBadge {
-  @JsonValue('Premium') premium,
-  @JsonValue('New') newBadge,
-  @JsonValue('Featured') featured,
+  @JsonValue('Premium')
+  premium,
+  @JsonValue('New')
+  newBadge,
+  @JsonValue('Featured')
+  featured,
 }
 
 // ── Address ───────────────────────────────────────────────────────────────────
@@ -105,9 +117,15 @@ class Property {
   final String? description;
   @JsonKey(defaultValue: ListingType.sale, unknownEnumValue: ListingType.sale)
   final ListingType listingType;
-  @JsonKey(defaultValue: PropertyType.apartment, unknownEnumValue: PropertyType.apartment)
+  @JsonKey(
+    defaultValue: PropertyType.apartment,
+    unknownEnumValue: PropertyType.apartment,
+  )
   final PropertyType propertyType;
-  @JsonKey(defaultValue: PropertyStatus.active, unknownEnumValue: PropertyStatus.active)
+  @JsonKey(
+    defaultValue: PropertyStatus.active,
+    unknownEnumValue: PropertyStatus.active,
+  )
   final PropertyStatus status;
   final PropertyBadge? badge;
   @JsonKey(fromJson: _toDouble)

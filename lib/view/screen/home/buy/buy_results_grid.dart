@@ -15,13 +15,15 @@ class BuyResultsGrid extends StatelessWidget {
     final provider = context.watch<PropertiesProvider>();
 
     if (provider.listLoading) {
-      return GridView.builder(
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2, mainAxisSpacing: 16, crossAxisSpacing: 12, childAspectRatio: 0.62,
+      return SkeletonShimmer(
+        child: GridView.builder(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2, mainAxisSpacing: 16, crossAxisSpacing: 12, childAspectRatio: 0.62,
+          ),
+          itemCount: 6,
+          itemBuilder: (_, _) => const SkeletonPropertyCard(),
         ),
-        itemCount: 6,
-        itemBuilder: (_, _) => const SkeletonPropertyCard(),
       );
     }
 
@@ -67,6 +69,12 @@ class BuyResultsGrid extends StatelessWidget {
     }
 
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      if (provider.listLoading)
+        LinearProgressIndicator(
+          minHeight: 2,
+          backgroundColor: cs.surfaceContainerHighest.withValues(alpha: 0.3),
+          valueColor: AlwaysStoppedAnimation(cs.primary),
+        ),
       Padding(
         padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
         child: Row(children: [

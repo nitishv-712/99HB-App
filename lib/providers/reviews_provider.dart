@@ -1,56 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:homebazaar/core/provider_state.dart';
 import 'package:homebazaar/model/review.dart';
 import 'package:homebazaar/services/reviews_service.dart';
 
 class ReviewsProvider extends ChangeNotifier {
-  // ── Property reviews cache (propertyId → data) ────────────────────────────
-  final Map<String, ({List<ApiReview> reviews, ReviewStats? stats, ApiReview? userReview})>
-      _propertyCache = {};
-  String? _currentPropertyId;
-  bool _loading = false;
-  String? _error;
+  final _property = ProviderMapState<String,
+      ({List<ApiReview> reviews, ReviewStats? stats, ApiReview? userReview})>();
+  final _myReviews = ProviderState<List<ApiReview>>();
 
-  List<ApiReview> get reviews =>
-      _currentPropertyId != null
-          ? (_propertyCache[_currentPropertyId]?.reviews ?? [])
-          : [];
-  ReviewStats? get stats =>
-      _currentPropertyId != null
-          ? _propertyCache[_currentPropertyId]?.stats
-          : null;
-  ApiReview? get userReview =>
-      _currentPropertyId != null
-          ? _propertyCache[_currentPropertyId]?.userReview
-          : null;
-  bool get loading => _loading;
-  String? get error => _error;
+  List<ApiReview> get reviews => _property.active?.reviews ?? [];
+  ReviewStats? get stats => _property.active?.stats;
+  ApiReview? get userReview => _property.active?.userReview;
+  bool get loading => _property.loading;
+  String? get error => _property.error;
 
-  // ── My reviews ────────────────────────────────────────────────────────────
-  List<ApiReview> _myReviews = [];
-  bool _myLoading = false;
-  String? _myError;
-  bool _myLoaded = false;
+  List<ApiReview> get myReviews => _myReviews.data ?? [];
+  bool get myLoading => _myReviews.loading;
+  String? get myError => _myReviews.error;
 
-  List<ApiReview> get myReviews => _myReviews;
-  bool get myLoading => _myLoading;
-  String? get myError => _myError;
-
-  // ── Actions ───────────────────────────────────────────────────────────────
-
-  Future<void> fetchForProperty(
-    String propertyId, {
-    int? rating,
-    String? sort,
-    int? page,
-    int? limit,
+  Future<void> fetchForProperty(String propertyId, {
+    int? rating, String? sort, int? page, int? limit,
   }) async {
-    _currentPropertyId = propertyId;
-    if (_propertyCache.containsKey(propertyId) && _error == null) {
+    _property.setActive(propertyId);
+    if (!_property.shouldFetch(propertyId)) {
       notifyListeners();
       return;
     }
-    _loading = true;
-    _error = null;
     notifyListeners();
     try {
       final raw = await ReviewsService.forProperty(propertyId,
@@ -65,31 +40,26 @@ class ReviewsProvider extends ChangeNotifier {
       final userReview = raw['userReview'] != null
           ? ApiReview.fromJson(raw['userReview'] as Map<String, dynamic>)
           : null;
-      _propertyCache[propertyId] =
-          (reviews: reviews, stats: stats, userReview: userReview);
+      _property.setData(
+          propertyId, (reviews: reviews, stats: stats, userReview: userReview));
     } catch (e) {
-      _error = e.toString();
+      _property.setError(e.toString());
     }
-    _loading = false;
     notifyListeners();
   }
 
-  void invalidateProperty(String propertyId) =>
-      _propertyCache.remove(propertyId);
+  void invalidateProperty(String propertyId) => _property.remove(propertyId);
 
   Future<void> fetchMyReviews({int? page, int? limit}) async {
-    if (_myLoaded && _myError == null) return;
-    _myLoading = true;
-    _myError = null;
+    if (!_myReviews.shouldFetch) return;
+    _myReviews.startLoading();
     notifyListeners();
     try {
       final res = await ReviewsService.myReviews(page: page, limit: limit);
-      _myReviews = res.data;
-      _myLoaded = true;
+      _myReviews.setData(res.data);
     } catch (e) {
-      _myError = e.toString();
+      _myReviews.setError(e.toString());
     }
-    _myLoading = false;
     notifyListeners();
   }
 
@@ -101,13 +71,7 @@ class ReviewsProvider extends ChangeNotifier {
   }) async {
     try {
       await ReviewsService.submit(
-          propertyId: propertyId,
-          rating: rating,
-          title: title,
-          comment: comment);
-      // Invalidate cache so next fetch gets fresh data
-      _propertyCache.remove(propertyId);
-      _myLoaded = false;
+          propertyId: propertyId, rating: rating, title: title, comment: comment);
       notifyListeners();
       return true;
     } catch (_) {
@@ -115,19 +79,15 @@ class ReviewsProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> update(String id,
-      {int? rating, String? title, String? comment}) async {
+  Future<bool> update(String id, {int? rating, String? title, String? comment}) async {
     try {
       final res = await ReviewsService.update(id,
           rating: rating, title: title, comment: comment);
-      // Update in-place in my reviews
-      final myIdx = _myReviews.indexWhere((r) => r.id == id);
-      if (myIdx != -1) _myReviews[myIdx] = res.data;
-      // Invalidate property cache for the affected property
-      final propId = res.data.property is String
-          ? res.data.property as String
-          : (res.data.property as dynamic).id as String;
-      _propertyCache.remove(propId);
+      final data = _myReviews.data;
+      if (data != null) {
+        final idx = data.indexWhere((r) => r.id == id);
+        if (idx != -1) data[idx] = res.data;
+      }
       notifyListeners();
       return true;
     } catch (_) {
@@ -138,9 +98,7 @@ class ReviewsProvider extends ChangeNotifier {
   Future<bool> delete(String id) async {
     try {
       await ReviewsService.delete(id);
-      _myReviews.removeWhere((r) => r.id == id);
-      // Invalidate all property caches (we don't know which property)
-      _propertyCache.clear();
+      _myReviews.data?.removeWhere((r) => r.id == id);
       notifyListeners();
       return true;
     } catch (_) {

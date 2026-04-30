@@ -31,7 +31,6 @@ Map<String, dynamic> _$TicketMessageToJson(TicketMessage instance) =>
 SupportTicket _$SupportTicketFromJson(Map<String, dynamic> json) =>
     SupportTicket(
       id: json['_id'] as String,
-      user: _userFromJson(json['user']),
       subject: json['subject'] as String? ?? '',
       category: $enumDecode(
         _$TicketCategoryEnumMap,
@@ -59,7 +58,6 @@ SupportTicket _$SupportTicketFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$SupportTicketToJson(SupportTicket instance) =>
     <String, dynamic>{
       '_id': instance.id,
-      'user': _userToJson(instance.user),
       'subject': instance.subject,
       'category': _$TicketCategoryEnumMap[instance.category]!,
       'priority': _$TicketPriorityEnumMap[instance.priority]!,

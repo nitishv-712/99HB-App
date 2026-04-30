@@ -1,104 +1,55 @@
 import 'package:flutter/material.dart';
+import 'package:homebazaar/core/provider_state.dart';
 import 'package:homebazaar/model/misc.dart';
 import 'package:homebazaar/model/property.dart';
 import 'package:homebazaar/model/user.dart';
 import 'package:homebazaar/services/users_service.dart';
 
 class UserProvider extends ChangeNotifier {
-  // ── Saved properties ──────────────────────────────────────────────────────
-  List<ApiProperty> _saved = [];
-  bool _savedLoading = false;
-  String? _savedError;
-  bool _savedLoaded = false;
-
-  List<ApiProperty> get saved => _saved;
-  bool get savedLoading => _savedLoading;
-  String? get savedError => _savedError;
-
-  // ── My listings ───────────────────────────────────────────────────────────
-  List<ApiProperty> _myListings = [];
-  bool _listingsLoading = false;
-  String? _listingsError;
-  bool _listingsLoaded = false;
-
-  List<ApiProperty> get myListings => _myListings;
-  bool get listingsLoading => _listingsLoading;
-  String? get listingsError => _listingsError;
-
-  // ── Profile update ────────────────────────────────────────────────────────
+  final _listings = ProviderState<List<ApiProperty>>();
   bool _updating = false;
   String? _updateError;
 
+  List<ApiProperty> get myListings => _listings.data ?? [];
+  bool get listingsLoading => _listings.loading;
+  String? get listingsError => _listings.error;
+
   bool get updating => _updating;
   String? get updateError => _updateError;
-
-  // ── Actions ───────────────────────────────────────────────────────────────
-
-  Future<void> fetchSaved() async {
-    if (_savedLoaded && _savedError == null) return;
-    _savedLoading = true;
-    _savedError = null;
-    notifyListeners();
-    try {
-      final res = await UsersService.saved();
-      _saved = res.data;
-      _savedLoaded = true;
-    } catch (e) {
-      _savedError = e.toString();
-    }
-    _savedLoading = false;
-    notifyListeners();
-  }
-
-  void invalidateSaved() => _savedLoaded = false;
 
   Future<void> fetchMyListings({
     PropertyStatus? status,
     int? page,
     int? limit,
   }) async {
-    if (_listingsLoaded && _listingsError == null) return;
-    _listingsLoading = true;
-    _listingsError = null;
+    if (!_listings.shouldFetch) return;
+    _listings.startLoading();
     notifyListeners();
     try {
       final res = await UsersService.myListings(
           status: status, page: page, limit: limit);
-      _myListings = res.data;
-      _listingsLoaded = true;
+      _listings.setData(res.data);
     } catch (e) {
-      _listingsError = e.toString();
+      _listings.setError(e.toString());
     }
-    _listingsLoading = false;
     notifyListeners();
   }
 
-  void invalidateListings() => _listingsLoaded = false;
+  void invalidateListings() => _listings.clear();
 
   Future<ApiUser?> updateProfile({
-    String? firstName,
-    String? lastName,
-    String? avatar,
-    String? email,
-    String? phone,
-    String? panNumber,
-    String? panCardImage,
-    String? aadharNumber,
-    String? aadharCardImage,
+    String? firstName, String? lastName, String? avatar,
+    String? email, String? phone, String? panNumber,
+    String? panCardImage, String? aadharNumber, String? aadharCardImage,
   }) async {
     _updating = true;
     _updateError = null;
     notifyListeners();
     try {
       final res = await UsersService.updateProfile(
-        firstName: firstName,
-        lastName: lastName,
-        avatar: avatar,
-        email: email,
-        phone: phone,
-        panNumber: panNumber,
-        panCardImage: panCardImage,
-        aadharNumber: aadharNumber,
+        firstName: firstName, lastName: lastName, avatar: avatar,
+        email: email, phone: phone, panNumber: panNumber,
+        panCardImage: panCardImage, aadharNumber: aadharNumber,
         aadharCardImage: aadharCardImage,
       );
       _updating = false;
@@ -138,14 +89,8 @@ class UserProvider extends ChangeNotifier {
     }
   }
 
-  /// Call after logout to clear all cached data.
   void clear() {
-    _saved = [];
-    _savedLoaded = false;
-    _savedError = null;
-    _myListings = [];
-    _listingsLoaded = false;
-    _listingsError = null;
+    _listings.clear();
     notifyListeners();
   }
 }

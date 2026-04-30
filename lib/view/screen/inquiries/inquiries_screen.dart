@@ -55,9 +55,7 @@ class _InquiriesScreenState extends State<InquiriesScreen> {
       body: Consumer<InquiriesProvider>(
         builder: (_, prov, _) {
           if (prov.loading) {
-            return SkeletonList(
-              itemBuilder: () => const SkeletonChatTile(),
-            );
+            return SkeletonList(itemBuilder: () => const SkeletonChatTile());
           }
           if (prov.error != null) {
             return AppErrorRetry(
@@ -104,8 +102,9 @@ class _InquiryTile extends StatelessWidget {
         ? inquiry.user == myId
         : (inquiry.user as ApiUser).id == myId;
 
-    final statusColor =
-        isActive ? const Color(0xFF34D399) : cs.onSurfaceVariant;
+    final statusColor = isActive
+        ? const Color(0xFF34D399)
+        : cs.onSurfaceVariant;
     final statusBg = isActive
         ? const Color(0xFF10B981).withValues(alpha: 0.12)
         : cs.surfaceContainerHighest.withValues(alpha: 0.4);
@@ -270,9 +269,7 @@ class _InquiryChatScreenState extends State<InquiryChatScreen> {
     if (text.isEmpty || _sending) return;
     setState(() => _sending = true);
     _msgCtrl.clear();
-    await context
-        .read<InquiriesProvider>()
-        .sendMessage(widget.inquiryId, text);
+    await context.read<InquiriesProvider>().sendMessage(widget.inquiryId, text);
     setState(() => _sending = false);
     _scrollToBottom();
   }
@@ -282,9 +279,10 @@ class _InquiryChatScreenState extends State<InquiryChatScreen> {
     final next = current == InquiryStatus.active
         ? InquiryStatus.closed
         : InquiryStatus.active;
-    await context
-        .read<InquiriesProvider>()
-        .updateStatus(widget.inquiryId, next);
+    await context.read<InquiriesProvider>().updateStatus(
+      widget.inquiryId,
+      next,
+    );
     setState(() => _updatingStatus = false);
   }
 
@@ -319,10 +317,12 @@ class _InquiryChatScreenState extends State<InquiryChatScreen> {
           final prop = inquiry.property is ApiProperty
               ? inquiry.property as ApiProperty
               : null;
-          final inquiryUser =
-              inquiry.user is ApiUser ? inquiry.user as ApiUser : null;
-          final inquiryOwner =
-              inquiry.owner is ApiUser ? inquiry.owner as ApiUser : null;
+          final inquiryUser = inquiry.user is ApiUser
+              ? inquiry.user as ApiUser
+              : null;
+          final inquiryOwner = inquiry.owner is ApiUser
+              ? inquiry.owner as ApiUser
+              : null;
           final isInquirer = inquiry.user is String
               ? inquiry.user == myId
               : (inquiry.user as ApiUser).id == myId;
@@ -367,7 +367,8 @@ class _InquiryChatScreenState extends State<InquiryChatScreen> {
                         itemCount: messages.length,
                         itemBuilder: (_, i) {
                           final msg = messages[i];
-                          final showDate = i == 0 ||
+                          final showDate =
+                              i == 0 ||
                               !chatSameDay(
                                 messages[i - 1].createdAt,
                                 msg.createdAt,
@@ -383,7 +384,6 @@ class _InquiryChatScreenState extends State<InquiryChatScreen> {
                                   isAdmin: msg.role == MessageRole.admin,
                                   adminLabel: 'ADMIN',
                                   timestamp: msg.createdAt,
-                                  isEdited: msg.isEditedByAdmin,
                                 ),
                               ),
                             ],
@@ -437,8 +437,9 @@ class _InquiryChatHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final isActive = inquiry.status == InquiryStatus.active;
-    final statusColor =
-        isActive ? const Color(0xFF34D399) : cs.onSurfaceVariant;
+    final statusColor = isActive
+        ? const Color(0xFF34D399)
+        : cs.onSurfaceVariant;
     final statusBg = isActive
         ? const Color(0xFF10B981).withValues(alpha: 0.12)
         : cs.surfaceContainerHighest.withValues(alpha: 0.4);
@@ -447,8 +448,8 @@ class _InquiryChatHeader extends StatelessWidget {
     final otherName = otherUser != null
         ? '${otherUser.firstName} ${otherUser.lastName}'
         : isInquirer
-            ? 'Owner'
-            : 'Inquirer';
+        ? 'Owner'
+        : 'Inquirer';
     final otherAvatar = otherUser?.avatar;
 
     return Container(
@@ -462,8 +463,7 @@ class _InquiryChatHeader extends StatelessWidget {
               child: Row(
                 children: [
                   IconButton(
-                    icon:
-                        Icon(Icons.arrow_back_rounded, color: cs.onSurface),
+                    icon: Icon(Icons.arrow_back_rounded, color: cs.onSurface),
                     onPressed: onBack,
                   ),
                   // Avatar
@@ -515,7 +515,9 @@ class _InquiryChatHeader extends StatelessWidget {
                   // Status badge
                   Container(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 8, vertical: 4),
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: statusBg,
                       borderRadius: BorderRadius.circular(6),
@@ -537,19 +539,20 @@ class _InquiryChatHeader extends StatelessWidget {
                       onTap: updatingStatus ? null : onToggleStatus,
                       child: Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 6),
+                          horizontal: 10,
+                          vertical: 6,
+                        ),
                         decoration: BoxDecoration(
-                          color: cs.surfaceContainerHighest
-                              .withValues(alpha: 0.4),
+                          color: cs.surfaceContainerHighest.withValues(
+                            alpha: 0.4,
+                          ),
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
-                            color:
-                                cs.outlineVariant.withValues(alpha: 0.3),
+                            color: cs.outlineVariant.withValues(alpha: 0.3),
                           ),
                         ),
                         child: updatingStatus
-                            ? const AppLoaderInline(
-                                size: 12, strokeWidth: 1.5)
+                            ? const AppLoaderInline(size: 12, strokeWidth: 1.5)
                             : Text(
                                 isActive ? 'Close' : 'Reopen',
                                 style: GoogleFonts.inter(
@@ -565,9 +568,7 @@ class _InquiryChatHeader extends StatelessWidget {
               ),
             ),
           ),
-          Divider(
-              height: 1,
-              color: cs.outlineVariant.withValues(alpha: 0.2)),
+          Divider(height: 1, color: cs.outlineVariant.withValues(alpha: 0.2)),
         ],
       ),
     );

@@ -15,7 +15,9 @@ abstract final class InquiriesService {
     );
     return ApiResponse.fromJson(
       json,
-      (d) => ApiInquiry.fromJson((d as Map<String, dynamic>)['inquiry'] as Map<String, dynamic>),
+      (d) => ApiInquiry.fromJson(
+        (d as Map<String, dynamic>)['inquiry'] as Map<String, dynamic>,
+      ),
     );
   }
 
@@ -33,7 +35,9 @@ abstract final class InquiriesService {
     final json = await ApiClient.fetch<Map<String, dynamic>>('/inquiries$qs');
     return ApiResponse.fromJson(json, (d) {
       final list = d as List;
-      return list.map((e) => ApiInquiry.fromJson(e as Map<String, dynamic>)).toList();
+      return list
+          .map((e) => ApiInquiry.fromJson(e as Map<String, dynamic>))
+          .toList();
     });
   }
 
@@ -48,10 +52,14 @@ abstract final class InquiriesService {
       'page': ?page,
       'limit': ?limit,
     });
-    final json = await ApiClient.fetch<Map<String, dynamic>>('/inquiries/me$qs');
+    final json = await ApiClient.fetch<Map<String, dynamic>>(
+      '/inquiries/me$qs',
+    );
     return ApiResponse.fromJson(json, (d) {
       final list = d as List;
-      return list.map((e) => ApiInquiry.fromJson(e as Map<String, dynamic>)).toList();
+      return list
+          .map((e) => ApiInquiry.fromJson(e as Map<String, dynamic>))
+          .toList();
     });
   }
 
@@ -85,7 +93,9 @@ abstract final class InquiriesService {
     );
     return ApiResponse.fromJson(
       json,
-      (d) => ApiInquiry.fromJson((d as Map<String, dynamic>)['inquiry'] as Map<String, dynamic>),
+      (d) => ApiInquiry.fromJson(
+        (d as Map<String, dynamic>)['inquiry'] as Map<String, dynamic>,
+      ),
     );
   }
 }
