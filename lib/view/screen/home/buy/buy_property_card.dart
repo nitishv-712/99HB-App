@@ -106,7 +106,7 @@ class BuyPropertyCard extends StatelessWidget {
               const SizedBox(width: 2),
               Expanded(
                 child: Text(
-                  property.locationString,
+                  "${property.address.city}, ${property.address.state}",
                   style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,

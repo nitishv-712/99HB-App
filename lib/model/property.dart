@@ -1,3 +1,4 @@
+import 'package:intl/intl.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:homebazaar/model/user.dart';
 
@@ -156,7 +157,6 @@ class Property {
   @JsonKey(defaultValue: '')
   final String tag;
   @JsonKey(defaultValue: '')
-  final String locationString;
   final String? createdAt;
   final String? updatedAt;
 
@@ -183,7 +183,6 @@ class Property {
     required this.isFeatured,
     required this.priceLabel,
     required this.tag,
-    required this.locationString,
     this.createdAt,
     this.updatedAt,
   });

@@ -1,5 +1,4 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
-
 part of 'property.dart';
 
 // **************************************************************************
@@ -95,9 +94,9 @@ Property _$PropertyFromJson(Map<String, dynamic> json) => Property(
   saves: (json['saves'] as num?)?.toInt() ?? 0,
   inquiries: (json['inquiries'] as num?)?.toInt() ?? 0,
   isFeatured: json['isFeatured'] as bool? ?? false,
-  priceLabel: json['priceLabel'] as String? ?? '',
-  tag: json['tag'] as String? ?? '',
-  locationString: json['locationString'] as String? ?? '',
+  priceLabel: '₹${NumberFormat('#,##,###', 'en_IN').format(json['price'] as int? ?? 0)}',
+  tag:
+      "For ${json['listingType'].toString()[0].toUpperCase()}${json['listingType'].toString().substring(1)}",
   createdAt: json['createdAt'] as String?,
   updatedAt: json['updatedAt'] as String?,
 );
@@ -125,7 +124,6 @@ Map<String, dynamic> _$PropertyToJson(Property instance) => <String, dynamic>{
   'isFeatured': instance.isFeatured,
   'priceLabel': instance.priceLabel,
   'tag': instance.tag,
-  'locationString': instance.locationString,
   'createdAt': instance.createdAt,
   'updatedAt': instance.updatedAt,
 };

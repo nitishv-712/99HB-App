@@ -157,7 +157,7 @@ class _ListingRowState extends State<_ListingRow>
                           const SizedBox(width: 2),
                           Expanded(
                             child: Text(
-                              widget.property.locationString,
+                              "${widget.property.address.city}, ${widget.property.address.state}",
                               style: TextStyle(
                                 fontSize: 11,
                                 color: cs.onSurfaceVariant,

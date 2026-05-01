@@ -49,9 +49,10 @@ class _BuyScreenState extends State<BuyScreen>
       (_priceIndex != 0 ? 1 : 0) +
       (_bedIndex != 0 ? 1 : 0);
 
-  void _fetch() {
+  void _fetch({bool force = false}) {
     context.read<PropertiesProvider>().fetchList(
-      PropertyFilters(
+      force: force,
+      filters: PropertyFilters(
         type: _listingType,
         propType: propTypes[_typeIndex].type,
         sort: sortOptions[_sortIndex].sort,
@@ -133,6 +134,7 @@ class _BuyScreenState extends State<BuyScreen>
                           ),
                           border: InputBorder.none,
                           isDense: true,
+                          focusedBorder: InputBorder.none,
                           contentPadding: EdgeInsets.zero,
                         ),
                       ),
@@ -210,7 +212,18 @@ class _BuyScreenState extends State<BuyScreen>
               ],
             ),
           ),
-          Expanded(child: BuyResultsGrid(onRetry: _fetch)),
+          Expanded(
+            child: RefreshIndicator.adaptive(
+              // adapts to iOS/Android natively
+              onRefresh: () async => _fetch(force: true),
+              edgeOffset: 10, // pulls indicator down slightly
+              displacement: 50,
+              strokeWidth: 2.5,
+              color: cs.onSurface,
+              backgroundColor: cs.primary,
+              child: BuyResultsGrid(onRetry: _fetch),
+            ),
+          ),
         ],
       ),
     );

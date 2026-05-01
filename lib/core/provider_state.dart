@@ -17,12 +17,6 @@ class ProviderState<T> {
     _error = null;
   }
 
-  /// Like startLoading but keeps existing data visible (for refetch).
-  void startRefresh() {
-    _loading = true;
-    _error = null;
-  }
-
   void setData(T data) {
     _data = data;
     _loading = false;

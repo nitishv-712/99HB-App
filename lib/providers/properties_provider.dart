@@ -26,34 +26,36 @@ class PropertiesProvider extends ChangeNotifier {
 
   String? get createError => _createError;
 
-  Future<void> fetchList([PropertyFilters? filters]) async {
+  final _cache = <String, List<ApiProperty>>{};
+
+  // Helper to build a stable key from filters
+  String _cacheKey(PropertyFilters f) =>
+      '${f.type?.name}_${f.propType?.name}_${f.sort?.name}'
+      '_${f.minPrice}_${f.maxPrice}_${f.minBeds}_${f.search}';
+
+  Future<void> fetchList({bool force = false, PropertyFilters? filters}) async {
     final filtersChanged = filters != null && filters != _filters;
     if (filtersChanged) _filters = filters;
-    if (!filtersChanged && !_list.shouldFetch) return;
-    // Keep existing data visible on filter change (shows progress bar, not skeleton)
-    if (filtersChanged) {
-      _list.startRefresh();
-    } else {
-      _list.startLoading();
+
+    final key = _cacheKey(_filters);
+
+    if (!force && _cache.containsKey(key)) {
+      _list.setData(_cache[key]!);
+      notifyListeners();
+      return;
     }
+
+    _list.startLoading();
     notifyListeners();
     try {
       final res = await PropertiesService.list(_filters);
+      _cache[key] = res.data; // ✅ Store in cache
       _list.setData(res.data);
     } catch (e) {
       _list.setError(e.toString());
     }
     notifyListeners();
   }
-
-  /// Force fetch regardless of existing data (e.g. filter change).
-  Future<void> fetchListForced([PropertyFilters? filters]) async {
-    if (filters != null) _filters = filters;
-    _list.invalidate();
-    await fetchList();
-  }
-
-  void updateFilters(PropertyFilters filters) => fetchListForced(filters);
 
   Future<void> fetchFeatured() async {
     if (!_featured.shouldFetch) return;
@@ -105,10 +107,18 @@ class PropertiesProvider extends ChangeNotifier {
     _createError = null;
     try {
       final res = await PropertiesService.create(
-        title: title, listingType: listingType, propertyType: propertyType,
-        price: price, address: address, description: description,
-        bedrooms: bedrooms, bathrooms: bathrooms, sqft: sqft,
-        yearBuilt: yearBuilt, badge: badge, isFeatured: isFeatured,
+        title: title,
+        listingType: listingType,
+        propertyType: propertyType,
+        price: price,
+        address: address,
+        description: description,
+        bedrooms: bedrooms,
+        bathrooms: bathrooms,
+        sqft: sqft,
+        yearBuilt: yearBuilt,
+        badge: badge,
+        isFeatured: isFeatured,
         images: images,
       );
       _list.data?.insert(0, res.data);
@@ -116,7 +126,8 @@ class PropertiesProvider extends ChangeNotifier {
       notifyListeners();
       return true;
     } catch (e) {
-      _createError = e.toString()
+      _createError = e
+          .toString()
           .replaceFirst('ApiException(', '')
           .replaceFirst(RegExp(r'\d+\): '), '');
       notifyListeners();

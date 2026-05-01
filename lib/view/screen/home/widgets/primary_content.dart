@@ -62,21 +62,11 @@ class DetailPrimaryContent extends StatelessWidget {
         const SizedBox(height: 12),
         Row(
           children: [
-            Icon(
-              Icons.location_on_outlined,
-              color: cs.primary,
-              size: 20,
-            ),
+            Icon(Icons.location_on_outlined, color: cs.primary, size: 20),
             const SizedBox(width: 4),
             Flexible(
               child: Text(
-                property.locationString.isNotEmpty
-                    ? property.locationString
-                    : [
-                        property.address.street,
-                        property.address.city,
-                        property.address.state,
-                      ].whereType<String>().join(', '),
+                "${property.address.city}, ${property.address.state}",
                 style: GoogleFonts.inter(
                   color: cs.onSurfaceVariant,
                   fontWeight: FontWeight.w500,

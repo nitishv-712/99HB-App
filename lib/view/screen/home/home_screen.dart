@@ -500,7 +500,7 @@ class _FeaturedListings extends StatelessWidget {
                 return _FeaturedCard(
                   imageUrl: p.primaryImageUrl ?? '',
                   title: p.title,
-                  location: p.locationString,
+                  location: "${p.address.city}, ${p.address.state}",
                   price: p.priceLabel,
                   badge: p.badge != null ? p.tag : '',
                   onTap: () => AppRouter.push(

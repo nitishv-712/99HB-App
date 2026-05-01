@@ -234,7 +234,7 @@ class _SavedPropertyCardState extends State<_SavedPropertyCard>
                     const SizedBox(width: 2),
                     Expanded(
                       child: Text(
-                        widget.property.locationString,
+                        "${widget.property.address.city}, ${widget.property.address.state}",
                         style: TextStyle(
                           fontSize: 10,
                           color: cs.onSurfaceVariant,
