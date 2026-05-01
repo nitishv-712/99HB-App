@@ -285,7 +285,8 @@ class _PropertyRow extends StatelessWidget {
                       children: [
                         _Chip('${property.bedrooms} BHK'),
                         _Chip('${property.sqft.toInt()} sqft'),
-                        if (property.listingType != null)
+                        if (property.listingType == ListingType.rent ||
+                            property.listingType == ListingType.sale)
                           _Chip(
                             property.listingType == ListingType.rent
                                 ? 'For Rent'
